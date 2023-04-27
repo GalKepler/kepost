@@ -36,6 +36,11 @@ python = "^3.9"
 
 typer = {extras = ["all"], version = "^0.4.0"}
 rich = "^10.14.0"
+ipykernel = "^6.22.0"
+bids = "^0.0"
+nipype = "^1.8.6"
+nibabel = "^5.1.0"
+pandas = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.1"

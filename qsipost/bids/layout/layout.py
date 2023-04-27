@@ -6,7 +6,7 @@ from bids import BIDSLayout
 from bids.exceptions import ConfigError
 from bids.layout import add_config_paths
 
-from base_postprocess.bids.config.configurations import CONFIGURATIONS
+from qsipost.bids.config.configurations import CONFIGURATIONS
 
 
 # Create a new class that is specific to qsiprep's layout
@@ -50,7 +50,9 @@ class QSIPREPLayout(BIDSLayout):
         #     config=config_names,
         # )
 
-    def add_configurations(self, configurations: dict = CONFIGURATIONS) -> None:
+    def add_configurations(
+        self, configurations: dict = CONFIGURATIONS
+    ) -> None:
         """
         Add configuration files to the layout.
 
