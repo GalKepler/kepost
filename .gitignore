@@ -615,3 +615,7 @@ healthchecksdb
 MigrationBackup/
 
 # End of https://www.gitignore.io/api/osx,python,pycharm,windows,visualstudio,visualstudiocode
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
