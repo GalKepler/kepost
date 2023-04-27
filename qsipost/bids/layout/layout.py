@@ -50,9 +50,7 @@ class QSIPREPLayout(BIDSLayout):
         #     config=config_names,
         # )
 
-    def add_configurations(
-        self, configurations: dict = CONFIGURATIONS
-    ) -> None:
+    def add_configurations(self, configurations: dict = CONFIGURATIONS) -> None:
         """
         Add configuration files to the layout.
 
