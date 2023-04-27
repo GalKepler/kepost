@@ -2,15 +2,19 @@ from typing import Union
 
 from pathlib import Path
 
+from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from qsipost.bids.layout import QSIPREPLayout
+from qsipost.parcellations.atlases.atlas import Atlas
+from qsipost.workflows.anatomical.anatomical import init_anatomical_wf
 from qsipost.workflows.utils.bids import collect_data
 
 
 def init_qsipost_wf(
     layout: QSIPREPLayout,
     subjects_list: list = [],
+    parcellation_atlas: Union[str, Atlas] = "brainnetome",
     work_dir: Union[str, Path] = None,
 ):
     """
@@ -25,6 +29,14 @@ def init_qsipost_wf(
     work_dir : Union[str, Path], optional
         The working directory. The default is None.
     """
+    if isinstance(parcellation_atlas, str):
+        parcellation_atlas = Atlas(parcellation_atlas, load_existing=True)
+        if not hasattr(parcellation_atlas, "atlas_nifti_file"):
+            raise ValueError(
+                f"Could not find the atlas {parcellation_atlas.name} in the "
+                "atlas directory. Please check the name."
+            )
+
     subjects_list = subjects_list or layout.get_subjects()
     work_dir = Path(work_dir or "qsipost_wf")
     work_dir.mkdir(exist_ok=True, parents=True)
@@ -44,6 +56,7 @@ def init_qsipost_wf(
 def init_single_subject_wf(
     layout: QSIPREPLayout,
     subject_id: str,
+    parcellation_atlas: Atlas,
     name: str,
 ):
     """
@@ -57,3 +70,51 @@ def init_single_subject_wf(
         The subject ID.
     """
     workflow = pe.Workflow(name=name)
+    subject_data, sessions_data = collect_data(
+        layout=layout, participant_label=subject_id
+    )
+    inputnode = pe.Node(
+        niu.IdentityInterface(
+            fields=[
+                "anatomical_reference",
+                "mni_to_native_transform",
+                "gm_probabilistic_segmentation",
+                "atlas_name",
+                "atlas_nifti",
+            ]
+        ),
+        name="inputnode_subject",
+    )
+    inputnode.inputs.atlas_name = parcellation_atlas.name
+    inputnode.inputs.atlas_nifti_file = parcellation_atlas.atlas_nifti_file
+    inputnode.inputs.anatomical_reference = subject_data["anatomical_reference"]
+    inputnode.inputs.mni_to_native_transform = subject_data["mni_to_native_transform"]
+    inputnode.inputs.gm_probabilistic_segmentation = subject_data[
+        "gm_probabilistic_segmentation"
+    ]
+
+    anatomical_workflow = init_anatomical_wf(
+        name="anatomical_wf",
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                anatomical_workflow,
+                [
+                    ("atlas_name", "inputnode.atlas_name"),
+                    ("atlas_nifti_file", "inputnode.atlas_nifti_file"),
+                    ("anatomical_reference", "inputnode.anatomical_reference"),
+                    (
+                        "mni_to_native_transform",
+                        "inputnode.mni_to_native_transform",
+                    ),
+                    (
+                        "gm_probabilistic_segmentation",
+                        "inputnode.gm_probabilistic_segmentation",
+                    ),
+                ],
+            ),
+        ]
+    )
+    return workflow

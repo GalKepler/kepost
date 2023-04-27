@@ -1,5 +1,5 @@
 QUERIES = {
-    "mni_to_native": {
+    "mni_to_native_transform": {
         "scope": "subject",
         "entities": {
             "from": "MNI152NLin2009cAsym",
