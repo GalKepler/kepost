@@ -2,29 +2,15 @@ from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from qsipost.interfaces.bids import DerivativesDataSink
-
-wholebrain_entities = {
-    # "atlas": "brainnetome",
-    "res": "T1w",
-    "space": "T1w",
-    "desc": "",
-    "label": "WholeBrain",
-    "suffix": "dseg",
-    "extension": ".nii.gz",
-}
-
-gm_cropped_entities = {
-    # "atlas": "brainnetome",
-    "res": "T1w",
-    "space": "T1w",
-    "desc": "",
-    "label": "GM",
-    "suffix": "dseg",
-    "extension": ".nii.gz",
-}
+from qsipost.workflows.diffusion.procedures.utils.derivatives import (
+    DIFFUSION_WF_OUTPUT_ENTITIES,
+)
 
 
-def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
+def init_derivatives_wf(
+    name: str = "derivatives_wf",
+    workflow_entities: dict = DIFFUSION_WF_OUTPUT_ENTITIES,
+) -> pe.Workflow:
     """
     Initialize the derivatives workflow.
 
@@ -43,7 +29,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
         interface=niu.IdentityInterface(
             fields=[
                 "base_directory",
-                "anatomical_reference",
+                "dwi_reference",
                 "atlas_name",
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
@@ -53,13 +39,13 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
     )
     ds_wholebrain = pe.Node(
         interface=DerivativesDataSink(
-            **wholebrain_entities,
+            **workflow_entities["wholebrain_parcellation"],
         ),
         name="ds_wholebrain",
     )
     ds_gm_cropped = pe.Node(
         interface=DerivativesDataSink(
-            **gm_cropped_entities,
+            **workflow_entities["gm_cropped_parcellation"],
         ),
         name="ds_gm_cropped",
     )
@@ -70,7 +56,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 ds_wholebrain,
                 [
                     ("base_directory", "base_directory"),
-                    ("anatomical_reference", "source_file"),
+                    ("dwi_reference", "source_file"),
                     ("whole_brain_parcellation", "in_file"),
                     ("atlas_name", "atlas"),
                 ],
@@ -80,7 +66,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 ds_gm_cropped,
                 [
                     ("base_directory", "base_directory"),
-                    ("anatomical_reference", "source_file"),
+                    ("dwi_reference", "source_file"),
                     ("gm_cropped_parcellation", "in_file"),
                     ("atlas_name", "atlas"),
                 ],

@@ -8,6 +8,7 @@ from nipype.pipeline import engine as pe
 from qsipost.bids.layout import QSIPREPLayout
 from qsipost.parcellations.atlases.atlas import Atlas
 from qsipost.workflows.anatomical.anatomical import init_anatomical_wf
+from qsipost.workflows.diffusion.diffusion import init_diffusion_wf
 from qsipost.workflows.utils.bids import collect_data
 
 
@@ -120,4 +121,36 @@ def init_single_subject_wf(
             ),
         ]
     )
+    diffusion_workflows = []
+    for session_inputs in sessions_data.values():
+        session_workflow = init_diffusion_wf(dwi_data=session_inputs)
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    session_workflow,
+                    [
+                        ("base_directory", "inputnode.base_directory"),
+                        ("atlas_name", "inputnode.atlas_name"),
+                    ],
+                ),
+                (
+                    anatomical_workflow,
+                    session_workflow,
+                    [
+                        (
+                            "outputnode.whole_brain_parcellation",
+                            "inputnode.whole_brain_t1w_parcellation",
+                        ),
+                        (
+                            "outputnode.gm_cropped_parcellation",
+                            "inputnode.gm_cropped_t1w_parcellation",
+                        ),
+                    ],
+                ),
+            ]
+        )
+
+        diffusion_workflows.append(session_workflow)
+
     return workflow

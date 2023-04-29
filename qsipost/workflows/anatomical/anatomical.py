@@ -126,6 +126,7 @@ def init_anatomical_wf(
                         "anatomical_reference",
                         "inputnode.anatomical_reference",
                     ),
+                    ("atlas_name", "inputnode.atlas_name"),
                 ],
             ),
             (
