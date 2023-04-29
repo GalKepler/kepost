@@ -76,6 +76,7 @@ def init_single_subject_wf(
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
+                "base_directory",
                 "anatomical_reference",
                 "mni_to_native_transform",
                 "gm_probabilistic_segmentation",
@@ -85,6 +86,7 @@ def init_single_subject_wf(
         ),
         name="inputnode_subject",
     )
+    inputnode.inputs.base_directory = layout.root
     inputnode.inputs.atlas_name = parcellation_atlas.name
     inputnode.inputs.atlas_nifti_file = parcellation_atlas.atlas_nifti_file
     inputnode.inputs.anatomical_reference = subject_data["anatomical_reference"]
@@ -102,6 +104,7 @@ def init_single_subject_wf(
                 inputnode,
                 anatomical_workflow,
                 [
+                    ("base_directory", "inputnode.base_directory"),
                     ("atlas_name", "inputnode.atlas_name"),
                     ("atlas_nifti_file", "inputnode.atlas_nifti_file"),
                     ("anatomical_reference", "inputnode.anatomical_reference"),

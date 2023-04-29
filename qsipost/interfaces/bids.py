@@ -253,7 +253,7 @@ space-MNI152NLin6Asym_desc-preproc_bold.json'
 
     input_spec = _DerivativesDataSinkInputSpec
     output_spec = _DerivativesDataSinkOutputSpec
-    out_path_base = "niworkflows"
+    out_path_base = ""
     _always_run = True
     _allowed_entities = set(BIDS_DERIV_ENTITIES)
 

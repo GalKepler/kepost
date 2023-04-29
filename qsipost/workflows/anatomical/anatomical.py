@@ -1,9 +1,7 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
-from qsipost.parcellations.atlases.atlas import Atlas
-from qsipost.workflows.anatomical.procedures.crop_to_gm import init_gm_cropping_wf
-from qsipost.workflows.anatomical.procedures.register_atlas import init_registration_wf
+from qsipost.workflows.anatomical.procedures.derivatives import init_derivatives_wf
 
 
 def init_anatomical_wf(
@@ -22,10 +20,16 @@ def init_anatomical_wf(
     name : str, optional
         The name of the workflow, by default "anatomical_postprocess"
     """
+    from qsipost.workflows.anatomical.procedures.crop_to_gm import init_gm_cropping_wf
+    from qsipost.workflows.anatomical.procedures.register_atlas import (
+        init_registration_wf,
+    )
+
     workflow = pe.Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
+                "base_directory",
                 "anatomical_reference",
                 "mni_to_native_transform",
                 "gm_probabilistic_segmentation",
@@ -105,6 +109,42 @@ def init_anatomical_wf(
                     (
                         "outputnode.gm_cropped_parcellation",
                         "gm_cropped_parcellation",
+                    ),
+                ],
+            ),
+        ]
+    )
+    derivatives_wf = init_derivatives_wf()
+    workflow.connect(
+        [
+            (
+                inputnode,
+                derivatives_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    (
+                        "anatomical_reference",
+                        "inputnode.anatomical_reference",
+                    ),
+                ],
+            ),
+            (
+                registration_wf,
+                derivatives_wf,
+                [
+                    (
+                        "outputnode.whole_brain_parcellation",
+                        "inputnode.whole_brain_parcellation",
+                    ),
+                ],
+            ),
+            (
+                gm_cropping_wf,
+                derivatives_wf,
+                [
+                    (
+                        "outputnode.gm_cropped_parcellation",
+                        "inputnode.gm_cropped_parcellation",
                     ),
                 ],
             ),
