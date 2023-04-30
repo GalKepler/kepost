@@ -619,3 +619,6 @@ MigrationBackup/
 # Jupyter Notebook
 .ipynb_checkpoints
 *.ipynb
+
+# Crash reports
+*.pklz
