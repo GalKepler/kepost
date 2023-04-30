@@ -1,8 +1,14 @@
+from typing import Callable
+
+import numpy as np
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from qsipost.interfaces.bids import DerivativesDataSink
 from qsipost.interfaces.dipy import ReconstDTI
+from qsipost.workflows.diffusion.procedures.tensor_estimations.utils import (
+    parcellate_image,
+)
 from qsipost.workflows.diffusion.procedures.utils.derivatives import (
     DIFFUSION_WF_OUTPUT_ENTITIES,
 )
@@ -70,8 +76,6 @@ def init_dipy_tensor_wf(
         name="ds_tensor_wf",
     )
     ds_tensor_wf.inputs.desc = TENSOR_PARAMETERS
-    # remove meta_dict from inputs
-    # ds_tensor_wf.inputs.meta_dict = _Undefined
 
     workflow.connect(
         [

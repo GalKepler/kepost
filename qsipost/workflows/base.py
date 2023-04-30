@@ -1,7 +1,8 @@
-from typing import Union
+from typing import Callable, Union
 
 from pathlib import Path
 
+import numpy as np
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
@@ -59,6 +60,7 @@ def init_single_subject_wf(
     subject_id: str,
     parcellation_atlas: Atlas,
     name: str,
+    aggregation_function: Callable = np.nanmedian,
 ):
     """
     Initialize the qsipost workflow for a single subject.
@@ -83,6 +85,8 @@ def init_single_subject_wf(
                 "gm_probabilistic_segmentation",
                 "atlas_name",
                 "atlas_nifti",
+                "atlas_table",
+                "label_column",
             ]
         ),
         name="inputnode_subject",
@@ -90,6 +94,8 @@ def init_single_subject_wf(
     inputnode.inputs.base_directory = layout.root
     inputnode.inputs.atlas_name = parcellation_atlas.name
     inputnode.inputs.atlas_nifti_file = parcellation_atlas.atlas_nifti_file
+    inputnode.inputs.atlas_table = parcellation_atlas.description_csv
+    inputnode.inputs.label_column = parcellation_atlas.label_name
     inputnode.inputs.anatomical_reference = subject_data["anatomical_reference"]
     inputnode.inputs.mni_to_native_transform = subject_data["mni_to_native_transform"]
     inputnode.inputs.gm_probabilistic_segmentation = subject_data[

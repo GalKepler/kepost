@@ -12,7 +12,6 @@ from qsipost.workflows.diffusion.procedures.tensor_estimation import (
 
 def init_diffusion_wf(
     dwi_data: dict,
-    prefix: str = "dwi_postprocess",
     dipy_tensor_fit_method: str = "NLLS",
 ) -> pe.Workflow:
     """
@@ -66,6 +65,7 @@ def init_diffusion_wf(
         name="outputnode",
     )
     coregister_wf = init_coregistration_wf()
+    tensor_estimation_wf = init_tensor_estimation_wf()
     workflow.connect(
         [
             (
@@ -101,7 +101,6 @@ def init_diffusion_wf(
             ),
         ]
     )
-    tensor_estimation_wf = init_tensor_estimation_wf()
     workflow.connect(
         [
             (
