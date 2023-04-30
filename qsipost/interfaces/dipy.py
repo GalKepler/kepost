@@ -1,13 +1,8 @@
-import nibabel as nb
-import numpy as np
-from nipype import logging
-from nipype.interfaces.base import File, TraitedSpec, isdefined, traits
+from nipype.interfaces.base import File, TraitedSpec, traits
 from nipype.interfaces.dipy.base import (
     DipyBaseInterfaceInputSpec,
     DipyDiffusionInterface,
 )
-
-IFLOGGER = logging.getLogger("nipype.interface")
 
 
 class ReconstDTIInputSpec(DipyBaseInterfaceInputSpec):
