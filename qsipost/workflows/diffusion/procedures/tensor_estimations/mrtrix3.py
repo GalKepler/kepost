@@ -67,7 +67,7 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
     ds_tensor_wf = pe.MapNode(
         interface=DerivativesDataSink(
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
-            software="mrtrix3",
+            reconstruction_software="mrtrix3",
             save_meta=False,
         ),
         iterfield=["in_file", "desc"],

@@ -48,6 +48,10 @@
         {
             "name": "subset",
             "pattern": "subset-([a-zA-Z0-9]+)"
+        },
+        {
+            "name": "reconstruction_software",
+            "pattern": "subset-([a-zA-Z0-9]+)"
         }
     ],
 

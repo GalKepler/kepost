@@ -63,7 +63,7 @@ def init_dipy_tensor_wf(
     ds_tensor_wf = pe.MapNode(
         interface=DerivativesDataSink(
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
-            software="dipy",
+            reconstruction_software="dipy",
             save_meta=False,
         ),
         iterfield=["in_file", "desc"],
