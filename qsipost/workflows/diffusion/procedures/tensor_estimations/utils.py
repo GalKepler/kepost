@@ -21,7 +21,21 @@ def estimate_tensors(
 ):
     from dipy.workflows.reconst import ReconstDtiFlow
 
-    outputs = {f"out_{key}": f"{key}.nii.gz" for key in TENSOR_PARAMETERS}
+    TENSOR_PARAMETERS = dict(
+        tensor="tensors",
+        fa="fa",
+        ga="ga",
+        rgb="rgb",
+        md="md",
+        ad="ad",
+        rd="rd",
+        mode="mode",
+        evec="evecs",
+        eval="evals",
+    )
+    outputs = {
+        f"out_{key}": f"{value}.nii.gz" for key, value in TENSOR_PARAMETERS.items()
+    }
     reconst_flow = ReconstDtiFlow()
     reconst_flow.run(
         input_files=dwi_nifti,
@@ -29,6 +43,6 @@ def estimate_tensors(
         bvectors_files=dwi_bvec,
         mask_files=dwi_mask,
         fit_method=fit_method,
-        save_metrics=TENSOR_PARAMETERS,
+        **outputs,
     )
-    return tuple([outputs[key] for key in TENSOR_PARAMETERS])
+    return tuple(list(outputs.values()))
