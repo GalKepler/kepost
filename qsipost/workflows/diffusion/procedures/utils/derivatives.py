@@ -17,4 +17,10 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "suffix": "dseg",
         "extension": ".nii.gz",
     },
+    dti_derived_parameters={
+        "acquisition": "dt",
+        "res": "dwi",
+        "suffix": "dwiref",
+        "extension": ".nii.gz",
+    },
 )

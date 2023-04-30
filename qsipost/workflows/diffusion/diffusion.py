@@ -81,6 +81,8 @@ def init_diffusion_wf(
                         "gm_cropped_t1w_parcellation",
                         "inputnode.gm_cropped_parcellation",
                     ),
+                    ("atlas_name", "inputnode.atlas_name"),
+                    ("base_directory", "inputnode.base_directory"),
                 ],
             ),
             (
@@ -106,40 +108,13 @@ def init_diffusion_wf(
                 inputnode,
                 tensor_estimation_wf,
                 [
+                    ("base_directory", "inputnode.base_directory"),
                     ("dwi_nifti", "inputnode.dwi_nifti"),
                     ("dwi_bval", "inputnode.dwi_bval"),
                     ("dwi_bvec", "inputnode.dwi_bvec"),
                     ("dwi_grad", "inputnode.dwi_grad"),
                     ("dwi_mask", "inputnode.dwi_mask"),
                     ("dipy_fit_method", "inputnode.dipy_fit_method"),
-                ],
-            ),
-        ]
-    )
-    derivatives_wf = init_derivatives_wf()
-    workflow.connect(
-        [
-            (
-                inputnode,
-                derivatives_wf,
-                [
-                    ("base_directory", "inputnode.base_directory"),
-                    ("dwi_nifti", "inputnode.dwi_reference"),
-                    ("atlas_name", "inputnode.atlas_name"),
-                ],
-            ),
-            (
-                coregister_wf,
-                derivatives_wf,
-                [
-                    (
-                        "outputnode.whole_brain_parcellation",
-                        "inputnode.whole_brain_parcellation",
-                    ),
-                    (
-                        "outputnode.gm_cropped_parcellation",
-                        "inputnode.gm_cropped_parcellation",
-                    ),
                 ],
             ),
         ]

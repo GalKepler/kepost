@@ -88,6 +88,7 @@ class _DerivativesDataSinkInputSpec(DynamicTraitedSpec, BaseInterfaceInputSpec):
         File(exists=True), mandatory=True, desc="the object to be saved"
     )
     meta_dict = traits.DictStrAny(desc="an input dictionary containing metadata")
+    save_meta = traits.Bool(True, usedefault=True, desc="save JSON sidecar")
     source_file = InputMultiObject(
         File(exists=False),
         mandatory=True,
@@ -97,7 +98,7 @@ class _DerivativesDataSinkInputSpec(DynamicTraitedSpec, BaseInterfaceInputSpec):
 
 class _DerivativesDataSinkOutputSpec(TraitedSpec):
     out_file = OutputMultiObject(File(exists=True, desc="written file path"))
-    out_meta = OutputMultiObject(File(exists=True, desc="written JSON sidecar path"))
+    out_meta = OutputMultiObject(File(exists=False, desc="written JSON sidecar path"))
     compression = OutputMultiObject(
         traits.Either(None, traits.Bool),
         desc="whether ``in_file`` should be compressed (True), uncompressed (False) "
@@ -296,7 +297,7 @@ space-MNI152NLin6Asym_desc-preproc_bold.json'
         in_file = listify(self.inputs.in_file)
 
         # Read in the dictionary of metadata
-        if isdefined(self.inputs.meta_dict):
+        if isdefined(self.inputs.meta_dict) and self.inputs.save_meta:
             meta = self.inputs.meta_dict
             # inputs passed in construction take priority
             meta.update(self._metadata)
@@ -491,11 +492,13 @@ space-MNI152NLin6Asym_desc-preproc_bold.json'
                         sidecar = (
                             out_file.parent / f"{_splitext(str(out_file))[0]}.json"
                         )
-                        sidecar.write_text(
-                            dumps(legacy_metadata, sort_keys=True, indent=2)
-                        )
+                        if self.inputs.save_meta:
+                            sidecar.write_text(
+                                dumps(legacy_metadata, sort_keys=True, indent=2)
+                            )
                 # The future: the extension is the first . and everything after
                 sidecar = out_file.parent / f"{out_file.name.split('.', 1)[0]}.json"
-                sidecar.write_text(dumps(self._metadata, sort_keys=True, indent=2))
+                if self.inputs.save_meta:
+                    sidecar.write_text(dumps(self._metadata, sort_keys=True, indent=2))
                 self._results["out_meta"] = str(sidecar)
         return runtime

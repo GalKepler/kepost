@@ -2,9 +2,15 @@ from nipype.interfaces import utility as niu
 from nipype.interfaces.ants import ApplyTransforms
 from nipype.pipeline import engine as pe
 
+from qsipost.interfaces.bids import DerivativesDataSink
+from qsipost.workflows.diffusion.procedures.utils.derivatives import (
+    DIFFUSION_WF_OUTPUT_ENTITIES,
+)
+
 
 def init_coregistration_wf(
     name: str = "atlas_coregistration",
+    workflow_entities: dict = DIFFUSION_WF_OUTPUT_ENTITIES,
 ) -> pe.Workflow:
     """
     Initialize the coregistration workflow.
@@ -23,7 +29,9 @@ def init_coregistration_wf(
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
+                "base_directory",
                 "dwi_reference",
+                "atlas_name",
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
             ]
@@ -53,6 +61,18 @@ def init_coregistration_wf(
             transforms="identity",
         ),
         name="apply_transforms_gm_cropped",
+    )
+    ds_wholebrain = pe.Node(
+        interface=DerivativesDataSink(
+            **workflow_entities["wholebrain_parcellation"],
+        ),
+        name="ds_wholebrain",
+    )
+    ds_gm_cropped = pe.Node(
+        interface=DerivativesDataSink(
+            **workflow_entities["gm_cropped_parcellation"],
+        ),
+        name="ds_gm_cropped",
     )
     workflow.connect(
         [
@@ -84,6 +104,38 @@ def init_coregistration_wf(
                 outputnode,
                 [
                     ("output_image", "gm_cropped_parcellation"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_wholebrain,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_reference", "source_file"),
+                    ("atlas_name", "atlas"),
+                ],
+            ),
+            (
+                outputnode,
+                ds_wholebrain,
+                [
+                    ("whole_brain_parcellation", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_gm_cropped,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_reference", "source_file"),
+                    ("atlas_name", "atlas"),
+                ],
+            ),
+            (
+                outputnode,
+                ds_gm_cropped,
+                [
+                    ("gm_cropped_parcellation", "in_file"),
                 ],
             ),
         ]
