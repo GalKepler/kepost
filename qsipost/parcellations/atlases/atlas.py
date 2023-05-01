@@ -17,7 +17,10 @@ class Atlas:
     CONFIGURED_ATLASES_PATH = Path(__file__).parent / "configured"
 
     def __init__(
-        self, name: str, path: Union[Path, str] = None, load_existing: bool = True
+        self,
+        name: str,
+        path: Union[Path, str] = None,
+        load_existing: bool = True,
     ):
         """
         Initialize an Atlas object.
