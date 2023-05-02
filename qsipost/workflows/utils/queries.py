@@ -19,6 +19,25 @@ QUERIES = {
             "extension": ".nii.gz",
         },
     },
+    "anatomical_brain_mask": {
+        "scope": "subject",
+        "entities": {
+            "desc": "brain",
+            "suffix": "mask",
+            "datatype": "anat",
+            "space": None,
+            "extension": ".nii.gz",
+        },
+    },
+    "dwi_reference": {
+        "scope": "session",
+        "entities": {
+            "datatype": "dwi",
+            "suffix": "dwiref",
+            "space": "T1w",
+            "extension": ".nii.gz",
+        },
+    },
     "dwi_nifti": {
         "scope": "session",
         "entities": {

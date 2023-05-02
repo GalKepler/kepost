@@ -4,9 +4,11 @@ from nipype.pipeline import engine as pe
 from qsipost.workflows.diffusion.procedures.coregister_atlas import (
     init_coregistration_wf,
 )
-from qsipost.workflows.diffusion.procedures.derivatives import init_derivatives_wf
-from qsipost.workflows.diffusion.procedures.tensor_estimation import (
+from qsipost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
     init_tensor_estimation_wf,
+)
+from qsipost.workflows.diffusion.procedures.tractography.tractography import (
+    init_tractography_wf,
 )
 
 
@@ -35,6 +37,7 @@ def init_diffusion_wf(
         interface=niu.IdentityInterface(
             fields=[
                 "base_directory",
+                "dwi_reference",
                 "dwi_nifti",
                 "dwi_bval",
                 "dwi_bvec",
@@ -44,6 +47,8 @@ def init_diffusion_wf(
                 "whole_brain_t1w_parcellation",
                 "gm_cropped_t1w_parcellation",
                 "dipy_fit_method",
+                "t1w_file",
+                "t1w_mask_file",
             ]
         ),
         name="inputnode",
@@ -53,6 +58,7 @@ def init_diffusion_wf(
     inputnode.inputs.dwi_bval = dwi_data["dwi_bval"]
     inputnode.inputs.dwi_grad = dwi_data["dwi_grad"]
     inputnode.inputs.dwi_mask = dwi_data["dwi_mask"]
+    inputnode.inputs.dwi_reference = dwi_data["dwi_reference"]
     inputnode.inputs.dipy_fit_method = dipy_tensor_fit_method
 
     outputnode = pe.Node(
@@ -66,6 +72,7 @@ def init_diffusion_wf(
     )
     coregister_wf = init_coregistration_wf()
     tensor_estimation_wf = init_tensor_estimation_wf()
+    tractography_wf = init_tractography_wf()
     workflow.connect(
         [
             (
@@ -99,10 +106,6 @@ def init_diffusion_wf(
                     ),
                 ],
             ),
-        ]
-    )
-    workflow.connect(
-        [
             (
                 inputnode,
                 tensor_estimation_wf,
@@ -114,6 +117,21 @@ def init_diffusion_wf(
                     ("dwi_grad", "inputnode.dwi_grad"),
                     ("dwi_mask", "inputnode.dwi_mask"),
                     ("dipy_fit_method", "inputnode.dipy_fit_method"),
+                ],
+            ),
+            (
+                inputnode,
+                tractography_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_reference", "inputnode.dwi_reference"),
+                    ("dwi_nifti", "inputnode.dwi_nifti"),
+                    ("dwi_bval", "inputnode.dwi_bval"),
+                    ("dwi_bvec", "inputnode.dwi_bvec"),
+                    ("dwi_grad", "inputnode.dwi_grad"),
+                    ("dwi_mask", "inputnode.dwi_mask"),
+                    ("t1w_file", "inputnode.t1w_file"),
+                    ("t1w_mask_file", "inputnode.t1w_mask_file"),
                 ],
             ),
         ]
