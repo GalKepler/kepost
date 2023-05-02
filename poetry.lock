@@ -1779,14 +1779,14 @@ zstd = ["pyzstd (>=0.14.3)"]
 
 [[package]]
 name = "nilearn"
-version = "0.10.0"
+version = "0.10.1"
 description = "Statistical learning for neuroimaging in Python"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "nilearn-0.10.0-py3-none-any.whl", hash = "sha256:a78df43e0d9dcea18ac3bc2e56e0683c7bfd98cd2dd17e1e134f3003ce464868"},
-    {file = "nilearn-0.10.0.tar.gz", hash = "sha256:cc7f1068e038076527ead1bd363436f88f5e8d21e8bb57b323b30b926fc7553a"},
+    {file = "nilearn-0.10.1-py3-none-any.whl", hash = "sha256:4528dc8c04465c0ad0d98168fc4460086ad4ea07dde789a44116d7f124b4b23d"},
+    {file = "nilearn-0.10.1.tar.gz", hash = "sha256:928a364e7ed77d15d02b7f227197ea7c78f44f2fe780feb555d6d7cf9232f846"},
 ]
 
 [package.dependencies]
@@ -1794,18 +1794,19 @@ joblib = ">=1.0.0"
 lxml = "*"
 nibabel = ">=3.2.0"
 numpy = ">=1.19.0"
+packaging = "*"
 pandas = ">=1.1.5"
 requests = ">=2.25.0"
 scikit-learn = ">=1.0.0"
 scipy = ">=1.6.0"
 
 [package.extras]
-dev = ["codecov", "coverage", "flake8", "furo", "kaleido", "matplotlib (>=3.3.0)", "memory-profiler", "mkl", "myst-parser", "numpydoc", "plotly", "pytest (>=6.0.0)", "pytest-cov", "sphinx", "sphinx-copybutton", "sphinx-design", "sphinx-gallery", "sphinxcontrib-bibtex", "sphinxext-opengraph"]
-doc = ["coverage", "flake8", "furo", "kaleido", "memory-profiler", "mkl", "myst-parser", "numpydoc", "plotly", "sphinx", "sphinx-copybutton", "sphinx-design", "sphinx-gallery", "sphinxcontrib-bibtex", "sphinxext-opengraph"]
+dev = ["nilearn[doc,plotly,plotting,test]"]
+doc = ["black", "coverage", "flake8", "flake8-docstrings", "furo", "memory-profiler", "mkl", "myst-parser", "nilearn[plotly]", "numpydoc", "sphinx", "sphinx-copybutton", "sphinx-design", "sphinx-gallery", "sphinxcontrib-bibtex", "sphinxext-opengraph"]
 min = ["joblib (==1.0.0)", "nibabel (==3.2.0)", "numpy (==1.19.0)", "pandas (==1.1.5)", "scikit-learn (==1.0.0)", "scipy (==1.6.0)"]
 plotly = ["kaleido", "plotly"]
 plotting = ["matplotlib (>=3.3.0)"]
-test = ["codecov", "coverage", "pytest (>=6.0.0)", "pytest-cov"]
+test = ["coverage", "pytest (>=6.0.0)", "pytest-cov"]
 
 [[package]]
 name = "nipype"
