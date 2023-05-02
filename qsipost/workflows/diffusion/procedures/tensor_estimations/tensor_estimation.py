@@ -1,6 +1,3 @@
-from typing import Callable
-
-import numpy as np
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
