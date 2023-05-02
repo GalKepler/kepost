@@ -47,7 +47,7 @@ def estimate_tractography_parameters(
 
 def init_mrtrix_tractography_wf(
     name="mrtrix_tractography_wf",
-    n_tracts: int = 100000 * 100,
+    n_tracts: int = 100000,
     angle: int = 45,
 ) -> pe.Workflow:
     """
