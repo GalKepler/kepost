@@ -296,6 +296,55 @@ class Generate5tt(MRTrix3Base):
         return outputs
 
 
+class GMWMInterfaceInputSpec(MRTrix3BaseInputSpec):
+    in_file = File(
+        exists=True,
+        argstr="%s",
+        mandatory=True,
+        position=-2,
+        desc="input 5TT image.",
+    )
+    out_file = File(
+        "gmwmi.mif",
+        usedefault=True,
+        argstr="%s",
+        mandatory=False,
+        position=-1,
+        desc="output GM-WM interface image.",
+    )
+
+
+class GMWMInterfaceOutputSpec(TraitedSpec):
+    out_file = File(exists=True, desc="output GM-WM interface image.")
+
+
+class GMWMInterface(MRTrix3Base):
+    """
+    Generate a GM-WM interface image from a 5TT image
+
+
+    Example
+    -------
+
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> gmwm = mrt.GMWMInterface()
+    >>> gmwm.inputs.in_file = '5TT.mif'
+    >>> gmwm.inputs.out_file = 'gmwmi.mif'
+    >>> gmwm.cmdline                             # doctest: +ELLIPSIS
+    '5tt2gmwmi 5TT.mif gmwmi.mif'
+    >>> gmwm.run()                               # doctest: +SKIP
+    """
+
+    _cmd = "5tt2gmwmi"
+    input_spec = GMWMInterfaceInputSpec
+    output_spec = GMWMInterfaceOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_file"] = op.abspath(self.inputs.out_file)
+        return outputs
+
+
 class TransformConvertInputSpec(MRTrix3BaseInputSpec):
     in_matrix_file = File(
         exists=True,
@@ -445,4 +494,173 @@ class MRTransform(MRTrix3Base):
     def _list_outputs(self):
         outputs = self.output_spec().get()
         outputs["out_file"] = op.abspath(self.inputs.out_file)
+        return outputs
+
+
+class MTNormaliseInputSpec(MRTrix3BaseInputSpec):
+    in_wm_fod = File(
+        exists=True,
+        argstr="%s",
+        position=0,
+        mandatory=True,
+        desc="input image containing the white matter FODs.",
+    )
+    out_wm_fod = File(
+        "wm_norm_fod.mif",
+        argstr="%s",
+        position=1,
+        usedefault=True,
+        desc="output image containing the normalised white matter FODs.",
+    )
+    in_gm_fod = File(
+        exists=True,
+        argstr="%s",
+        position=2,
+        desc="input image containing the grey matter FODs.",
+    )
+    out_gm_fod = File(
+        "gm_norm_fod.mif",
+        argstr="%s",
+        position=3,
+        usedefault=True,
+        desc="output image containing the normalised grey matter FODs.",
+    )
+    in_csf_fod = File(
+        exists=True,
+        argstr="%s",
+        position=4,
+        desc="input image containing the CSF FODs.",
+    )
+    out_csf_fod = File(
+        "csf_norm_fod.mif",
+        argstr="%s",
+        position=5,
+        usedefault=True,
+        desc="output image containing the normalised CSF FODs.",
+    )
+    in_mask = File(exists=True, argstr="-mask %s", desc="provide initial mask image")
+    order = traits.Int(
+        3,
+        argstr="-order %d",
+        usedefault=False,
+        desc="spherical harmonic order of the output FODs.",
+    )
+
+
+class MTNormaliseOutputSpec(TraitedSpec):
+    out_wm_fod = File(
+        argstr="%s",
+        desc="output image containing the normalised white matter FODs.",
+    )
+    out_gm_fod = File(
+        argstr="%s",
+        desc="output image containing the normalised grey matter FODs.",
+    )
+    out_csf_fod = File(
+        argstr="%s",
+        desc="output image containing the normalised CSF FODs.",
+    )
+
+
+class MTNormalise(MRTrix3Base):
+    """
+    Normalise the intensity of multi-tissue FOD images
+
+    Example
+    -------
+
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> normalise = mrt.MTNormalise()
+    >>> normalise.inputs.in_wm_fod = 'wm_fod.mif'
+    >>> normalise.inputs.in_gm_fod = 'gm_fod.mif'
+    >>> normalise.inputs.in_csf_fod = 'csf_fod.mif'
+    >>> normalise.cmdline                               # doctest: +ELLIPSIS
+    'mtnormalise -order 3 wm_fod.mif wm_norm_fod.mif gm_fod.mif gm_norm_fod.mif csf_fod.mif csf_norm_fod.mif'
+    >>> normalise.run()                                 # doctest: +SKIP
+    """
+
+    _cmd = "mtnormalise"
+    input_spec = MTNormaliseInputSpec
+    output_spec = MTNormaliseOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_wm_fod"] = op.abspath(self.inputs.out_wm_fod)
+        if isdefined(self.inputs.in_gm_fod):
+            outputs["out_gm_fod"] = op.abspath(self.inputs.in_gm_fod)
+        if isdefined(self.inputs.in_csf_fod):
+            outputs["out_csf_fod"] = op.abspath(self.inputs.in_csf_fod)
+        return outputs
+
+
+class TCKSiftInputSpec(MRTrix3BaseInputSpec):
+    in_tracks = File(
+        exists=True,
+        argstr="%s",
+        position=-3,
+        mandatory=True,
+        desc="input track file.",
+    )
+    in_fod = File(
+        exists=True,
+        argstr="%s",
+        position=-2,
+        mandatory=True,
+        desc="input image containing the FODs.",
+    )
+    out_tracks = File(
+        "sift.tck",
+        argstr="%s",
+        position=-1,
+        usedefault=True,
+        desc="output track file containing the selected streamlines.",
+    )
+    act_file = File(
+        exists=True,
+        argstr="-act %s",
+        desc="Anatomically-Constrained Tractography image",
+    )
+    fd_scale_gm = traits.Bool(
+        argstr="-fd_scale_gm",
+        desc="heuristically downsize the fibre density estimates based on the presence of GM in the voxel.",
+    )
+    term_number = traits.Int(
+        100000,
+        argstr="-term_number %d",
+        usedefault=False,
+        desc="number of streamlines to select.",
+    )
+
+
+class TCKSiftOutputSpec(TraitedSpec):
+    out_tracks = File(
+        argstr="%s",
+        desc="output track file containing the selected streamlines.",
+    )
+
+
+class TCKSift(MRTrix3Base):
+    """
+    Filter a whole-brain fibre-tracking data set such that the streamline densities match the FOD lobe integrals
+
+
+    Example
+    -------
+
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> sift = mrt.TCKSift()
+    >>> sift.inputs.in_tracks = 'tracks.tck'
+    >>> sift.inputs.in_fod = 'fod.mif'
+    >>> sift.cmdline                               # doctest: +ELLIPSIS
+    'tcksift tracks.tck fod.mif sift.tck'
+    >>> sift.run()                                 # doctest: +SKIP
+    """
+
+    _cmd = "tcksift"
+    input_spec = TCKSiftInputSpec
+    output_spec = TCKSiftOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_tracks"] = op.abspath(self.inputs.out_tracks)
         return outputs
