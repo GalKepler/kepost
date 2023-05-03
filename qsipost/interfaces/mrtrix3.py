@@ -630,6 +630,10 @@ class TCKSiftInputSpec(MRTrix3BaseInputSpec):
         usedefault=False,
         desc="number of streamlines to select.",
     )
+    term_ratio = traits.Float(
+        argstr="-term_ratio %f",
+        desc="proportion of streamlines to select.",
+    )
 
 
 class TCKSiftOutputSpec(TraitedSpec):

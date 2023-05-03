@@ -1,8 +1,9 @@
 # type: ignore[attr-defined]
 """Post-processing for QSIPrep's outputs"""
 
-import sys
 from importlib import metadata as importlib_metadata
+
+from qsipost.__about__ import __copyright__, __credits__, __packagename__, __version__
 
 
 def get_version() -> str:
@@ -13,3 +14,13 @@ def get_version() -> str:
 
 
 version: str = get_version()
+
+"""Top-module metadata."""
+
+
+__all__ = [
+    "__copyright__",
+    "__credits__",
+    "__packagename__",
+    "__version__",
+]

@@ -1,6 +1,7 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
+from qsipost import config
 from qsipost.workflows.diffusion.procedures.coregister_atlas import (
     init_coregistration_wf,
 )
@@ -14,7 +15,6 @@ from qsipost.workflows.diffusion.procedures.tractography.tractography import (
 
 def init_diffusion_wf(
     dwi_data: dict,
-    dipy_tensor_fit_method: str = "NLLS",
 ) -> pe.Workflow:
     """
     Initialize the diffusion postprocessing workflow.
@@ -59,7 +59,7 @@ def init_diffusion_wf(
     inputnode.inputs.dwi_grad = dwi_data["dwi_grad"]
     inputnode.inputs.dwi_mask = dwi_data["dwi_mask"]
     inputnode.inputs.dwi_reference = dwi_data["dwi_reference"]
-    inputnode.inputs.dipy_fit_method = dipy_tensor_fit_method
+    inputnode.inputs.dipy_fit_method = config.workflow.dipy_reconstruction_method
 
     outputnode = pe.Node(
         interface=niu.IdentityInterface(

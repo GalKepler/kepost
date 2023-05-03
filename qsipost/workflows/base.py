@@ -137,17 +137,22 @@ def init_single_subject_wf(
     # )
     # output_dir.mkdir(exist_ok=True, parents=True)
     # workflow.base_dir = str(work_dir.resolve())
+    qsiprep_ver = config.execution.layout.description["PipelineDescription"]["Version"]
     name = f"single_subject_{subject_id}_wf"
     workflow = pe.Workflow(name=name)
-    workflow.__desc__ = """
+    workflow.__desc__ = f"""
     The qsipost workflow performs post-processing of diffusion MRI data.
+    It relies on the outputs of *QSIprep* {qsiprep_ver} (@qsiprep), and
+    is based on *Nipype* {config.environment.nipype_version} (@nipype1; @nipype2; RRID:SCR_002502).
     """
+
+    qsipost_dir = config.execution.qsipost_dir
+
+    anat_only = config.workflow.anat_only
 
     subject_data, sessions_data = collect_data(
         layout=config.execution.layout, participant_label=subject_id
     )
-
-    anat_only = config.workflow.anat_only
 
     inputnode = pe.Node(
         niu.IdentityInterface(
@@ -165,7 +170,7 @@ def init_single_subject_wf(
         ),
         name="inputnode_subject",
     )
-    inputnode.inputs.base_directory = output_dir
+    inputnode.inputs.base_directory = qsipost_dir
     inputnode.inputs.atlas_name = parcellation_atlas.name
     inputnode.inputs.atlas_nifti_file = parcellation_atlas.atlas_nifti_file
     inputnode.inputs.atlas_table = parcellation_atlas.description_csv
@@ -202,7 +207,15 @@ def init_single_subject_wf(
             ),
         ]
     )
+    if anat_only:
+        return workflow
+
     diffusion_workflows = []
+    num_sessions = len(sessions_data)
+    diffusion_processing_desc = f"""
+    For each of the {num_sessions} DWI runs found per subject {subject_id},
+    the following steps were performed:
+    """
     for session_inputs in sessions_data.values():
         session_workflow = init_diffusion_wf(dwi_data=session_inputs)
         workflow.connect(

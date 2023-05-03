@@ -334,10 +334,10 @@ class execution(_Config):
     """Output verbosity."""
     low_mem = None
     """Utilize uncompressed NIfTIs and other tricks to minimize memory allocation."""
-    output_dir = None
+    qsipost_dir = None
     """Folder where derivatives will be stored."""
-    output_layout = None
-    """Layout of derivatives within output_dir."""
+    qsipost_layout = None
+    """Layout of derivatives within qsipost_dir."""
     run_uuid = f"{strftime('%Y%m%d-%H%M%S')}_{uuid4()}"
     """Unique identifier of this particular run."""
     participant_label = None
@@ -356,7 +356,7 @@ class execution(_Config):
         "fs_subjects_dir",
         "layout",
         "log_dir",
-        "output_dir",
+        "qsipost_dir",
         "work_dir",
     )
 
@@ -407,7 +407,9 @@ class workflow(_Config):
     """Parcellation atlas to use for the parcellation step."""
     dipy_reconstruction_method = "NLLS"
     """Reconstruction method to use for the estimation of tensor-derived parameters using dipy."""
-    tractography_algo = "SD_Stream"
+    do_tractography = True
+    """Whether to perform tractography."""
+    tractography_algorithm = "SD_Stream"
     """
     Tractography algorithm to use for the tractography step.
     Must be one of ``FACT`, `iFOD1`, `iFOD2`, `Nulldist1`, `Nulldist2`, `SD_Stream`, `Seedtest`, `Tensor_Det`, `Tensor_Prob``.
@@ -420,8 +422,17 @@ class workflow(_Config):
     """Set the maximum length of any track in mm."""
     angle = 45
     """set the maximum angle in degrees between successive steps of tractography."""
-    n_tracts = 500000
-    """Set the number of tracts to generate."""
+    n_tracts = 50000000
+    """Set the number of tracts to generate (before SIFT filtering)."""
+    do_sift_filtering = True
+    """Whether to perform SIFT filtering."""
+    sift_term_number = 500000
+    """Set the number of streamlines to keep after SIFT filtering."""
+    sift_term_ratio = 0.2
+    """
+    SIFT termination ratio - defined as the ratio between reduction in cost function, and reduction in density of streamlines.
+    Smaller values result in more streamlines being filtered out.
+    """
 
 
 class loggers:
