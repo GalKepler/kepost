@@ -65,6 +65,7 @@ def init_mrtrix_tractography_wf(
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
+                "base_directory",
                 "dwi_file",
                 "dwi_reference",
                 "dwi_grad",
@@ -130,14 +131,20 @@ def init_mrtrix_tractography_wf(
         ),
         name="tckgen",
     )
-
     ds_tracts = pe.Node(
         DerivativesDataSink(
-            base_directory=output_dir,
             suffix="tracts",
             extension=".tck",
             desc="unfiltered",
             reconstruction="mrtrix",
+        ),
+        name="ds_unfiltered_tracts",
+        run_without_submitting=True,
+    )
+    tcksift_node = pe.Node(
+        mrt.TCKSift(
+            term_number=int(n_tracts),
+            fd_scale_gm=True,
         ),
         name="ds_unfiltered_tracts",
         run_without_submitting=True,
@@ -230,6 +237,21 @@ def init_mrtrix_tractography_wf(
                 tckgen_node,
                 [
                     ("dwi_mask_file", "seed_image"),
+                ],
+            ),
+            (
+                tckgen_node,
+                ds_tracts,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_tracts,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_file", "source_file"),
                 ],
             ),
             (
