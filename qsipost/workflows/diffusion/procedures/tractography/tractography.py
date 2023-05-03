@@ -46,6 +46,7 @@ def init_tractography_wf(
                 inputnode,
                 mrtrix3_tractography_wf,
                 [
+                    ("base_directory", "inputnode.base_directory"),
                     ("dwi_nifti", "inputnode.dwi_file"),
                     ("dwi_reference", "inputnode.dwi_reference"),
                     ("dwi_grad", "inputnode.dwi_grad"),

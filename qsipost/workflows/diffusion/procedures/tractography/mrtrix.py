@@ -3,6 +3,7 @@ from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from qsipost.interfaces import mrtrix3 as mrt
+from qsipost.interfaces.bids import DerivativesDataSink
 
 
 def estimate_tractography_parameters(
@@ -58,6 +59,7 @@ def init_mrtrix_tractography_wf(
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
+                "base_directory",
                 "dwi_file",
                 "dwi_reference",
                 "dwi_grad",
@@ -119,6 +121,16 @@ def init_mrtrix_tractography_wf(
             angle=angle,
         ),
         name="tckgen",
+    )
+    ds_tracts = pe.Node(
+        DerivativesDataSink(
+            suffix="tracts",
+            extension=".tck",
+            desc="unfiltered",
+            reconstruction="mrtrix",
+        ),
+        name="ds_unfiltered_tracts",
+        run_without_submitting=True,
     )
     tcksift_node = pe.Node(
         mrt.TCKSift(
@@ -216,6 +228,20 @@ def init_mrtrix_tractography_wf(
                 tckgen_node,
                 [
                     ("dwi_mask_file", "seed_image"),
+                ],
+            ),
+            (
+                tckgen_node,
+                ds_tracts,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_tracts,
+                [
+                    ("base_directory", "base_directory"),
                 ],
             ),
             (
