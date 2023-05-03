@@ -4,6 +4,7 @@ from nipype.pipeline import engine as pe
 
 from qsipost import config
 from qsipost.interfaces import mrtrix3 as mrt
+from qsipost.interfaces.bids import DerivativesDataSink
 
 
 def estimate_tractography_parameters(
@@ -48,8 +49,13 @@ def estimate_tractography_parameters(
 
 def init_mrtrix_tractography_wf(
     name="mrtrix_tractography_wf",
-    # n_tracts: int = 1000,
-    # angle: int = 45,
+    tractography_algorithm: str = "SD_Stream",
+    n_tracts: int = 1000,
+    angle: int = 45,
+    stepscale: float = 0.5,
+    lenscale_min: int = 30,
+    lenscale_max: int = 500,
+    output_dir: str = ".",
 ) -> pe.Workflow:
     """
     Workflow to perform tractography using MRtrix3.
@@ -107,19 +113,34 @@ def init_mrtrix_tractography_wf(
     estimate_tracts_parameters_node = pe.Node(
         niu.Function(
             function=estimate_tractography_parameters,
-            input_names=["in_file"],
+            input_names=["in_file", "stepscale", "lenscale_min", "lenscale_max"],
             output_names=["stepscale", "lenscale_min", "lenscale_max"],
         ),
         name="estimate_tractography_parameters",
     )
+    estimate_tracts_parameters_node.inputs.stepscale = stepscale
+    estimate_tracts_parameters_node.inputs.lenscale_min = lenscale_min
+    estimate_tracts_parameters_node.inputs.lenscale_max = lenscale_max
 
     tckgen_node = pe.Node(
         mrt_nipype.Tractography(
-            algorithm=config.workflow.tractography_algorithm,
+            algorithm=tractography_algorithm,
             select=config.workflow.n_tracts,
             angle=config.workflow.angle,
         ),
         name="tckgen",
+    )
+
+    ds_tracts = pe.Node(
+        DerivativesDataSink(
+            base_directory=output_dir,
+            suffix="tracts",
+            extension=".tck",
+            desc="unfiltered",
+            reconstruction="mrtrix",
+        ),
+        name="ds_unfiltered_tracts",
+        run_without_submitting=True,
     )
     workflow.connect(
         [
@@ -216,6 +237,20 @@ def init_mrtrix_tractography_wf(
                 outputnode,
                 [
                     ("out_file", "tck_file"),
+                ],
+            ),
+            (
+                tckgen_node,
+                ds_tracts,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_tracts,
+                [
+                    ("dwi_file", "source_file"),
                 ],
             ),
         ]
