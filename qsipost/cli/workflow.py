@@ -24,6 +24,7 @@ def build_workflow(config_file: Union[Path, str], retval: dict = {}) -> pe.Workf
     from niworkflows.utils.bids import collect_participants
 
     from qsipost import config
+    from qsipost.workflows.base import init_qsipost_wf
 
     config.load(config_file)
     build_log = config.loggers.workflow
@@ -50,3 +51,15 @@ def build_workflow(config_file: Union[Path, str], retval: dict = {}) -> pe.Workf
         f"Run identifier: {config.execution.run_uuid}",
         f"Output directory: {qsipost_dir}",
     ]
+
+    build_log.log(25, "\n".join(init_message))
+
+    retval["workflow"] = init_qsipost_wf()
+    config.to_filename(config_file)
+
+    build_log.info(
+        "QSIpost workflow graph with %d nodes built successfully.",
+        len(retval["workflow"].nodes()),
+    )
+    retval["return_code"] = 0
+    return retval["workflow"]
