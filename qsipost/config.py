@@ -3,7 +3,7 @@ A Python module to maintain unique, run-wide *QSIPost* settings.
 This module implements the memory structures to keep a consistent, singleton config.
 Settings are passed across processes via filesystem, and a copy of the settings for
 each run and subject is left under
-``<qsipost_dir>/sub-<participant_id>/log/<run_unique_id>/qsipost.toml``.
+``<output_dir>/sub-<participant_id>/log/<run_unique_id>/qsipost.toml``.
 Settings are stored using :abbr:`ToML (Tom's Markup Language)`.
 The module has a :py:func:`~qsipost.config.to_filename` function to allow writing out
 the settings to hard disk in *ToML* format, which looks like:
@@ -334,10 +334,10 @@ class execution(_Config):
     """Output verbosity."""
     low_mem = None
     """Utilize uncompressed NIfTIs and other tricks to minimize memory allocation."""
-    qsipost_dir = None
+    output_dir = None
     """Folder where derivatives will be stored."""
     qsipost_layout = None
-    """Layout of derivatives within qsipost_dir."""
+    """Layout of derivatives within output_dir."""
     run_uuid = f"{strftime('%Y%m%d-%H%M%S')}_{uuid4()}"
     """Unique identifier of this particular run."""
     participant_label = None
@@ -356,7 +356,7 @@ class execution(_Config):
         "fs_subjects_dir",
         "layout",
         "log_dir",
-        "qsipost_dir",
+        "output_dir",
         "work_dir",
     )
 
@@ -378,13 +378,20 @@ class execution(_Config):
             cls._layout = QSIPREPLayout(
                 str(cls.qsiprep_dir),
                 database_path=_db_path,
-                reset_database=(cls.bids_database_dir is None) or (cls.reset_database),
+                reset_database=(cls.qsiprep_database_dir is None)
+                or (cls.reset_database),
             )
             cls.qsiprep_database_dir = _db_path
         cls.layout = cls._layout
 
         if "all" in cls.debug:
             cls.debug = list(DEBUG_MODES)
+
+        if cls.output_dir is None:
+            cls.output_dir = Path(cls.qsiprep_dir).parent / "qsipost"
+        else:
+            if Path(cls.output_dir).name != "qsipost":
+                cls.output_dir = Path(cls.output_dir) / "qsipost"
 
 
 # These variables are not necessary anymore

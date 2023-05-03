@@ -36,8 +36,8 @@ def init_qsipost_wf(
     work_dir : Union[str, Path], optional
         The working directory. The default is None.
     """
-
-    if isinstance(config.workflow.parcellation_atlas, str):
+    parcellation_atlas = config.workflow.parcellation_atlas
+    if isinstance(parcellation_atlas, str):
         parcellation_atlas = Atlas(parcellation_atlas, load_existing=True)
         if not hasattr(parcellation_atlas, "atlas_nifti_file"):
             raise ValueError(
@@ -74,7 +74,7 @@ def init_qsipost_wf(
             # work_dir=work_dir,
         )
         single_subject_wf.config["execution"]["crashdump_dir"] = str(
-            config.execution.qsiprep_dir
+            config.execution.output_dir
             / f"sub-{subject_id}"
             / "log"
             / config.execution.run_uuid
@@ -146,7 +146,7 @@ def init_single_subject_wf(
     is based on *Nipype* {config.environment.nipype_version} (@nipype1; @nipype2; RRID:SCR_002502).
     """
 
-    qsipost_dir = config.execution.qsipost_dir
+    qsipost_dir = config.execution.output_dir
 
     anat_only = config.workflow.anat_only
 
@@ -209,7 +209,6 @@ def init_single_subject_wf(
     )
     if anat_only:
         return workflow
-    return workflow
     diffusion_workflows = []
     num_sessions = len(sessions_data)
     diffusion_processing_desc = f"""

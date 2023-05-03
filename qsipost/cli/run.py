@@ -24,3 +24,23 @@ def main():
             ["QSIpost config:"] + ["\t\t%s" % s for s in config.dumps().splitlines()]
         ),
     )
+    config.loggers.workflow.log(25, "QSIpost started!")
+    try:
+        qsipost_wf.run(**config.nipype.get_plugin())
+    except Exception as e:
+        from fmriprep.utils.telemetry import process_crashfile
+
+        crashfolders = [
+            config.execution.qsipost_dir
+            / f"sub-{s}"
+            / "log"
+            / config.execution.run_uuid
+            for s in config.execution.participant_label
+        ]
+        for crashfolder in crashfolders:
+            for crashfile in crashfolder.glob("crash*.*"):
+                process_crashfile(crashfile)
+        config.loggers.workflow.critical(f"QSIpost failed: {e}")
+        raise e
+    else:
+        config.loggers.workflow.log(25, "QSIpost finished successfully!")
