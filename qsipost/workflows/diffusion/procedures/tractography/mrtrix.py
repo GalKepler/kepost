@@ -80,7 +80,8 @@ def init_mrtrix_tractography_wf(
     outputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
-                "tck_file",
+                "unfiltered_tracts",
+                "sift_tracts",
             ]
         ),
         name="outputnode",
@@ -119,13 +120,13 @@ def init_mrtrix_tractography_wf(
         ),
         name="estimate_tractography_parameters",
     )
-    estimate_tracts_parameters_node.inputs.stepscale = stepscale
-    estimate_tracts_parameters_node.inputs.lenscale_min = lenscale_min
-    estimate_tracts_parameters_node.inputs.lenscale_max = lenscale_max
+    estimate_tracts_parameters_node.inputs.stepscale = config.workflow.stepscale
+    estimate_tracts_parameters_node.inputs.lenscale_min = config.workflow.lenscale_min
+    estimate_tracts_parameters_node.inputs.lenscale_max = config.workflow.lenscale_max
 
     tckgen_node = pe.Node(
         mrt_nipype.Tractography(
-            algorithm=tractography_algorithm,
+            algorithm=config.workflow.tractography_algorithm,
             select=config.workflow.n_tracts,
             angle=config.workflow.angle,
         ),
@@ -137,14 +138,6 @@ def init_mrtrix_tractography_wf(
             extension=".tck",
             desc="unfiltered",
             reconstruction="mrtrix",
-        ),
-        name="ds_unfiltered_tracts",
-        run_without_submitting=True,
-    )
-    tcksift_node = pe.Node(
-        mrt.TCKSift(
-            term_number=int(n_tracts),
-            fd_scale_gm=True,
         ),
         name="ds_unfiltered_tracts",
         run_without_submitting=True,
@@ -258,7 +251,7 @@ def init_mrtrix_tractography_wf(
                 tckgen_node,
                 outputnode,
                 [
-                    ("out_file", "tck_file"),
+                    ("out_file", "unfiltered_tracts"),
                 ],
             ),
             (
@@ -297,6 +290,16 @@ def init_mrtrix_tractography_wf(
             ),
             name="tcksift",
         )
+        ds_tcksift_node = pe.Node(
+            DerivativesDataSink(
+                suffix="tracts",
+                extension=".tck",
+                desc="sift",
+                reconstruction="mrtrix",
+            ),
+            name="ds_sift_tracts",
+            run_without_submitting=True,
+        )
         workflow.connect(
             [
                 (
@@ -325,6 +328,28 @@ def init_mrtrix_tractography_wf(
                     outputnode,
                     [
                         ("out_file", "tck_file"),
+                    ],
+                ),
+                (
+                    tcksift_node,
+                    ds_tcksift_node,
+                    [
+                        ("out_file", "in_file"),
+                    ],
+                ),
+                (
+                    inputnode,
+                    ds_tcksift_node,
+                    [
+                        ("base_directory", "base_directory"),
+                        ("dwi_file", "source_file"),
+                    ],
+                ),
+                (
+                    tcksift_node,
+                    outputnode,
+                    [
+                        ("out_file", "sift_tracts"),
                     ],
                 ),
             ]

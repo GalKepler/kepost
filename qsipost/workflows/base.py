@@ -209,7 +209,7 @@ def init_single_subject_wf(
     )
     if anat_only:
         return workflow
-
+    return workflow
     diffusion_workflows = []
     num_sessions = len(sessions_data)
     diffusion_processing_desc = f"""
