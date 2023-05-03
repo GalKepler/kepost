@@ -336,8 +336,6 @@ class execution(_Config):
     """Utilize uncompressed NIfTIs and other tricks to minimize memory allocation."""
     output_dir = None
     """Folder where derivatives will be stored."""
-    qsipost_layout = None
-    """Layout of derivatives within output_dir."""
     run_uuid = f"{strftime('%Y%m%d-%H%M%S')}_{uuid4()}"
     """Unique identifier of this particular run."""
     participant_label = None

@@ -49,13 +49,6 @@ def estimate_tractography_parameters(
 
 def init_mrtrix_tractography_wf(
     name="mrtrix_tractography_wf",
-    tractography_algorithm: str = "SD_Stream",
-    n_tracts: int = 1000,
-    angle: int = 45,
-    stepscale: float = 0.5,
-    lenscale_min: int = 30,
-    lenscale_max: int = 500,
-    output_dir: str = ".",
 ) -> pe.Workflow:
     """
     Workflow to perform tractography using MRtrix3.
@@ -252,20 +245,6 @@ def init_mrtrix_tractography_wf(
                 outputnode,
                 [
                     ("out_file", "unfiltered_tracts"),
-                ],
-            ),
-            (
-                tckgen_node,
-                ds_tracts,
-                [
-                    ("out_file", "in_file"),
-                ],
-            ),
-            (
-                inputnode,
-                ds_tracts,
-                [
-                    ("dwi_file", "source_file"),
                 ],
             ),
         ]

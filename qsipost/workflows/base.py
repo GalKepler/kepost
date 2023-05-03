@@ -89,9 +89,9 @@ def init_qsipost_wf(
         if config.execution.write_graph:
             wf_to_write = qsipost_wf.get_node(name)
             wf_to_write.base_dir = str(qsipost_wf.base_dir / qsipost_wf.name)
-            wf_to_write.write_graph(graph2use="colored", format="png", simple_form=True)
+            wf_to_write.write_graph(graph2use="colored", format="svg", simple_form=True)
         log_dir = (
-            config.execution.qsiprep_dir
+            config.execution.output_dir
             / f"sub-{subject_id}"
             / "log"
             / config.execution.run_uuid

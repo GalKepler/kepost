@@ -608,7 +608,7 @@ class TCKSiftInputSpec(MRTrix3BaseInputSpec):
         mandatory=True,
         desc="input image containing the FODs.",
     )
-    out_tracks = File(
+    out_file = File(
         "sift.tck",
         argstr="%s",
         position=-1,
@@ -637,7 +637,7 @@ class TCKSiftInputSpec(MRTrix3BaseInputSpec):
 
 
 class TCKSiftOutputSpec(TraitedSpec):
-    out_tracks = File(
+    out_file = File(
         argstr="%s",
         desc="output track file containing the selected streamlines.",
     )
@@ -666,5 +666,5 @@ class TCKSift(MRTrix3Base):
 
     def _list_outputs(self):
         outputs = self.output_spec().get()
-        outputs["out_tracks"] = op.abspath(self.inputs.out_tracks)
+        outputs["out_file"] = op.abspath(self.inputs.out_file)
         return outputs
