@@ -211,6 +211,13 @@ def init_mrtrix_tractography_wf(
                     ("dwi_mask_file", "seed_image"),
                 ],
             ),
+            (
+                tckgen_node,
+                outputnode,
+                [
+                    ("out_file", "tck_file"),
+                ],
+            ),
         ]
     )
     if config.workflow.do_sift_filtering:
@@ -254,6 +261,13 @@ def init_mrtrix_tractography_wf(
                     tcksift_node,
                     [
                         ("out_file", "act_file"),
+                    ],
+                ),
+                (
+                    tcksift_node,
+                    outputnode,
+                    [
+                        ("out_file", "tck_file"),
                     ],
                 ),
             ]
