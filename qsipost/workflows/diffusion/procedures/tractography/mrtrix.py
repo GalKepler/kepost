@@ -242,6 +242,7 @@ def init_mrtrix_tractography_wf(
                 ds_tracts,
                 [
                     ("base_directory", "base_directory"),
+                    ("dwi_file", "source_file"),
                 ],
             ),
             (
