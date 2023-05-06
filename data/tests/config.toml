@@ -30,9 +30,9 @@ stepscale = 0.5
 lenscale_min = 30
 lenscale_max = 500
 angle = 45
-n_tracts = 50000000
+n_tracts = 500000
 do_sift_filtering = true
-sift_term_number = 500000
+sift_term_number = 50000
 
 [nipype]
 crashfile_format = "txt"
