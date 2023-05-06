@@ -1,11 +1,13 @@
-from typing import Callable, Union
+from typing import Union
 
+from copy import deepcopy
 from pathlib import Path
 
-import numpy as np
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from packaging.version import Version
 
+from qsipost import config
 from qsipost.bids.layout import QSIPREPLayout
 from qsipost.parcellations.atlases.atlas import Atlas
 from qsipost.workflows.anatomical.anatomical import init_anatomical_wf
@@ -14,13 +16,13 @@ from qsipost.workflows.utils.bids import collect_data
 
 
 def init_qsipost_wf(
-    layout: QSIPREPLayout,
-    output_dir: Union[str, Path] = None,
-    subjects_list: list = [],
-    parcellation_atlas: Union[str, Atlas] = "brainnetome",
-    work_dir: Union[str, Path] = None,
-    stop_on_first_crash: bool = False,
-    write_graph: bool = True,
+    # layout: QSIPREPLayout,
+    # output_dir: Union[str, Path] = None,
+    # subjects_list: list = [],
+    # parcellation_atlas: Union[str, Atlas] = "brainnetome",
+    # work_dir: Union[str, Path] = None,
+    # stop_on_first_crash: bool = False,
+    # write_graph: bool = True,
 ):
     """
     Initialize the qsipost workflow.
@@ -34,68 +36,86 @@ def init_qsipost_wf(
     work_dir : Union[str, Path], optional
         The working directory. The default is None.
     """
+    parcellation_atlas = config.workflow.parcellation_atlas
     if isinstance(parcellation_atlas, str):
         parcellation_atlas = Atlas(parcellation_atlas, load_existing=True)
         if not hasattr(parcellation_atlas, "atlas_nifti_file"):
             raise ValueError(
                 f"Could not find the atlas {parcellation_atlas.name} in the "
-                "atlas directory. Please check the name."
+                "configured atlas directory. Please check the name or initialize "
+                "a corresponding Atlas object."
             )
-    output_dir = (
-        Path(output_dir)
-        if output_dir is not None
-        else Path(layout.root).parent / "qsipost"
-    )
-    subjects_list = subjects_list or layout.get_subjects()
-    work_dir = Path(work_dir or "qsipost_wf")
+    # output_dir = (
+    #     Path(output_dir)
+    #     if output_dir is not None
+    #     else Path(layout.root).parent / "qsipost"
+    # )
+    # subjects_list = subjects_list or layout.get_subjects()
+    # work_dir = Path(work_dir or f"qsipost_wf")
     # if work_dir.name != "qsipost_wf":
     #     work_dir = work_dir / "qsipost_wf"
-    work_dir.mkdir(exist_ok=True, parents=True)
+    # work_dir.mkdir(exist_ok=True, parents=True)
 
-    qsipost_wf = pe.Workflow(name="qsipost_wf")
-    qsipost_wf.base_dir = str(work_dir.resolve())
-    reportlets_dir = work_dir / "reportlets"
-    reportlets_dir.mkdir(exist_ok=True)
-    for subject_id in subjects_list:
+    ver = Version(config.environment.version)
+    qsipost_wf = pe.Workflow(name=f"qsipost_{ver.major}_{ver.minor}_wf")
+    qsipost_wf.base_dir = config.execution.work_dir
+    # qsipost_wf.base_dir = str(work_dir.resolve())
+    for subject_id in config.execution.participant_label:
         name = f"single_subject_{subject_id}_wf"
-        try:
-            single_subject_wf = init_single_subject_wf(
-                layout=layout,
-                subject_id=subject_id,
-                parcellation_atlas=parcellation_atlas,
-                output_dir=output_dir,
-                name=name,
-                work_dir=work_dir,
-            )
-            single_subject_wf.config["execution"]["crashdump_dir"] = str(
-                Path(layout.root) / f"sub-{subject_id}/log"
-            )
-            qsipost_wf.add_nodes([single_subject_wf])
-            # single_subject_wf.base_dir = str(work_dir.resolve())
-            if write_graph:
-                wf_to_write = qsipost_wf.get_node(name)
-                wf_to_write.base_dir = str(work_dir / "qsipost_wf")
-                wf_to_write.write_graph(
-                    graph2use="colored", format="png", simple_form=True
-                )
-        except Exception as e:
-            if stop_on_first_crash:
-                raise e
-            else:
-                print(
-                    f"Could not process subject {subject_id}. "
-                    f"Error: {e}. Skipping..."
-                )
+        # try:
+        single_subject_wf = init_single_subject_wf(
+            subject_id=subject_id,
+            parcellation_atlas=parcellation_atlas,
+            # layout=layout,
+            # subject_id=subject_id,
+            # parcellation_atlas=parcellation_atlas,
+            # output_dir=output_dir,
+            # name=name,
+            # work_dir=work_dir,
+        )
+        single_subject_wf.config["execution"]["crashdump_dir"] = str(
+            config.execution.output_dir
+            / f"sub-{subject_id}"
+            / "log"
+            / config.execution.run_uuid
+        )
+        # single_subject_wf.config["execution"]["crashdump_dir"] = str(
+        #     Path(layout.root) / f"sub-{subject_id}/log"
+        # )
+        for node in single_subject_wf._get_all_nodes():
+            node.config = deepcopy(single_subject_wf.config)
+        # single_subject_wf.base_dir = str(work_dir.resolve())
+        qsipost_wf.add_nodes([single_subject_wf])
+        if config.execution.write_graph:
+            wf_to_write = qsipost_wf.get_node(name)
+            wf_to_write.base_dir = str(qsipost_wf.base_dir / qsipost_wf.name)
+            wf_to_write.write_graph(graph2use="colored", format="svg", simple_form=True)
+        log_dir = (
+            config.execution.output_dir
+            / f"sub-{subject_id}"
+            / "log"
+            / config.execution.run_uuid
+        )
+        log_dir.mkdir(exist_ok=True, parents=True)
+        config.to_filename(log_dir / "qsipost.toml")
+        # except Exception as e:
+        #     if stop_on_first_crash:
+        #         raise e
+        #     else:
+        #         print(
+        #             f"Could not process subject {subject_id}. "
+        #             f"Error: {e}. Skipping..."
+        #         )
     return qsipost_wf
 
 
 def init_single_subject_wf(
-    layout: QSIPREPLayout,
+    # layout: QSIPREPLayout,
     subject_id: str,
     parcellation_atlas: Atlas,
-    output_dir: Union[str, Path] = None,
-    name: str = None,
-    work_dir: Union[str, Path] = None,
+    # output_dir: Union[str, Path] = None,
+    # name: str = None,
+    # work_dir: Union[str, Path] = None,
 ):
     """
     Initialize the qsipost workflow for a single subject.
@@ -107,21 +127,33 @@ def init_single_subject_wf(
     subject_id : str
         The subject ID.
     """
-    work_dir = Path(work_dir or "qsipost_wf")
-    name = name or f"single_subject_{subject_id}_wf"
-    work_dir.mkdir(exist_ok=True, parents=True)
+    # work_dir = Path(work_dir or "qsipost_wf")
+    # work_dir.mkdir(exist_ok=True, parents=True)
 
-    output_dir = (
-        Path(output_dir)
-        if output_dir is not None
-        else Path(layout.root).parent / "qsipost"
-    )
-    output_dir.mkdir(exist_ok=True, parents=True)
+    # output_dir = (
+    #     Path(output_dir)
+    #     if output_dir is not None
+    #     else Path(layout.root).parent / "qsipost"
+    # )
+    # output_dir.mkdir(exist_ok=True, parents=True)
+    # workflow.base_dir = str(work_dir.resolve())
+    qsiprep_ver = config.execution.layout.description["PipelineDescription"]["Version"]
+    name = f"single_subject_{subject_id}_wf"
     workflow = pe.Workflow(name=name)
-    workflow.base_dir = str(work_dir.resolve())
+    workflow.__desc__ = f"""
+    The qsipost workflow performs post-processing of diffusion MRI data.
+    It relies on the outputs of *QSIprep* {qsiprep_ver} (@qsiprep), and
+    is based on *Nipype* {config.environment.nipype_version} (@nipype1; @nipype2; RRID:SCR_002502).
+    """
+
+    qsipost_dir = config.execution.output_dir
+
+    anat_only = config.workflow.anat_only
+
     subject_data, sessions_data = collect_data(
-        layout=layout, participant_label=subject_id
+        layout=config.execution.layout, participant_label=subject_id
     )
+
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
@@ -138,7 +170,7 @@ def init_single_subject_wf(
         ),
         name="inputnode_subject",
     )
-    inputnode.inputs.base_directory = output_dir
+    inputnode.inputs.base_directory = qsipost_dir
     inputnode.inputs.atlas_name = parcellation_atlas.name
     inputnode.inputs.atlas_nifti_file = parcellation_atlas.atlas_nifti_file
     inputnode.inputs.atlas_table = parcellation_atlas.description_csv
@@ -175,7 +207,14 @@ def init_single_subject_wf(
             ),
         ]
     )
+    if anat_only:
+        return workflow
     diffusion_workflows = []
+    num_sessions = len(sessions_data)
+    diffusion_processing_desc = f"""
+    For each of the {num_sessions} DWI runs found per subject {subject_id},
+    the following steps were performed:
+    """
     for session_inputs in sessions_data.values():
         session_workflow = init_diffusion_wf(dwi_data=session_inputs)
         workflow.connect(

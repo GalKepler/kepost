@@ -2,6 +2,7 @@ from nipype.interfaces import mrtrix3 as mrt_nipype
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
+from qsipost import config
 from qsipost.interfaces import mrtrix3 as mrt
 from qsipost.interfaces.bids import DerivativesDataSink
 
@@ -48,8 +49,6 @@ def estimate_tractography_parameters(
 
 def init_mrtrix_tractography_wf(
     name="mrtrix_tractography_wf",
-    n_tracts: int = 1000,
-    angle: int = 45,
 ) -> pe.Workflow:
     """
     Workflow to perform tractography using MRtrix3.
@@ -74,7 +73,8 @@ def init_mrtrix_tractography_wf(
     outputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
-                "tck_file",
+                "unfiltered_tracts",
+                "sift_tracts",
             ]
         ),
         name="outputnode",
@@ -108,17 +108,20 @@ def init_mrtrix_tractography_wf(
     estimate_tracts_parameters_node = pe.Node(
         niu.Function(
             function=estimate_tractography_parameters,
-            input_names=["in_file"],
+            input_names=["in_file", "stepscale", "lenscale_min", "lenscale_max"],
             output_names=["stepscale", "lenscale_min", "lenscale_max"],
         ),
         name="estimate_tractography_parameters",
     )
+    estimate_tracts_parameters_node.inputs.stepscale = config.workflow.stepscale
+    estimate_tracts_parameters_node.inputs.lenscale_min = config.workflow.lenscale_min
+    estimate_tracts_parameters_node.inputs.lenscale_max = config.workflow.lenscale_max
 
     tckgen_node = pe.Node(
         mrt_nipype.Tractography(
-            algorithm="SD_Stream",
-            select=int(n_tracts * 100),
-            angle=angle,
+            algorithm=config.workflow.tractography_algorithm,
+            select=config.workflow.n_tracts,
+            angle=config.workflow.angle,
         ),
         name="tckgen",
     )
@@ -132,14 +135,6 @@ def init_mrtrix_tractography_wf(
         name="ds_unfiltered_tracts",
         run_without_submitting=True,
     )
-    tcksift_node = pe.Node(
-        mrt.TCKSift(
-            term_number=int(n_tracts),
-            fd_scale_gm=True,
-        ),
-        name="tcksift",
-    )
-
     workflow.connect(
         [
             (
@@ -242,29 +237,101 @@ def init_mrtrix_tractography_wf(
                 ds_tracts,
                 [
                     ("base_directory", "base_directory"),
+                    ("dwi_file", "source_file"),
                 ],
             ),
             (
                 tckgen_node,
-                tcksift_node,
+                outputnode,
                 [
-                    ("out_file", "in_tracks"),
-                ],
-            ),
-            (
-                mtnormalise_node,
-                tcksift_node,
-                [
-                    ("out_wm_fod", "in_fod"),
-                ],
-            ),
-            (
-                gen_5tt_node,
-                tcksift_node,
-                [
-                    ("out_file", "act_file"),
+                    ("out_file", "unfiltered_tracts"),
                 ],
             ),
         ]
     )
+    if config.workflow.do_sift_filtering:
+        tcksift_kwargs = {}
+        if config.workflow.sift_term_number:
+            tcksift_kwargs["term_number"] = config.workflow.sift_term_number
+        elif config.workflow.sift_term_ratio:
+            tcksift_kwargs["term_ratio"] = config.workflow.sift_term_ratio
+        else:
+            raise ValueError(
+                """
+                Either sift_term_number or sift_term_ratio must be specified 
+                if sift_filtering is set to True.
+                """
+            )
+        tcksift_node = pe.Node(
+            mrt.TCKSift(
+                **tcksift_kwargs,
+                fd_scale_gm=True,
+            ),
+            name="tcksift",
+        )
+        ds_tcksift_node = pe.Node(
+            DerivativesDataSink(
+                suffix="tracts",
+                extension=".tck",
+                desc="sift",
+                reconstruction="mrtrix",
+            ),
+            name="ds_sift_tracts",
+            run_without_submitting=True,
+        )
+        workflow.connect(
+            [
+                (
+                    tckgen_node,
+                    tcksift_node,
+                    [
+                        ("out_file", "in_tracks"),
+                    ],
+                ),
+                (
+                    mtnormalise_node,
+                    tcksift_node,
+                    [
+                        ("out_wm_fod", "in_fod"),
+                    ],
+                ),
+                (
+                    gen_5tt_node,
+                    tcksift_node,
+                    [
+                        ("out_file", "act_file"),
+                    ],
+                ),
+                (
+                    tcksift_node,
+                    outputnode,
+                    [
+                        ("out_file", "tck_file"),
+                    ],
+                ),
+                (
+                    tcksift_node,
+                    ds_tcksift_node,
+                    [
+                        ("out_file", "in_file"),
+                    ],
+                ),
+                (
+                    inputnode,
+                    ds_tcksift_node,
+                    [
+                        ("base_directory", "base_directory"),
+                        ("dwi_file", "source_file"),
+                    ],
+                ),
+                (
+                    tcksift_node,
+                    outputnode,
+                    [
+                        ("out_file", "sift_tracts"),
+                    ],
+                ),
+            ]
+        )
+
     return workflow

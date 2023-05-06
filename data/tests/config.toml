@@ -1,0 +1,49 @@
+[environment]
+cpu_count = 8
+exec_env = "posix"
+free_mem = 2.2
+overcommit_policy = "heuristic"
+overcommit_limit = "50%"
+
+[execution]
+qsiprep_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives/qsipost_rawdata/"
+qsiprep_database_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives/qsipost_rawdata_layout.db"
+reset_database = false
+fs_license_file = "/media/groot/Yalla/misc/freesurfer/license.txt"
+log_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives"
+log_level = 40
+low_mem = false
+md_only_boilerplate = false
+notrack = true
+output_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives"
+participant_label = [ "12",]
+work_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives/work"
+write_graph = true
+
+[workflow]
+anat_only = false
+parcellation_atlas = "brainnetome"
+dipy_reconstruction_method = "NLLS"
+do_tractography = true
+tractography_algorithm = "SD_Stream"
+stepscale = 0.5
+lenscale_min = 30
+lenscale_max = 500
+angle = 45
+n_tracts = 500000
+do_sift_filtering = true
+sift_term_number = 50000
+
+[nipype]
+crashfile_format = "txt"
+get_linked_libs = false
+memory_gb = 32
+nprocs = 8
+omp_nthreads = 8
+plugin = "MultiProc"
+resource_monitor = false
+stop_on_first_crash = false
+
+[nipype.plugin_args]
+maxtasksperchild = 1
+raise_insufficient = false
