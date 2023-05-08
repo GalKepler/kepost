@@ -2,6 +2,7 @@ from nipype.interfaces import mrtrix3
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
+from qsipost import config
 from qsipost.interfaces.bids import DerivativesDataSink
 from qsipost.workflows.diffusion.procedures.utils.derivatives import (
     DIFFUSION_WF_OUTPUT_ENTITIES,
@@ -51,12 +52,13 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
         name="outputnode",
     )
     dwi2tensor_wf = pe.Node(
-        interface=mrtrix3.FitTensor(),
+        interface=mrtrix3.FitTensor(nthreads=config.nipype.omp_nthreads),
         name="mrtrix3_tensor_wf",
     )
     tensor2metric_wf = pe.Node(
         interface=mrtrix3.TensorMetrics(
-            **{f"out_{param}": f"{param}.nii.gz" for param in TENSOR_PARAMETERS}
+            nthreads=config.nipype.omp_nthreads,
+            **{f"out_{param}": f"{param}.nii.gz" for param in TENSOR_PARAMETERS},
         ),
         name="mrtrix3_tensor2metric_wf",
     )

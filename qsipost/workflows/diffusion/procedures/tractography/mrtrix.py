@@ -81,6 +81,7 @@ def init_mrtrix_tractography_wf(
     )
     dwi2response_node = pe.Node(
         mrt.ResponseSD(
+            nthreads=config.nipype.omp_nthreads,
             algorithm="dhollander",
             wm_file="wm.txt",
             gm_file="gm.txt",
@@ -91,16 +92,18 @@ def init_mrtrix_tractography_wf(
     )
     dwi2fod_node = pe.Node(
         mrt.EstimateFOD(
+            nthreads=config.nipype.omp_nthreads,
             algorithm="msmt_csd",
         ),
         name="dwi2fod",
     )
     mtnormalise_node = pe.Node(
-        mrt.MTNormalise(),
+        mrt.MTNormalise(nthreads=config.nipype.omp_nthreads),
         name="mtnormalise",
     )
     gen_5tt_node = pe.Node(
         mrt.Generate5tt(
+            nthreads=config.nipype.omp_nthreads,
             algorithm="fsl",
         ),
         name="gen_5tt",
@@ -119,6 +122,7 @@ def init_mrtrix_tractography_wf(
 
     tckgen_node = pe.Node(
         mrt_nipype.Tractography(
+            nthreads=config.nipype.omp_nthreads,
             algorithm=config.workflow.tractography_algorithm,
             select=config.workflow.n_tracts,
             angle=config.workflow.angle,
@@ -264,6 +268,7 @@ def init_mrtrix_tractography_wf(
             )
         tcksift_node = pe.Node(
             mrt.TCKSift(
+                nthreads=config.nipype.omp_nthreads,
                 **tcksift_kwargs,
                 fd_scale_gm=True,
             ),
