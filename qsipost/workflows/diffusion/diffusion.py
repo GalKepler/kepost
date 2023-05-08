@@ -119,23 +119,28 @@ def init_diffusion_wf(
                     ("dipy_fit_method", "inputnode.dipy_fit_method"),
                 ],
             ),
-            (
-                inputnode,
-                tractography_wf,
-                [
-                    ("base_directory", "inputnode.base_directory"),
-                    ("dwi_reference", "inputnode.dwi_reference"),
-                    ("dwi_nifti", "inputnode.dwi_nifti"),
-                    ("dwi_bval", "inputnode.dwi_bval"),
-                    ("dwi_bvec", "inputnode.dwi_bvec"),
-                    ("dwi_grad", "inputnode.dwi_grad"),
-                    ("dwi_mask", "inputnode.dwi_mask"),
-                    ("t1w_file", "inputnode.t1w_file"),
-                    ("t1w_mask_file", "inputnode.t1w_mask_file"),
-                ],
-            ),
         ]
     )
+    if config.workflow.do_tractography:
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    tractography_wf,
+                    [
+                        ("base_directory", "inputnode.base_directory"),
+                        ("dwi_reference", "inputnode.dwi_reference"),
+                        ("dwi_nifti", "inputnode.dwi_nifti"),
+                        ("dwi_bval", "inputnode.dwi_bval"),
+                        ("dwi_bvec", "inputnode.dwi_bvec"),
+                        ("dwi_grad", "inputnode.dwi_grad"),
+                        ("dwi_mask", "inputnode.dwi_mask"),
+                        ("t1w_file", "inputnode.t1w_file"),
+                        ("t1w_mask_file", "inputnode.t1w_mask_file"),
+                    ],
+                ),
+            ]
+        )
     return workflow
 
 

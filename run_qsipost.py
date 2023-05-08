@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from qsipost import config
 from qsipost.bids.layout.layout import QSIPREPLayout
 from qsipost.parcellations.atlases.atlas import Atlas
 from qsipost.workflows.base import init_qsipost_wf
@@ -17,27 +20,32 @@ def get_or_create_database(
 
 
 if __name__ == "__main__":
-    path = "/media/groot/Minerva/ConnectomePlasticity/MRI/derivatives/qsiprep/"
-    database_file = (
-        "/media/groot/Minerva/ConnectomePlasticity/MRI/derivatives/qsiprep_layout.db"
-    )
-    reset_database = False
+    path = "/media/groot/Minerva/ConnectomePlasticity/MRI/derivatives"
+    # database_file = (
+    #     "/media/groot/Minerva/ConnectomePlasticity/MRI/derivatives/qsiprep_layout.db"
+    # )
+    # reset_database = True
 
-    work_dir = "/media/groot/Minerva/ConnectomePlasticity/MRI/work"
+    # work_dir = "/media/groot/Minerva/ConnectomePlasticity/MRI/work"
 
-    atlas = "brainnetome"
-    brainnetome = Atlas("brainnetome", load_existing=True)
+    # atlas = "brainnetome"
+    # brainnetome = Atlas("brainnetome", load_existing=True)
 
-    layout = get_or_create_database(
-        path,
-        database_path=database_file,
-        reset_database=reset_database,
-    )
+    # layout = get_or_create_database(
+    #     path,
+    #     database_path=database_file,
+    #     reset_database=reset_database,
+    # )
 
-    workflow = init_qsipost_wf(
-        layout,
-        parcellation_atlas=brainnetome,
-        work_dir=work_dir,
-        # subjects_list=["12"],
-    )
-    workflow.run()
+    config_file = Path(path) / "qsipost" / "config.toml"
+    config.load(config_file)
+    subjects = config.execution.layout.get_subjects()
+    for subject in subjects:
+        # config.execution.layout.get_sessions(subject)
+        try:
+            config.execution.participant_label = [subject]
+            workflow = init_qsipost_wf()
+            workflow.run()
+        except Exception as e:
+            print(e)
+            continue
