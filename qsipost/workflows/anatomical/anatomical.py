@@ -1,6 +1,7 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
+from qsipost import config
 from qsipost.workflows.anatomical.procedures.derivatives import init_derivatives_wf
 
 
@@ -21,6 +22,7 @@ def init_anatomical_wf(
         The name of the workflow, by default "anatomical_postprocess"
     """
     from qsipost.workflows.anatomical.procedures.crop_to_gm import init_gm_cropping_wf
+    from qsipost.workflows.anatomical.procedures.freesurfer import init_freesurfer_wf
     from qsipost.workflows.anatomical.procedures.register_atlas import (
         init_registration_wf,
     )
@@ -36,6 +38,8 @@ def init_anatomical_wf(
                 "probseg_threshold",
                 "atlas_name",
                 "atlas_nifti_file",
+                "subject_id",
+                "freesurfer_dir",
             ]
         ),
         name="inputnode",
@@ -50,6 +54,22 @@ def init_anatomical_wf(
         ),
         name="outputnode",
     )
+    if config.workflow.do_reconall:
+        freesurfer_wf = init_freesurfer_wf()
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    freesurfer_wf,
+                    [
+                        ("anatomical_reference", "inputnode.anatomical_reference"),
+                        ("subject_id", "inputnode.subject_id"),
+                        ("freesurfer_dir", "inputnode.freesurfer_subjects_dir"),
+                    ],
+                ),
+            ]
+        )
+
     registration_wf = init_registration_wf()
     workflow.connect(
         [
