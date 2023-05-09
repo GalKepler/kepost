@@ -45,16 +45,6 @@ def init_qsipost_wf(
                 "configured atlas directory. Please check the name or initialize "
                 "a corresponding Atlas object."
             )
-    # output_dir = (
-    #     Path(output_dir)
-    #     if output_dir is not None
-    #     else Path(layout.root).parent / "qsipost"
-    # )
-    # subjects_list = subjects_list or layout.get_subjects()
-    # work_dir = Path(work_dir or f"qsipost_wf")
-    # if work_dir.name != "qsipost_wf":
-    #     work_dir = work_dir / "qsipost_wf"
-    # work_dir.mkdir(exist_ok=True, parents=True)
 
     ver = Version(config.environment.version)
     qsipost_wf = pe.Workflow(name=f"qsipost_{ver.major}_{ver.minor}_wf")
@@ -66,12 +56,6 @@ def init_qsipost_wf(
         single_subject_wf = init_single_subject_wf(
             subject_id=subject_id,
             parcellation_atlas=parcellation_atlas,
-            # layout=layout,
-            # subject_id=subject_id,
-            # parcellation_atlas=parcellation_atlas,
-            # output_dir=output_dir,
-            # name=name,
-            # work_dir=work_dir,
         )
         single_subject_wf.config["execution"]["crashdump_dir"] = str(
             config.execution.output_dir
@@ -147,7 +131,8 @@ def init_single_subject_wf(
     """
 
     qsipost_dir = config.execution.output_dir
-
+    freesurfer_dir = Path(qsipost_dir).parent / "freesurfer"
+    freesurfer_dir.mkdir(exist_ok=True, parents=True)
     anat_only = config.workflow.anat_only
 
     subject_data, sessions_data = collect_data(
@@ -166,6 +151,8 @@ def init_single_subject_wf(
                 "atlas_nifti",
                 "atlas_table",
                 "label_column",
+                "subject_id",
+                "freesurfer_dir",
             ]
         ),
         name="inputnode_subject",
@@ -181,6 +168,8 @@ def init_single_subject_wf(
     inputnode.inputs.gm_probabilistic_segmentation = subject_data[
         "gm_probabilistic_segmentation"
     ]
+    inputnode.inputs.subject_id = subject_id
+    inputnode.inputs.freesurfer_dir = str(freesurfer_dir.resolve())
 
     anatomical_workflow = init_anatomical_wf(
         name="anatomical_wf",
@@ -203,6 +192,8 @@ def init_single_subject_wf(
                         "gm_probabilistic_segmentation",
                         "inputnode.gm_probabilistic_segmentation",
                     ),
+                    ("subject_id", "inputnode.subject_id"),
+                    ("freesurfer_dir", "inputnode.freesurfer_dir"),
                 ],
             ),
         ]
