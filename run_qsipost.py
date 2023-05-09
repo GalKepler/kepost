@@ -39,9 +39,13 @@ if __name__ == "__main__":
 
     config_file = Path(path) / "qsipost" / "config.toml"
     config.load(config_file)
-    subjects = config.execution.layout.get_subjects()
+    subjects = config.execution.participant_label
+    if not subjects:
+        subjects = config.execution.layout.get_subjects()
+
     for subject in subjects:
         # config.execution.layout.get_sessions(subject)
+        # break
         try:
             config.execution.participant_label = [subject]
             workflow = init_qsipost_wf()

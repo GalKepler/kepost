@@ -438,7 +438,7 @@ class workflow(_Config):
     SIFT termination ratio - defined as the ratio between reduction in cost function, and reduction in density of streamlines.
     Smaller values result in more streamlines being filtered out.
     """
-    do_reconall = True
+    do_reconall = False
     """Whether to perform FreeSurfer's recon-all."""
 
 
