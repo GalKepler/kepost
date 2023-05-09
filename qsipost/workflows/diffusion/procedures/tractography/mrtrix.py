@@ -129,6 +129,7 @@ def init_mrtrix_tractography_wf(
         ),
         name="tckgen",
     )
+
     ds_tracts = pe.Node(
         DerivativesDataSink(
             suffix="tracts",
@@ -253,7 +254,9 @@ def init_mrtrix_tractography_wf(
             ),
         ]
     )
+    in_tracts = "unfiltered_tracts"
     if config.workflow.do_sift_filtering:
+        in_tracts = "sift_tracts"
         tcksift_kwargs = {}
         if config.workflow.sift_term_number:
             tcksift_kwargs["term_number"] = config.workflow.sift_term_number
@@ -338,5 +341,22 @@ def init_mrtrix_tractography_wf(
                 ),
             ]
         )
+
+    connectome_node = pe.Node(
+        interface=mrt_nipype.BuildConnectome(nthreads=config.nipype.omp_nthreads),
+        name="connectomes",
+    )
+    connectome_node.iterables = [
+        (
+            "metric",
+            [
+                "count",
+                "meanlength",
+                "invlength",
+                "invnodevolume",
+                "invlength_invnodevolume",
+            ],
+        )
+    ]
 
     return workflow
