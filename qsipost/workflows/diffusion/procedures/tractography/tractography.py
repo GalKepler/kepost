@@ -39,6 +39,16 @@ def init_tractography_wf(
         ),
         name="inputnode",
     )
+    outputnode = pe.Node(
+        interface=niu.IdentityInterface(
+            fields=[
+                "unfiltered_tracts",
+                "sift_tracts",
+            ]
+        ),
+        name="outputnode",
+    )
+
     mrtrix3_tractography_wf = init_mrtrix_tractography_wf()
     workflow.connect(
         [
@@ -53,6 +63,14 @@ def init_tractography_wf(
                     ("dwi_mask", "inputnode.dwi_mask_file"),
                     ("t1w_file", "inputnode.t1w_file"),
                     ("t1w_mask_file", "inputnode.t1w_mask_file"),
+                ],
+            ),
+            (
+                mrtrix3_tractography_wf,
+                outputnode,
+                [
+                    ("outputnode.unfiltered_tracts", "unfiltered_tracts"),
+                    ("outputnode.sift_tracts", "sift_tracts"),
                 ],
             ),
         ]

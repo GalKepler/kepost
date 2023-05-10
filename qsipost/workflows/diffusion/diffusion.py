@@ -175,7 +175,7 @@ def init_diffusion_wf(
                         connectome_wf,
                         [
                             (
-                                "mrtrix_tractography_wf.outputnode.sift_tracts",
+                                "outputnode.sift_tracts",
                                 "inputnode.in_tracts",
                             ),
                         ],
@@ -190,7 +190,7 @@ def init_diffusion_wf(
                         connectome_wf,
                         [
                             (
-                                "mrtrix_tractography_wf.outputnode.unfiltered_tracts",
+                                "outputnode.unfiltered_tracts",
                                 "inputnode.in_tracts",
                             ),
                         ],
