@@ -8,6 +8,9 @@ from qsipost.workflows.diffusion.procedures.coregister_atlas import (
 from qsipost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
     init_tensor_estimation_wf,
 )
+from qsipost.workflows.diffusion.procedures.tractography.connectome import (
+    init_connectome_wf,
+)
 from qsipost.workflows.diffusion.procedures.tractography.tractography import (
     init_tractography_wf,
 )
@@ -141,6 +144,59 @@ def init_diffusion_wf(
                 ),
             ]
         )
+        connectome_wf = init_connectome_wf()
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    connectome_wf,
+                    [
+                        ("base_directory", "inputnode.base_directory"),
+                        ("atlas_name", "inputnode.atlas_name"),
+                    ],
+                ),
+                (
+                    coregister_wf,
+                    connectome_wf,
+                    [
+                        (
+                            "outputnode.whole_brain_parcellation",
+                            "inputnode.in_parc",
+                        )
+                    ],
+                ),
+            ]
+        )
+        if config.workflow.do_sift_filtering:
+            workflow.connect(
+                [
+                    (
+                        tractography_wf,
+                        connectome_wf,
+                        [
+                            (
+                                "outputnode.sift_tracts",
+                                "inputnode.in_tracts",
+                            ),
+                        ],
+                    ),
+                ]
+            )
+        else:
+            workflow.connect(
+                [
+                    (
+                        tractography_wf,
+                        connectome_wf,
+                        [
+                            (
+                                "outputnode.unfiltered_tracts",
+                                "inputnode.in_tracts",
+                            ),
+                        ],
+                    ),
+                ]
+            )
     return workflow
 
 
