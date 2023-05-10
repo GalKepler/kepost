@@ -111,7 +111,12 @@ def init_mrtrix_tractography_wf(
     estimate_tracts_parameters_node = pe.Node(
         niu.Function(
             function=estimate_tractography_parameters,
-            input_names=["in_file", "stepscale", "lenscale_min", "lenscale_max"],
+            input_names=[
+                "in_file",
+                "stepscale",
+                "lenscale_min",
+                "lenscale_max",
+            ],
             output_names=["stepscale", "lenscale_min", "lenscale_max"],
         ),
         name="estimate_tractography_parameters",
@@ -246,7 +251,7 @@ def init_mrtrix_tractography_wf(
                 ],
             ),
             (
-                tckgen_node,
+                ds_tracts,
                 outputnode,
                 [
                     ("out_file", "unfiltered_tracts"),
@@ -333,7 +338,7 @@ def init_mrtrix_tractography_wf(
                     ],
                 ),
                 (
-                    tcksift_node,
+                    ds_tcksift_node,
                     outputnode,
                     [
                         ("out_file", "sift_tracts"),
