@@ -1,5 +1,6 @@
 import os.path as op
 
+from matplotlib import use
 from nipype.interfaces.base import (
     CommandLine,
     CommandLineInputSpec,
@@ -685,25 +686,33 @@ class BuildConnectomeInputSpec(MRTrix3BaseInputSpec):
         mandatory=True,
         desc="input nodes (atlas) file.",
     )
-    out_file = File(
+    out_connectome = File(
         "connectome.csv",
         argstr="%s",
         position=-1,
         usedefault=True,
         desc="output connectome file.",
     )
-    scale_length = traits.Bool(
-        argstr="-scale_length",
-        desc="scale the contribution of each streamline segment by its length.",
+    scale = traits.Enum(
+        "length",
+        "invlength",
+        "invnodevol",
+        argstr="-scale_%s",
+        desc="scale the contribution of each streamline segment by its length, the inverse length, or the inverse of the sum of the volumes of the nodes it passes through.",
+        usedefault=False,
     )
-    scale_invlength = traits.Bool(
-        argstr="-scale_invlength",
-        desc="scale the contribution of each streamline segment by its inverse length.",
-    )
-    scale_invnodevol = traits.Bool(
-        argstr="-scale_invnodevol",
-        desc="scale the contribution of each streamline segment by the inverse of the sum of the volumes of the nodes it passes through.",
-    )
+    # scale_length = traits.Bool(
+    #     argstr="-scale_length",
+    #     desc="scale the contribution of each streamline segment by its length.",
+    # )
+    # scale_invlength = traits.Bool(
+    #     argstr="-scale_invlength",
+    #     desc="scale the contribution of each streamline segment by its inverse length.",
+    # )
+    # scale_invnodevol = traits.Bool(
+    #     argstr="-scale_invnodevol",
+    #     desc="scale the contribution of each streamline segment by the inverse of the sum of the volumes of the nodes it passes through.",
+    # )
     symmetric = traits.Bool(
         default_value=True,
         usedefault=True,
@@ -718,6 +727,7 @@ class BuildConnectomeInputSpec(MRTrix3BaseInputSpec):
         "assignments.csv",
         argstr="-out_assignments %s",
         desc="output assignments file.",
+        use_default=True,
     )
     stat_edge = traits.Enum(
         "sum",
@@ -725,7 +735,6 @@ class BuildConnectomeInputSpec(MRTrix3BaseInputSpec):
         "min",
         "max",
         argstr="-stat_edge %s",
-        default_value="sum",
         desc="select the statistic to compute for each edge.",
     )
 
@@ -764,7 +773,7 @@ class BuildConnectome(MRTrix3Base):
 
     def _list_outputs(self):
         outputs = self.output_spec().get()
-        outputs["out_file"] = op.abspath(self.inputs.out_file)
+        outputs["out_connectome"] = op.abspath(self.inputs.out_connectome)
         if isdefined(self.inputs.out_assignments):
             outputs["out_assignments"] = op.abspath(self.inputs.out_assignments)
         return outputs

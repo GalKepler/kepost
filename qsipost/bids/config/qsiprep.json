@@ -52,6 +52,10 @@
         {
             "name": "reconstruction_software",
             "pattern": "subset-([a-zA-Z0-9]+)"
+        },
+        {
+            "name":"measure",
+            "pattern":"meas-([a-zA-Z0-9]+)"
         }
     ],
 
@@ -80,7 +84,6 @@
         "sub-{subject}[/ses-{session}]/{datatype<anat>|anat}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_ce-{ceagent}][_rec-{reconstruction}][_space-{space}][_res-{res}][_part-{part}]_{suffix<T1w|T2w|T1rho|T1map|T2map|T2star|FLAIR|FLASH|PDmap|PD|PDT2|inplaneT[12]|angio>}{extension<.nii|.nii.gz|.json>|.nii.gz}",
         "sub-{subject}[/ses-{session}]/{datatype<anat|dwi>|anat}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_dir-{direction}][_ce-{ceagent}][_rec-{reconstruction}][_space-{space}][_res-{res}][_desc-{desc}][_label-{label}][_meas-{measure}][_atlas-{atlas}]_{suffix<dseg>}{extension<.csv|.tsv|.pickle|.nii|.nii.gz|.json>|.nii.gz}",
         "sub-{subject}[/ses-{session}]/{datatype<dwi>|dwi}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_dir-{direction}][_rec-{reconstruction}][_space-{space}][_desc-{desc}]_{suffix<tracts>}{extension<.tck|.trk|.fib.gz>|.tck}",
-        "sub-{subject}[/ses-{session}]/{datatype<anat|dwi>|anat}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_dir-{direction}][_rec-{reconstruction}][_space-{space}][_res-{res}][_desc-{desc}][_label-{label}][_meas-{measure}][_atlas-{atlas}]_{suffix<connectome>}{extension<.csv|.txt|.pickle|.mat>|.csv}",
-        "sub-{subject}[/ses-{session}]/{datatype<dwi>|dwi}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_dir-{direction}][_rec-{reconstruction}][_space-{space}][_desc-{desc}][_label-{label}][_meas-{measure}][_atlas-{atlas}]_{suffix<connectome>}{extension<.pickle|.csv|.tsv>|.csv}"
+        "sub-{subject}[/ses-{session}]/{datatype<dwi>|dwi}/sub-{subject}[_ses-{session}][_acq-{acquisition}][_dir-{direction}][_rec-{reconstruction}][_space-{space}][_desc-{desc}][_label-{label}][_meas-{measure}][_atlas-{atlas}]_{suffix<connectome|assignments>}{extension<.pickle|.csv|.tsv>|.csv}"
     ]
 }

@@ -342,21 +342,4 @@ def init_mrtrix_tractography_wf(
             ]
         )
 
-    connectome_node = pe.Node(
-        interface=mrt_nipype.BuildConnectome(nthreads=config.nipype.omp_nthreads),
-        name="connectomes",
-    )
-    connectome_node.iterables = [
-        (
-            "metric",
-            [
-                "count",
-                "meanlength",
-                "invlength",
-                "invnodevolume",
-                "invlength_invnodevolume",
-            ],
-        )
-    ]
-
     return workflow
