@@ -129,6 +129,7 @@ def init_mrtrix_tractography_wf(
         ),
         name="tckgen",
     )
+
     ds_tracts = pe.Node(
         DerivativesDataSink(
             suffix="tracts",
@@ -253,7 +254,9 @@ def init_mrtrix_tractography_wf(
             ),
         ]
     )
+    in_tracts = "unfiltered_tracts"
     if config.workflow.do_sift_filtering:
+        in_tracts = "sift_tracts"
         tcksift_kwargs = {}
         if config.workflow.sift_term_number:
             tcksift_kwargs["term_number"] = config.workflow.sift_term_number
