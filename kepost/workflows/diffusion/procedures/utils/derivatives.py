@@ -1,0 +1,40 @@
+DIFFUSION_WF_OUTPUT_ENTITIES = dict(
+    wholebrain_parcellation={
+        "space": "dwi",
+        "desc": "",
+        "direction": "",
+        "label": "WholeBrain",
+        "suffix": "dseg",
+        "extension": ".nii.gz",
+    },
+    gm_cropped_parcellation={
+        "space": "dwi",
+        "desc": "",
+        "direction": "",
+        "label": "GM",
+        "suffix": "dseg",
+        "extension": ".nii.gz",
+    },
+    t1w_in_dwi_space={
+        "space": "dwi",
+        "desc": "",
+        "direction": "",
+        "datatype": "anat",
+        "suffix": "T1w",
+        "extension": ".nii.gz",
+    },
+    dti_derived_parameters={
+        "acquisition": "dt",
+        "res": "dwi",
+        "suffix": "dwiref",
+        "extension": ".nii.gz",
+    },
+    tissue_dwiref_probseg={
+        "res": "dwi",
+        "space": "T1w",
+        "desc": "",
+        "direction": "",
+        "suffix": "probseg",
+        "extension": ".nii.gz",
+    },
+)

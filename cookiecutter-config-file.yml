@@ -1,9 +1,9 @@
 # This file contains values from Cookiecutter
 
 default_context:
-  project_name: "qsipost"
+  project_name: "kepost"
   project_description: "Post-processing for QSIPrep's outputs"
-  organization: "qsipost"
+  organization: "kepost"
   license: "MIT"
   minimal_python_version: 3.9
   github_name: "GalKepler"

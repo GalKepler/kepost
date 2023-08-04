@@ -1,7 +1,7 @@
 """Tests for hello function."""
 import pytest
 
-from qsipost.example import hello
+from kepost.example import hello
 
 
 @pytest.mark.parametrize(

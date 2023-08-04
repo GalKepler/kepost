@@ -4,14 +4,14 @@ requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "qsipost"
+name = "kepost"
 version = "0.1.0"
 description = "Post-processing for QSIPrep's outputs"
 readme = "README.md"
-authors = ["qsipost <galkepler@gmail.com>"]
+authors = ["kepost <galkepler@gmail.com>"]
 license = "MIT"
-repository = "https://github.com/GalKepler/qsipost"
-homepage = "https://github.com/GalKepler/qsipost"
+repository = "https://github.com/GalKepler/kepost"
+homepage = "https://github.com/GalKepler/kepost"
 
 # Keywords description https://python-poetry.org/docs/pyproject/#keywords
 keywords = []  #! Update me
@@ -29,7 +29,7 @@ classifiers = [  #! Update me
 
 [tool.poetry.scripts]
 # Entry points for the package https://python-poetry.org/docs/pyproject/#scripts
-"qsipost" = "qsipost.__main__:app"
+"kepost" = "kepost.__main__:app"
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -43,6 +43,9 @@ nibabel = "^5.1.0"
 pandas = "^2.0.1"
 niworkflows = "^1.7.9"
 identify = "^2.5.24"
+pybids = "^0.16.1"
+dipy = "^1.7.0"
+neuromaps = "^0.0.4"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.1"
@@ -142,7 +145,7 @@ addopts = [
 source = ["tests"]
 
 [coverage.paths]
-source = "qsipost"
+source = "kepost"
 
 [coverage.run]
 branch = true

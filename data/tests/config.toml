@@ -6,8 +6,8 @@ overcommit_policy = "heuristic"
 overcommit_limit = "50%"
 
 [execution]
-qsiprep_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives/qsipost_rawdata/"
-qsiprep_database_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives/qsipost_rawdata_layout.db"
+qsiprep_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives/kepost_rawdata/"
+qsiprep_database_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives/kepost_rawdata_layout.db"
 reset_database = false
 fs_license_file = "/media/groot/Yalla/misc/freesurfer/license.txt"
 log_dir = "/media/groot/Yalla/ConnectomePlasticity/MRI/app_derivatives"
