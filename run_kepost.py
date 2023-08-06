@@ -30,8 +30,8 @@ if __name__ == "__main__":
 
     for subject in subjects:
         out_dir = config.execution.output_dir / f"sub-{subject}"
-        if out_dir.exists():
-            continue
+        # if out_dir.exists():
+        #     continue
         keprep_dir = Path(config.execution.layout.root) / f"sub-{subject}"
         # print(qsiprep_dir)
         if not keprep_dir.exists():
@@ -47,4 +47,4 @@ if __name__ == "__main__":
             # print(qsiprep_dir)
             print(e)
             continue
-        #     break
+            # break

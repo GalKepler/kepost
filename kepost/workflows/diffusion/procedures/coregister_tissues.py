@@ -72,7 +72,6 @@ def init_tissue_coregistration_wf(
         ),
         name="apply_transforms_csf",
     )
-
     ds_gm = pe.Node(
         interface=DerivativesDataSink(
             **workflow_entities["tissue_dwiref_probseg"],
@@ -101,7 +100,7 @@ def init_tissue_coregistration_wf(
                 apply_transforms_gm,
                 [
                     ("gm_probseg", "in_file"),
-                    ("t1w_reference", "reference"),
+                    ("dwi_reference", "reference"),
                     ("t1w_to_dwi_transform", "in_matrix_file"),
                 ],
             ),
@@ -110,7 +109,7 @@ def init_tissue_coregistration_wf(
                 apply_transforms_wm,
                 [
                     ("wm_probseg", "in_file"),
-                    ("t1w_reference", "reference"),
+                    ("dwi_reference", "reference"),
                     ("t1w_to_dwi_transform", "in_matrix_file"),
                 ],
             ),
@@ -119,7 +118,7 @@ def init_tissue_coregistration_wf(
                 apply_transforms_csf,
                 [
                     ("csf_probseg", "in_file"),
-                    ("t1w_reference", "reference"),
+                    ("dwi_reference", "reference"),
                     ("t1w_to_dwi_transform", "in_matrix_file"),
                 ],
             ),
@@ -169,12 +168,24 @@ def init_tissue_coregistration_wf(
                 ],
             ),
             (
-                inputnode,
+                apply_transforms_gm,
                 outputnode,
                 [
-                    ("gm_probseg", "gm_probseg_dwiref"),
-                    ("wm_probseg", "wm_probseg_dwiref"),
-                    ("csf_probseg", "csf_probseg_dwiref"),
+                    ("out_file", "gm_probseg_dwiref"),
+                ],
+            ),
+            (
+                apply_transforms_wm,
+                outputnode,
+                [
+                    ("out_file", "wm_probseg_dwiref"),
+                ],
+            ),
+            (
+                apply_transforms_csf,
+                outputnode,
+                [
+                    ("out_file", "csf_probseg_dwiref"),
                 ],
             ),
         ]

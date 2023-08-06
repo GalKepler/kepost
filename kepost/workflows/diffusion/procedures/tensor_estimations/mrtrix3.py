@@ -87,6 +87,20 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
         iterfield=["in_file"],
         name="corgister_tensor_wf",
     )
+    coreg_tensor_ds_entities = DIFFUSION_WF_OUTPUT_ENTITIES.get(
+        "dti_derived_parameters"
+    ).copy()
+    coreg_tensor_ds_entities.update({"space": "T1w"})
+    ds_coreg_tensor_wf = pe.MapNode(
+        interface=DerivativesDataSink(
+            **coreg_tensor_ds_entities,
+            reconstruction_software="mrtrix3",
+            save_meta=False,
+        ),
+        iterfield=["in_file", "desc"],
+        name="ds_coreg_tensor_wf",
+    )
+    ds_coreg_tensor_wf.inputs.desc = TENSOR_PARAMETERS
 
     normalize_tensor_wf = pe.MapNode(
         ants.ApplyTransforms(
@@ -97,11 +111,14 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
         iterfield=["input_image"],
         name="normalize_tensor_wf",
     )
+    mni_tensor_entities = DIFFUSION_WF_OUTPUT_ENTITIES.get(
+        "dti_derived_parameters"
+    ).copy()
+    mni_tensor_entities.update({"space": "MNI152NLin2009cAsym"})
     ds_tensor_mni_wf = pe.MapNode(
         interface=DerivativesDataSink(
-            **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
+            **mni_tensor_entities,
             reconstruction_software="mrtrix3",
-            space="MNI152NLin2009cAsym",
             save_meta=False,
         ),
         iterfield=["in_file", "desc"],
@@ -160,6 +177,21 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
                 [
                     ("dwi_to_t1w_transform", "in_matrix_file"),
                     ("t1w_reference", "reference"),
+                ],
+            ),
+            (
+                coregister_tensor_wf,
+                ds_coreg_tensor_wf,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_coreg_tensor_wf,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
                 ],
             ),
             (

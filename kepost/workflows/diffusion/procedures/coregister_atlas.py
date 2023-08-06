@@ -46,6 +46,7 @@ def init_coregistration_wf(
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
                 "t1w_in_dwi_space",
+                "dwi_brain_mask",
             ]
         ),
         name="outputnode",
@@ -71,6 +72,7 @@ def init_coregistration_wf(
         ),
         name="apply_transforms_t1w",
     )
+
     ds_wholebrain = pe.Node(
         interface=DerivativesDataSink(
             **workflow_entities["wholebrain_parcellation"],
@@ -178,7 +180,6 @@ def init_coregistration_wf(
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_reference", "source_file"),
-                    ("atlas_name", "atlas"),
                 ],
             ),
             (

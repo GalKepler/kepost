@@ -94,7 +94,7 @@ def init_diffusion_wf(
                     coregister_wf,
                     [
                         ("t1w_file", "inputnode.t1w_reference"),
-                        ("dwi_nifti", "inputnode.dwi_reference"),
+                        ("dwi_reference", "inputnode.dwi_reference"),
                         (
                             "t1w_to_dwi_transform",
                             "inputnode.t1w_to_dwi_transform",
@@ -137,7 +137,7 @@ def init_diffusion_wf(
                 tissue_coreg_wf,
                 [
                     ("base_directory", "inputnode.base_directory"),
-                    ("dwi_nifti", "inputnode.dwi_reference"),
+                    ("dwi_reference", "inputnode.dwi_reference"),
                     ("t1w_file", "inputnode.t1w_reference"),
                     ("t1w_to_dwi_transform", "inputnode.t1w_to_dwi_transform"),
                     ("gm_probabilistic_segmentation", "inputnode.gm_probseg"),

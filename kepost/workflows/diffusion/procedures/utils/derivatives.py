@@ -37,4 +37,12 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "suffix": "probseg",
         "extension": ".nii.gz",
     },
+    brain_mask={
+        "space": "dwi",
+        "desc": "brain",
+        "direction": "",
+        "suffix": "mask",
+        "extension": ".nii.gz",
+        "datatype": "anat",
+    },
 )

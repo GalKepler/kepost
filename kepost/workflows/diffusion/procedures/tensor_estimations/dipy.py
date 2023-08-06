@@ -83,6 +83,22 @@ def init_dipy_tensor_wf(
         iterfield=["in_file"],
         name="corgister_tensor_wf",
     )
+
+    coreg_tensor_ds_entities = DIFFUSION_WF_OUTPUT_ENTITIES.get(
+        "dti_derived_parameters"
+    ).copy()
+    coreg_tensor_ds_entities.update({"space": "T1w"})
+    ds_coreg_tensor_wf = pe.MapNode(
+        interface=DerivativesDataSink(
+            **coreg_tensor_ds_entities,
+            reconstruction_software="dipy",
+            save_meta=False,
+        ),
+        iterfield=["in_file", "desc"],
+        name="ds_coreg_tensor_wf",
+    )
+    ds_coreg_tensor_wf.inputs.desc = TENSOR_PARAMETERS
+
     normalize_tensor_wf = pe.MapNode(
         ants.ApplyTransforms(
             reference_image=datasets.fetch_atlas(atlas="mni", density="1mm").get(
@@ -155,9 +171,17 @@ def init_dipy_tensor_wf(
             ),
             (
                 coregister_tensor_wf,
-                normalize_tensor_wf,
+                ds_coreg_tensor_wf,
                 [
-                    ("out_file", "input_image"),
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_coreg_tensor_wf,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
                 ],
             ),
             (
@@ -180,6 +204,13 @@ def init_dipy_tensor_wf(
                 ds_tensor_mni_wf,
                 [
                     ("output_image", "in_file"),
+                ],
+            ),
+            (
+                coregister_tensor_wf,
+                normalize_tensor_wf,
+                [
+                    ("out_file", "input_image"),
                 ],
             ),
         ]
