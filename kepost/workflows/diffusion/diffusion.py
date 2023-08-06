@@ -185,6 +185,10 @@ def init_diffusion_wf(
                         ("dwi_mask", "inputnode.dwi_mask"),
                         ("t1w_file", "inputnode.t1w_file"),
                         ("t1w_mask_file", "inputnode.t1w_mask_file"),
+                        (
+                            "t1w_to_dwi_transform",
+                            "inputnode.t1w_to_dwi_transform",
+                        ),
                     ],
                 ),
             ]

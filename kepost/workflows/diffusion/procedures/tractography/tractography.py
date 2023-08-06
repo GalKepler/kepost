@@ -33,9 +33,9 @@ def init_tractography_wf(
                 "dwi_bval",
                 "dwi_grad",
                 "dwi_mask",
-                "freesurfer_dir",
                 "t1w_file",
                 "t1w_mask_file",
+                "t1w_to_dwi_transform",
             ]
         ),
         name="inputnode",
@@ -64,6 +64,7 @@ def init_tractography_wf(
                     ("dwi_mask", "inputnode.dwi_mask_file"),
                     ("t1w_file", "inputnode.t1w_file"),
                     ("t1w_mask_file", "inputnode.t1w_mask_file"),
+                    ("t1w_to_dwi_transform", "inputnode.t1w_to_dwi_transform"),
                 ],
             ),
             (
