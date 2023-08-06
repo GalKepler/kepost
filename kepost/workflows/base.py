@@ -141,7 +141,8 @@ def init_single_subject_wf(
     """
 
     kepost_dir = config.execution.output_dir
-    freesurfer_dir = Path(kepost_dir).parent / "freesurfer"
+    keprep_dir = config.execution.keprep_dir
+    freesurfer_dir = Path(keprep_dir) / "freesurfer"
     freesurfer_dir.mkdir(exist_ok=True, parents=True)
     anat_only = config.workflow.anat_only
 

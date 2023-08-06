@@ -238,6 +238,7 @@ class Generate5ttInputSpec(MRTrix3BaseInputSpec):
         "fsl",
         "gif",
         "freesurfer",
+        "hsvs",
         argstr="%s",
         position=0,
         mandatory=True,
@@ -246,14 +247,29 @@ class Generate5ttInputSpec(MRTrix3BaseInputSpec):
     in_file = File(
         exists=True,
         argstr="%s",
-        mandatory=True,
+        mandatory=False,
         position=-2,
         desc="input image",
+    )
+    freesurfer_dir = Directory(
+        exists=True,
+        mandatory=False,
+        argstr="%s",
+        position=-2,
+        desc="Freesurfer directory",
     )
     in_mask = File(
         exists=True,
         argstr="-mask %s",
         desc="input mask image",
+    )
+    sgm_amyg_hipp = traits.Bool(
+        argstr="-sgm_amyg_hipp",
+        desc="Represent the amygdalae and hippocampi as sub-cortical grey matter in the 5TT image",
+    )
+    white_stem = traits.Bool(
+        argstr="-white_stem",
+        desc="Classify the brainstem as white matter",
     )
     out_file = File(
         "5TT.mif",

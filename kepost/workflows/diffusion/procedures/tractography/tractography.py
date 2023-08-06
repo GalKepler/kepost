@@ -33,6 +33,7 @@ def init_tractography_wf(
                 "dwi_bval",
                 "dwi_grad",
                 "dwi_mask",
+                "freesurfer_dir",
                 "t1w_file",
                 "t1w_mask_file",
             ]

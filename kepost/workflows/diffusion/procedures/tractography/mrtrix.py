@@ -1,3 +1,7 @@
+from typing import Union
+
+from pathlib import Path
+
 from nipype.interfaces import mrtrix3 as mrt_nipype
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
@@ -5,6 +9,9 @@ from nipype.pipeline import engine as pe
 from kepost import config
 from kepost.interfaces import mrtrix3 as mrt
 from kepost.interfaces.bids import DerivativesDataSink
+from kepost.workflows.diffusion.procedures.tractography.coregisteration import (
+    init_5tt_coreg_wf,
+)
 
 
 def estimate_tractography_parameters(
@@ -47,12 +54,47 @@ def estimate_tractography_parameters(
     return stepscale, lenscale_min, lenscale_max
 
 
+def _find_freesurfer_dir(dwi_file: str, freesurfer_dir: str = None) -> str:
+    """
+    Locates the freesurfer directory for a given subject
+
+    Parameters
+    ----------
+    freesurfer_dir : Union[Path,str]
+        Base directory for freesurfer output
+    subject : str
+        Subject ID
+
+    Returns
+    -------
+    str
+        Path to freesurfer directory
+    """
+    from pathlib import Path
+
+    from bids.layout import parse_file_entities
+
+    from kepost import config
+
+    subject = parse_file_entities(dwi_file)["subject"]
+
+    if not freesurfer_dir:
+        keprep_dir = config.execution.keprep_dir
+        freesurfer_dir = Path(keprep_dir) / "freesurfer"
+    if not subject.startswith("sub-"):
+        subject = f"sub-{subject}"
+    return freesurfer_dir / subject
+
+
 def init_mrtrix_tractography_wf(
     name="mrtrix_tractography_wf",
 ) -> pe.Workflow:
     """
     Workflow to perform tractography using MRtrix3.
     """
+    keprep_dir = config.execution.keprep_dir
+    freesurfer_dir = Path(keprep_dir) / "freesurfer"
+
     workflow = pe.Workflow(name=name)
 
     inputnode = pe.Node(
@@ -65,6 +107,7 @@ def init_mrtrix_tractography_wf(
                 "dwi_mask_file",
                 "t1w_file",
                 "t1w_mask_file",
+                "t1w_to_dwi_transform",
             ]
         ),
         name="inputnode",
@@ -101,13 +144,25 @@ def init_mrtrix_tractography_wf(
         mrt.MTNormalise(nthreads=config.nipype.omp_nthreads),
         name="mtnormalise",
     )
+    get_freesurfer_node = pe.Node(
+        niu.Function(
+            function=_find_freesurfer_dir,
+            input_names=["freesurfer_dir", "dwi_file"],
+            output_names=["freesurfer_dir"],
+        ),
+        name="get_freesurfer_dir",
+    )
+    get_freesurfer_node.inputs.freesurfer_dir = freesurfer_dir
     gen_5tt_node = pe.Node(
         mrt.Generate5tt(
             nthreads=config.nipype.omp_nthreads,
-            algorithm="fsl",
+            algorithm="hsvs",
+            sgm_amyg_hipp=True,
+            white_stem=True,
         ),
         name="gen_5tt",
     )
+    coreg_5tt_wf = init_5tt_coreg_wf()
     estimate_tracts_parameters_node = pe.Node(
         niu.Function(
             function=estimate_tractography_parameters,
@@ -192,12 +247,28 @@ def init_mrtrix_tractography_wf(
             ),
             (
                 inputnode,
-                gen_5tt_node,
+                get_freesurfer_node,
                 [
-                    ("t1w_file", "in_file"),
-                    ("t1w_mask_file", "in_mask"),
+                    ("dwi_file", "dwi_file"),
                 ],
             ),
+            (
+                get_freesurfer_node,
+                gen_5tt_node,
+                [
+                    ("freesurfer_dir", "freesurfer_dir"),
+                ],
+            ),
+            (
+                inputnode,
+                coreg_5tt_wf,
+                [
+                    ("dwi_reference", "inputnode.dwi_reference"),
+                    ("t1w_file", "inputnode.t1w_file"),
+                    ("t1w_to_dwi_transform", "inputnode.t1w_to_dwi_transform"),
+                ],
+            ),
+            (gen_5tt_node, coreg_5tt_wf, [("out_file", "inputnode.5tt_file")]),
             (
                 mtnormalise_node,
                 tckgen_node,
@@ -213,10 +284,10 @@ def init_mrtrix_tractography_wf(
                 ],
             ),
             (
-                gen_5tt_node,
+                coreg_5tt_wf,
                 tckgen_node,
                 [
-                    ("out_file", "act_file"),
+                    ("outputnode.5tt_coreg", "act_file"),
                 ],
             ),
             (
@@ -309,10 +380,10 @@ def init_mrtrix_tractography_wf(
                     ],
                 ),
                 (
-                    gen_5tt_node,
+                    coreg_5tt_wf,
                     tcksift_node,
                     [
-                        ("out_file", "act_file"),
+                        ("outputnode.5tt_coreg", "act_file"),
                     ],
                 ),
                 (
