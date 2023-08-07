@@ -51,5 +51,6 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "direction": "",
         "suffix": "dwiref",
         "extension": ".nii.gz",
+        "reconstruction_software": "",
     },
 )
