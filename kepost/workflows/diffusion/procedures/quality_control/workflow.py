@@ -62,6 +62,7 @@ def init_qc_wf(name: str = "qc_wf") -> pe.Workflow:
     ds_snr = pe.Node(
         interface=DerivativesDataSink(
             **DIFFUSION_WF_OUTPUT_ENTITIES["snr_image"],
+            dismiss_entities="reconstruction_software",
         ),
         name="ds_snr",
     )
