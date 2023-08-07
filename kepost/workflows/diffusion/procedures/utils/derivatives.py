@@ -31,7 +31,7 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
     },
     tissue_dwiref_probseg={
         "res": "dwi",
-        "space": "T1w",
+        "space": "dwi",
         "desc": "",
         "direction": "",
         "suffix": "probseg",
