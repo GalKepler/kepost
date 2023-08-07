@@ -8,6 +8,7 @@ from kepost.workflows.diffusion.procedures.coregister_atlas import (
 from kepost.workflows.diffusion.procedures.coregister_tissues import (
     init_tissue_coregistration_wf,
 )
+from kepost.workflows.diffusion.procedures.quality_control.workflow import init_qc_wf
 from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
     init_tensor_estimation_wf,
 )
@@ -129,6 +130,7 @@ def init_diffusion_wf(
         )
     tissue_coreg_wf = init_tissue_coregistration_wf()
     tensor_estimation_wf = init_tensor_estimation_wf()
+    qc_wf = init_qc_wf()
     tractography_wf = init_tractography_wf()
     workflow.connect(
         [
@@ -165,6 +167,15 @@ def init_diffusion_wf(
                     ),
                     ("t1w_file", "inputnode.t1w_reference"),
                     ("dwi_to_t1w_transform", "inputnode.dwi_to_t1w_transform"),
+                ],
+            ),
+            (
+                inputnode,
+                qc_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_nifti", "inputnode.dwi_file"),
+                    ("dwi_grad", "inputnode.dwi_grad"),
                 ],
             ),
         ]

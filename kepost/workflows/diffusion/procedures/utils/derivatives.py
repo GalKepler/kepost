@@ -45,4 +45,11 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "extension": ".nii.gz",
         "datatype": "anat",
     },
+    snr_image={
+        "space": "dwi",
+        "desc": "snr",
+        "direction": "",
+        "suffix": "dwiref",
+        "extension": ".nii.gz",
+    },
 )

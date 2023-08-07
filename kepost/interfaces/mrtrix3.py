@@ -793,3 +793,65 @@ class BuildConnectome(MRTrix3Base):
         if isdefined(self.inputs.out_assignments):
             outputs["out_assignments"] = op.abspath(self.inputs.out_assignments)
         return outputs
+
+
+class MRFilterInputSpec(MRTrix3BaseInputSpec):
+    in_file = File(
+        exists=True,
+        argstr="%s",
+        position=-3,
+        mandatory=True,
+        desc="input tracts file.",
+    )
+    filter = traits.Enum(
+        "fft",
+        "gradient",
+        "median",
+        "smooth",
+        "normalise",
+        "zclean",
+        argstr="%s",
+        position=-2,
+        mandatory=True,
+        desc="type of filter to be applied.",
+    )
+    out_file = File(
+        "filtered.mif",
+        argstr="%s",
+        position=-1,
+        usedefault=True,
+        desc="output filtered image.",
+    )
+
+
+class MRFilterOutputSpec(TraitedSpec):
+    out_file = File(
+        argstr="%s",
+        desc="output filtered image.",
+    )
+
+
+class MRFilter(MRTrix3Base):
+    """
+    Perform filtering operations on 3D/4D images.
+
+
+    Example
+    -------
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> filter = mrt.MRFilter()
+    >>> filter.inputs.in_file = 'dwi.mif'
+    >>> filter.inputs.filter = 'median'
+    >>> filter.cmdline                               # doctest: +ELLIPSIS
+    'mrfilter dwi.mif median filtered.mif'
+    >>> filter.run()                                 # doctest: +SKIP
+    """
+
+    _cmd = "mrfilter"
+    input_spec = MRFilterInputSpec
+    output_spec = MRFilterOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_file"] = op.abspath(self.inputs.out_file)
+        return outputs
