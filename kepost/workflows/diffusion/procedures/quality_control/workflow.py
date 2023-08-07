@@ -129,7 +129,7 @@ def init_qc_wf(name: str = "qc_wf") -> pe.Workflow:
                 ds_snr,
                 [
                     ("base_directory", "base_directory"),
-                    ("dwi_reference", "source_file"),
+                    ("dwi_file", "source_file"),
                 ],
             ),
         ]
