@@ -1,0 +1,104 @@
+
+[tool.poetry]
+name = "kepost"
+version = "0.0.1"
+description = "Post-processing for dMRI derivatives of the Strauss Neuroplasticity Brain Bank (SNBB)"
+readme = "README.rst"
+authors = ["Gal Kepler <galkepler@gmail.com>"]
+maintainers = ["Gal Kepler <galkepler@gmail.com>"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+license = "MIT"
+homepage = "https://pypi.org/project/KePost"
+repository = "https://github.com/GalKepler/kepost"
+documentation = "https://KePost.readthedocs.io"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+nipype = "^1.8.6"
+templateflow = "^23.0.0"
+psutil = "^5.9.5"
+niworkflows = "^1.8.1"
+pre-commit = "^3.3.3"
+pyupgrade = "^3.9.0"
+toml = "^0.10.2"
+smriprep = "^0.12.1"
+sdcflows = "^2.5.1"
+tox = "^4.16.0"
+doc8 = "^1.1.1"
+
+[tool.poetry.dev-dependencies]
+coverage = "^7.5.4"  # testing
+mypy = "^1.10.0"  # linting
+pytest = "^8.2.2"  # testing
+ruff = "^0.4.4"  # linting
+black = "^24.4.2"
+flake8 = "^7.0"
+isort = "^5.13.2"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
+[project.urls]
+
+bugs = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/issues"
+changelog = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/blob/master/changelog.md"
+homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+
+# black configuration
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+# isort configuration
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3  # This setting allows multi-line imports with parentheses
+include_trailing_comma = true  # Ensures trailing commas for better diff
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+# Mypy configuration
+[tool.mypy]
+files = "."
+strict = false
+warn_unreachable = true
+warn_no_return = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Don't require test functions to include types
+module = "tests.*"
+allow_untyped_defs = true
+disable_error_code = "attr-defined"
+
+# coverage configuration
+[tool.coverage.run]
+branch = true
+source = [
+    "src/kepost"
+]
+
+[tool.coverage.report]
+omit = [
+    "tests/*"
+]
