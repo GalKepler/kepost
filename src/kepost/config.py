@@ -385,6 +385,9 @@ class execution(_Config):
             cls.keprep_database_dir = _db_path
         cls.layout = cls._layout
 
+        if cls.participant_label is None:
+            cls.participant_label = cls.layout.get_subjects()
+
         if "all" in cls.debug:
             cls.debug = list(DEBUG_MODES)
 
@@ -409,8 +412,6 @@ del _oc_policy
 class workflow(_Config):
     """Configure the particular execution graph of this workflow."""
 
-    anat_only = False
-    """Execute the anatomical preprocessing only."""
     atlases: list = ["all"]
     """Parcellation atlas(es) to use for the parcellation step. Available atlases are: `all`, `fan2016`, `huang2022`, `schaefer2018_{n_regions}_{n_networks}`."""
     dipy_reconstruction_method = "NLLS"
