@@ -37,11 +37,11 @@ Overview
     :target: https://app.codacy.com/gh/GalKepler/kepost/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade
     :alt: Code Quality
 
-.. |codeclimate-maintainability| image:: https://api.codeclimate.com/v1/badges/dc78868ecc19deb5fb5b/maintainability
+.. |codeclimate-maintainability| image:: https://api.codeclimate.com/v1/badges/635a7e15947a51e354ab/maintainability
     :target: https://codeclimate.com/github/GalKepler/kepost/maintainability
     :alt: Maintainability
 
-.. |codeclimate-testcoverage| image:: https://api.codeclimate.com/v1/badges/dc78868ecc19deb5fb5b/test_coverage
+.. |codeclimate-testcoverage| image:: https://api.codeclimate.com/v1/badges/635a7e15947a51e354ab/test_coverage
     :target: https://codeclimate.com/github/GalKepler/kepost/test_coverage
     :alt: Test Coverage
 
