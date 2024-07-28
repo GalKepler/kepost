@@ -36,8 +36,8 @@ smriprep = "^0.12.1"
 sdcflows = "^2.5.1"
 tox = "^4.16.0"
 doc8 = "^1.1.1"
-
 pytest-cov = "^5.0.0"
+
 [tool.poetry.dev-dependencies]
 coverage = "^7.5.4"  # testing
 mypy = "^1.10.0"  # linting
