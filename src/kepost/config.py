@@ -412,7 +412,7 @@ del _oc_policy
 class workflow(_Config):
     """Configure the particular execution graph of this workflow."""
 
-    gm_probseg_threshold = 0.01
+    gm_probseg_threshold = 0.0001
     """Threshold for the probabilistic segmentation of the gray matter."""
     atlases: list = ["all"]
     """Parcellation atlas(es) to use for the parcellation step. Available atlases are: `all`, `fan2016`, `huang2022`, `schaefer2018_{n_regions}_{n_networks}`."""

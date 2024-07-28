@@ -11,6 +11,29 @@ GM_5TT_CMDS = [
 ]
 
 
+def get_atlas_properties(atlas: str):
+    """
+    A simple function to get the properties of an atlas.
+
+    Parameters
+    ----------
+    atlas : str
+        The name of the atlas.
+
+    Returns
+    -------
+    dict
+        A dictionary with the properties of the atlas.
+    """
+    from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
+
+    nifti, description, region_col, index_col = [
+        AVAILABLE_ATLASES.get(atlas).get(key)
+        for key in ["nifti", "description_file", "region_col", "index_col"]
+    ]
+    return nifti, description, region_col, index_col
+
+
 def generate_gm_mask_from_smriprep(
     gm_probseg: Union[str, Path], out_file: Union[str, Path], force: bool = False
 ):

@@ -29,7 +29,7 @@ def init_kepost_wf():
                 or contact the developers.
                 """
             )
-    atlases = {atlas: AVAILABLE_ATLASES[atlas] for atlas in atlases}
+    config.workflow.atlases = atlases
 
     ver = Version(config.environment.version)
     kepost_wf = pe.Workflow(name=f"kepost_{ver.major}_{ver.minor}_wf")
@@ -47,7 +47,7 @@ def init_kepost_wf():
         )
 
 
-def init_single_subject_wf(subject_id: str, atlases: dict, name: str):
+def init_single_subject_wf(subject_id: str, name: str):
     """
     Initialize the single subject workflow
     """
@@ -72,8 +72,8 @@ def init_single_subject_wf(subject_id: str, atlases: dict, name: str):
         ),
         name="inputnode_subject",
     )
+    inputnode.iterables = ("atlases", list(config.workflow.atlases.keys()))
     inputnode.inputs.base_directory = kepost_dir
-    inputnode.inputs.atlases = atlases
     inputnode.inputs.anatomical_reference = subject_data["anatomical_reference"]
     inputnode.inputs.anatomical_brain_mask = subject_data["anatomical_brain_mask"]
     inputnode.inputs.mni_to_native_transform = subject_data["mni_to_native_transform"]

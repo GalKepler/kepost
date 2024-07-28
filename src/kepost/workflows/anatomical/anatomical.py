@@ -6,6 +6,7 @@ from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from kepost import config
+from kepost.atlases.utils import get_atlas_properties
 from kepost.workflows.anatomical.procedures.crop_to_gm import init_gm_cropping_wf
 from kepost.workflows.anatomical.procedures.derivatives import init_derivatives_wf
 from kepost.workflows.anatomical.procedures.register_atlas import init_registration_wf
@@ -28,13 +29,12 @@ def init_anatomical_wf(
                 "gm_probabilistic_segmentation",
                 "probseg_threshold",
                 "atlas_name",
-                "atlas_nifti_file",
                 "subject_id",
-                "freesurfer_dir",
             ]
         ),
         name="inputnode",
     )
+    inputnode.iterables = ("atlas_name", list(config.workflow.atlases))
     inputnode.inputs.probseg_threshold = config.workflow.gm_probseg_threshold
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
@@ -44,6 +44,25 @@ def init_anatomical_wf(
             ]
         ),
         name="outputnode",
+    )
+    get_atlas_info_node = pe.Node(
+        niu.Function(
+            input_names=["atlas"],
+            output_names=["nifti", "description", "region_col", "index_col"],
+            function=get_atlas_properties,
+        ),
+        name="get_atlas_info",
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                get_atlas_info_node,
+                [
+                    ("atlas_name", "atlas"),
+                ],
+            ),
+        ]
     )
 
     registration_wf = init_registration_wf()
@@ -59,7 +78,13 @@ def init_anatomical_wf(
                         "inputnode.mni_to_native_transform",
                     ),
                     ("atlas_name", "inputnode.atlas_name"),
-                    ("atlas_nifti_file", "inputnode.atlas_nifti_file"),
+                ],
+            ),
+            (
+                get_atlas_info_node,
+                registration_wf,
+                [
+                    ("nifti", "inputnode.atlas_nifti_file"),
                 ],
             ),
             (
