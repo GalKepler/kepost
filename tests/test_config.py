@@ -52,9 +52,9 @@ def test_execution_config():
 
 
 def test_workflow_config():
-    assert config.workflow.anat_only is False
     assert config.workflow.atlases == ["all"]
     assert config.workflow.dipy_reconstruction_method == "NLLS"
+    assert config.workflow.gm_probseg_threshold == 0.01
 
 
 def test_seeds_config():

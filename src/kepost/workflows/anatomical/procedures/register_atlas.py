@@ -37,6 +37,7 @@ def init_registration_wf(
     apply_transforms = pe.Node(
         interface=ApplyTransforms(
             interpolation="NearestNeighbor",
+            dimension=3,
         ),
         name="apply_transforms",
     )
