@@ -4,8 +4,6 @@ from nipype.pipeline import engine as pe
 from kepost.interfaces.bids import DerivativesDataSink
 
 wholebrain_entities = {
-    # "atlas": "brainnetome",
-    # "res": "T1w",
     "space": "T1w",
     "desc": "",
     "label": "WholeBrain",
@@ -14,8 +12,6 @@ wholebrain_entities = {
 }
 
 gm_cropped_entities = {
-    # "atlas": "brainnetome",
-    # "res": "T1w",
     "space": "T1w",
     "desc": "",
     "label": "GM",
@@ -43,7 +39,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
         interface=niu.IdentityInterface(
             fields=[
                 "base_directory",
-                "anatomical_reference",
+                "t1w_preproc",
                 "atlas_name",
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
@@ -61,6 +57,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
         ),
         name="ds_gm_cropped",
     )
+
     workflow.connect(
         [
             (
@@ -68,7 +65,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 ds_wholebrain,
                 [
                     ("base_directory", "base_directory"),
-                    ("anatomical_reference", "source_file"),
+                    ("t1w_preproc", "source_file"),
                     ("whole_brain_parcellation", "in_file"),
                     ("atlas_name", "atlas"),
                 ],
@@ -78,7 +75,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 ds_gm_cropped,
                 [
                     ("base_directory", "base_directory"),
-                    ("anatomical_reference", "source_file"),
+                    ("t1w_preproc", "source_file"),
                     ("gm_cropped_parcellation", "in_file"),
                     ("atlas_name", "atlas"),
                 ],

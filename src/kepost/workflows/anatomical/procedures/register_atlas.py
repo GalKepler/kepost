@@ -18,7 +18,7 @@ def init_registration_wf(
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
-                "anatomical_reference",
+                "t1w_preproc",
                 "mni_to_native_transform",
                 "atlas_name",
                 "atlas_nifti_file",
@@ -49,7 +49,7 @@ def init_registration_wf(
                 [
                     ("atlas_nifti_file", "input_image"),
                     ("mni_to_native_transform", "transforms"),
-                    ("anatomical_reference", "reference_image"),
+                    ("t1w_preproc", "reference_image"),
                 ],
             ),
             (

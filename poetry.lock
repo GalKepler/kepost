@@ -1856,20 +1856,18 @@ test = ["coverage", "pytest (>=6.0.0)", "pytest-cov"]
 
 [[package]]
 name = "nipype"
-version = "1.8.6"
+version = "1.8.7.dev0"
 description = "Neuroimaging in Python: Pipelines and Interfaces"
 optional = false
-python-versions = ">= 3.7"
-files = [
-    {file = "nipype-1.8.6-py3-none-any.whl", hash = "sha256:e404ba7781d2418c107107436ec509348137651fca56e5b3c9f9cb5235af6bd4"},
-    {file = "nipype-1.8.6.tar.gz", hash = "sha256:977b1315e8f70f94163ec07e31e5571be83f2add6023141c5a06ac700126f8d1"},
-]
+python-versions = ">= 3.8"
+files = []
+develop = false
 
 [package.dependencies]
 click = ">=6.6.0"
 etelemetry = ">=0.2.0"
 filelock = ">=3.0.0"
-looseversion = "*"
+looseversion = "!=1.2"
 networkx = ">=2.0"
 nibabel = ">=2.1.0"
 numpy = ">=1.17"
@@ -1883,9 +1881,9 @@ simplejson = ">=3.8.0"
 traits = ">=4.6,<5.0 || >5.0,<6.4"
 
 [package.extras]
-all = ["GitPython", "black", "codecov", "coverage (<5)", "datalad", "dipy", "duecredit", "fuzzywuzzy", "ipython", "matplotlib", "nbsphinx", "nilearn", "nipy", "nitime", "paramiko", "psutil (>=5.0)", "pybids (>=0.7.0)", "pytest", "pytest-cov", "pytest-doctestplus", "pytest-env", "pytest-timeout", "sphinx", "sphinx (>=2.1.2)", "sphinx-argparse", "sphinxcontrib-apidoc", "xvfbwrapper"]
+all = ["GitPython", "black", "codecov", "coverage", "datalad", "dipy", "duecredit", "fuzzywuzzy", "ipython", "matplotlib", "nbsphinx", "nilearn", "nipy", "nitime", "paramiko", "psutil (>=5.0)", "pybids (>=0.7.0)", "pytest", "pytest-cov", "pytest-doctestplus", "pytest-env", "pytest-timeout", "sphinx", "sphinx (>=2.1.2)", "sphinx-argparse", "sphinxcontrib-apidoc", "xvfbwrapper"]
 data = ["datalad"]
-dev = ["black", "codecov", "coverage (<5)", "dipy", "ipython", "matplotlib", "nbsphinx", "pytest", "pytest-cov", "pytest-doctestplus", "pytest-env", "pytest-timeout", "sphinx", "sphinx (>=2.1.2)", "sphinx-argparse", "sphinxcontrib-apidoc"]
+dev = ["black", "codecov", "coverage", "dipy", "ipython", "matplotlib", "nbsphinx", "pytest", "pytest-cov", "pytest-doctestplus", "pytest-env", "pytest-timeout", "sphinx", "sphinx (>=2.1.2)", "sphinx-argparse", "sphinxcontrib-apidoc"]
 doc = ["dipy", "ipython", "matplotlib", "nbsphinx", "sphinx (>=2.1.2)", "sphinx-argparse", "sphinxcontrib-apidoc"]
 duecredit = ["duecredit"]
 maint = ["GitPython", "fuzzywuzzy"]
@@ -1894,8 +1892,14 @@ profiler = ["psutil (>=5.0)"]
 pybids = ["pybids (>=0.7.0)"]
 specs = ["black"]
 ssh = ["paramiko"]
-tests = ["codecov", "coverage (<5)", "pytest", "pytest-cov", "pytest-doctestplus", "pytest-env", "pytest-timeout", "sphinx"]
+tests = ["codecov", "coverage", "pytest", "pytest-cov", "pytest-doctestplus", "pytest-env", "pytest-timeout", "sphinx"]
 xvfbwrapper = ["xvfbwrapper"]
+
+[package.source]
+type = "git"
+url = "https://github.com/nipy/nipype.git"
+reference = "HEAD"
+resolved_reference = "4d1352ade7171fd5f55eff62cee4c99a4f9cfed1"
 
 [[package]]
 name = "nitransforms"
@@ -3745,4 +3749,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "81dbefd40c6af44638e5d8aa2f3bf96ad0edaa7f2dce2c1a21731bb90c449c90"
+content-hash = "f570af136cade3da00bb0849f2fc636b907e728b51284e43e2966016ded72fcb"

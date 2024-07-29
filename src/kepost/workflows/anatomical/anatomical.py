@@ -9,6 +9,9 @@ from kepost import config
 from kepost.atlases.utils import get_atlas_properties
 from kepost.workflows.anatomical.procedures.crop_to_gm import init_gm_cropping_wf
 from kepost.workflows.anatomical.procedures.derivatives import init_derivatives_wf
+from kepost.workflows.anatomical.procedures.five_tissue_type import (
+    init_five_tissue_type_wf,
+)
 from kepost.workflows.anatomical.procedures.register_atlas import init_registration_wf
 
 
@@ -24,7 +27,9 @@ def init_anatomical_wf(
         interface=niu.IdentityInterface(
             fields=[
                 "base_directory",
-                "anatomical_reference",
+                "t1w_preproc",
+                "t2w_preproc",
+                "t1w_mask",
                 "mni_to_native_transform",
                 "gm_probabilistic_segmentation",
                 "probseg_threshold",
@@ -34,7 +39,11 @@ def init_anatomical_wf(
         ),
         name="inputnode",
     )
-    inputnode.iterables = ("atlas_name", list(config.workflow.atlases))
+    atlases_node = pe.Node(
+        niu.IdentityInterface(fields=["atlas_name"]),
+        name="atlases",
+    )
+    atlases_node.iterables = ("atlas_name", list(config.workflow.atlases))
     inputnode.inputs.probseg_threshold = config.workflow.gm_probseg_threshold
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
@@ -56,7 +65,7 @@ def init_anatomical_wf(
     workflow.connect(
         [
             (
-                inputnode,
+                atlases_node,
                 get_atlas_info_node,
                 [
                     ("atlas_name", "atlas"),
@@ -72,7 +81,7 @@ def init_anatomical_wf(
                 inputnode,
                 registration_wf,
                 [
-                    ("anatomical_reference", "inputnode.anatomical_reference"),
+                    ("t1w_preproc", "inputnode.t1w_preproc"),
                     (
                         "mni_to_native_transform",
                         "inputnode.mni_to_native_transform",
@@ -135,6 +144,22 @@ def init_anatomical_wf(
             ),
         ]
     )
+
+    five_tissue_type = init_five_tissue_type_wf()
+    workflow.connect(
+        [
+            (
+                inputnode,
+                five_tissue_type,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("t1w_preproc", "inputnode.t1w_preproc"),
+                    ("subject_id", "inputnode.subject_id"),
+                ],
+            ),
+        ]
+    )
+
     derivatives_wf = init_derivatives_wf()
     workflow.connect(
         [
@@ -144,8 +169,8 @@ def init_anatomical_wf(
                 [
                     ("base_directory", "inputnode.base_directory"),
                     (
-                        "anatomical_reference",
-                        "inputnode.anatomical_reference",
+                        "t1w_preproc",
+                        "inputnode.t1w_preproc",
                     ),
                     ("atlas_name", "inputnode.atlas_name"),
                 ],
