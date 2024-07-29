@@ -146,6 +146,9 @@ def init_tensor_estimation_wf(
                     ("dwi_mask", "inputnode.dwi_mask"),
                     ("dwi_bzero", "inputnode.dwi_bzero"),
                     ("dipy_fit_method", "inputnode.fit_method"),
+                    ("native_to_mni_transform", "inputnode.native_to_mni_transform"),
+                    ("dwi_to_t1w_transform", "inputnode.dwi_to_t1w_transform"),
+                    ("t1w_reference", "inputnode.t1w_reference"),
                 ],
             ),
             (
