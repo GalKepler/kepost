@@ -1,0 +1,195 @@
+from nipype.interfaces import utility as niu
+from nipype.pipeline import engine as pe
+
+from kepost import config
+from kepost.interfaces.bids import DerivativesDataSink
+from kepost.interfaces.dipy import ReconstDTI
+from kepost.workflows.diffusion.procedures.utils.derivatives import (
+    DIFFUSION_WF_OUTPUT_ENTITIES,
+)
+
+TENSOR_PARAMETERS = [
+    "tensor",
+    "fa",
+    "ga",
+    "rgb",
+    "md",
+    "ad",
+    "rd",
+    "mode",
+    "evec",
+    "eval",
+]
+
+
+def gen_acq_label(max_bval: int) -> str:
+    """
+    Generate the acquisition label
+
+    Parameters
+    ----------
+    max_bval : int
+        The maximum bval
+
+    Returns
+    -------
+    str
+        The acquisition label
+    """
+    return f"shell{int(max_bval)}"
+
+
+def estimate_sigma(in_file: str, in_mask: str) -> float:
+    """
+    Estimate the sigma value (1.5267 * std(background_noise))
+
+    Parameters
+    ----------
+    in_file : str
+        The input file
+
+    Returns
+    -------
+    float
+        The sigma value
+    """
+    import nibabel as nib
+    import numpy as np
+
+    data = nib.load(in_file).get_fdata()
+    mask = nib.load(in_mask).get_fdata().astype(bool)
+    background = data[~mask]
+    return 1.5267 * np.std(background)
+
+
+def init_dipy_tensor_wf(
+    name: str = "dipy_tensor_wf",
+) -> pe.Workflow:
+    """
+    Initialize the tensor estimation workflow.
+
+    Parameters
+    ----------
+    name : str, optional
+        The name of the workflow, by default "tensor_estimation_wf"
+
+    Returns
+    -------
+    pe.Workflow
+        The tensor estimation workflow
+    """
+    workflow = pe.Workflow(name=name)
+    inputnode = pe.Node(
+        interface=niu.IdentityInterface(
+            fields=[
+                "base_directory",
+                "dwi_nifti",
+                "dwi_bvec",
+                "dwi_bval",
+                "dwi_mask",
+                "dwi_bzero",
+                "fit_method",
+                "source_file",
+                "max_bval",
+            ]
+        ),
+        name="inputnode",
+    )
+    outputnode = pe.Node(
+        interface=niu.IdentityInterface(fields=TENSOR_PARAMETERS),
+        name="outputnode",
+    )
+    acq_label = pe.Node(
+        niu.Function(
+            input_names=["max_bval"],
+            output_names=["acq_label"],
+            function=gen_acq_label,
+        ),
+        name="acq_label",
+    )
+    tensor_wf = pe.Node(interface=ReconstDTI(), name="dipy_tensor_wf")
+    listify_tensor_params = pe.Node(
+        interface=niu.Merge(numinputs=len(TENSOR_PARAMETERS)),
+        name="listify_tensor_params",
+    )
+
+    ds_tensor_wf = pe.MapNode(
+        interface=DerivativesDataSink(
+            **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
+            reconstruction_software="dipy",
+            save_meta=False,
+        ),
+        iterfield=["in_file", "desc"],
+        name="ds_tensor_wf",
+    )
+    ds_tensor_wf.inputs.desc = TENSOR_PARAMETERS
+
+    if config.workflow.dipy_reconstruction_method.lower() in ["rt", "restore"]:
+        estimate_sigma_node = pe.Node(
+            niu.Function(
+                input_names=["in_file", "in_mask"],
+                output_names=["sigma"],
+                function=estimate_sigma,
+            ),
+            name="estimate_sigma",
+        )
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    estimate_sigma_node,
+                    [("dwi_bzero", "in_file"), ("dwi_mask", "in_mask")],
+                ),
+                (
+                    estimate_sigma_node,
+                    tensor_wf,
+                    [("sigma", "sigma")],
+                ),
+            ]
+        )
+
+    workflow.connect(
+        [
+            (
+                inputnode,
+                acq_label,
+                [("max_bval", "max_bval")],
+            ),
+            (
+                inputnode,
+                tensor_wf,
+                [
+                    ("dwi_nifti", "in_file"),
+                    ("dwi_bvec", "in_bvec"),
+                    ("dwi_bval", "in_bval"),
+                    ("dwi_mask", "mask_file"),
+                    ("fit_method", "fit_method"),
+                ],
+            ),
+            (
+                tensor_wf,
+                outputnode,
+                [(f"{param}_file", param) for param in TENSOR_PARAMETERS],
+            ),
+            (
+                outputnode,
+                listify_tensor_params,
+                [(param, f"in{i+1}") for i, param in enumerate(TENSOR_PARAMETERS)],
+            ),
+            (
+                listify_tensor_params,
+                ds_tensor_wf,
+                [("out", "in_file")],
+            ),
+            (
+                inputnode,
+                ds_tensor_wf,
+                [
+                    ("base_directory", "base_directory"),
+                    ("source_file", "source_file"),
+                ],
+            ),
+            (acq_label, ds_tensor_wf, [("acq_label", "acquisition")]),
+        ]
+    )
+    return workflow

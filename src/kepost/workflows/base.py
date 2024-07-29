@@ -6,6 +6,7 @@ from kepost import config
 from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
 from kepost.interfaces.bids.utils import collect_data
 from kepost.workflows.anatomical import init_anatomical_wf
+from kepost.workflows.diffusion.diffusion import init_diffusion_wf
 
 
 def init_kepost_wf():
@@ -64,7 +65,7 @@ def init_single_subject_wf(subject_id: str, name: str):
             fields=[
                 "base_directory",
                 "t1w_preproc",
-                "anatomical_brain_mask",
+                "t1w_brain_mask",
                 "mni_to_native_transform",
                 "native_to_mni_transform",
                 "gm_probabilistic_segmentation",
@@ -75,8 +76,8 @@ def init_single_subject_wf(subject_id: str, name: str):
         name="inputnode_subject",
     )
     inputnode.inputs.base_directory = kepost_dir
-    inputnode.inputs.anatomical_reference = subject_data["t1w_preproc"]
-    inputnode.inputs.anatomical_brain_mask = subject_data["t1w_brain_mask"]
+    inputnode.inputs.t1w_preproc = subject_data["t1w_preproc"]
+    inputnode.inputs.t1w_brain_mask = subject_data["t1w_brain_mask"]
     inputnode.inputs.mni_to_native_transform = subject_data["mni_to_native_transform"]
     inputnode.inputs.native_to_mni_transform = subject_data["native_to_mni_transform"]
     inputnode.inputs.gm_probabilistic_segmentation = subject_data[
@@ -99,8 +100,8 @@ def init_single_subject_wf(subject_id: str, name: str):
                 anatomical_wf,
                 [
                     ("base_directory", "inputnode.base_directory"),
-                    ("anatomical_reference", "inputnode.t1w_preproc"),
-                    ("anatomical_brain_mask", "inputnode.t1w_mask"),
+                    ("t1w_preproc", "inputnode.t1w_preproc"),
+                    ("t1w_brain_mask", "inputnode.t1w_mask"),
                     ("mni_to_native_transform", "inputnode.mni_to_native_transform"),
                     (
                         "gm_probabilistic_segmentation",
@@ -111,4 +112,63 @@ def init_single_subject_wf(subject_id: str, name: str):
             ),
         ]
     )
+
+    # Diffusion postprocessing
+    diffusion_workflows = []
+    # num_sessions = len(sessions_data)
+    # diffusion_processing_desc = f"""
+    # For each of the {num_sessions} DWI runs found per subject {subject_id},
+    # the following steps were performed:
+    # """
+    for session_inputs in sessions_data.values():
+        session_workflow = init_diffusion_wf(dwi_data=session_inputs)
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    session_workflow,
+                    [
+                        ("base_directory", "inputnode.base_directory"),
+                        ("t1w_preproc", "inputnode.t1w_preproc"),
+                        ("t1w_brain_mask", "inputnode.t1w_brain_mask"),
+                        (
+                            "gm_probabilistic_segmentation",
+                            "inputnode.gm_probabilistic_segmentation",
+                        ),
+                        (
+                            "wm_probabilistic_segmentation",
+                            "inputnode.wm_probabilistic_segmentation",
+                        ),
+                        (
+                            "csf_probabilistic_segmentation",
+                            "inputnode.csf_probabilistic_segmentation",
+                        ),
+                        (
+                            "native_to_mni_transform",
+                            "inputnode.native_to_mni_transform",
+                        ),
+                    ],
+                ),
+                (
+                    anatomical_wf,
+                    session_workflow,
+                    [
+                        (
+                            "outputnode.whole_brain_parcellation",
+                            "inputnode.whole_brain_t1w_parcellation",
+                        ),
+                        (
+                            "outputnode.gm_cropped_parcellation",
+                            "inputnode.gm_cropped_t1w_parcellation",
+                        ),
+                        (
+                            "outputnode.atlas_name",
+                            "inputnode.atlas_name",
+                        ),
+                    ],
+                ),
+            ]
+        )
+
+        diffusion_workflows.append(session_workflow)
     return workflow

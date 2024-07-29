@@ -48,6 +48,7 @@ def init_anatomical_wf(
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
+                "atlas_name",
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
             ]
@@ -64,6 +65,13 @@ def init_anatomical_wf(
     )
     workflow.connect(
         [
+            (
+                inputnode,
+                outputnode,
+                [
+                    ("atlas_name", "atlas_name"),
+                ],
+            ),
             (
                 atlases_node,
                 get_atlas_info_node,
