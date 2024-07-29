@@ -19,7 +19,7 @@ QUERIES = {
             "extension": "h5",
         },
     },
-    "anatomical_reference": {
+    "t1w_preproc": {
         "scope": "subject",
         "entities": {
             "desc": "preproc",
@@ -29,7 +29,7 @@ QUERIES = {
             "extension": ".nii.gz",
         },
     },
-    "anatomical_brain_mask": {
+    "t1w_brain_mask": {
         "scope": "subject",
         "entities": {
             "desc": "brain",
