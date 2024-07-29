@@ -252,7 +252,7 @@ class nipype(_Config):
     """Estimation in GB of the RAM this workflow can allocate at any given time."""
     nprocs = os.cpu_count()
     """Number of processes (compute tasks) that can be run in parallel (multiprocessing only)."""
-    omp_nthreads = None
+    omp_nthreads = 8
     """Number of CPUs a single process can access for multithreaded execution."""
     plugin = "MultiProc"
     """NiPype's execution plugin."""
@@ -385,6 +385,9 @@ class execution(_Config):
             cls.keprep_database_dir = _db_path
         cls.layout = cls._layout
 
+        if cls.participant_label is None:
+            cls.participant_label = cls.layout.get_subjects()
+
         if "all" in cls.debug:
             cls.debug = list(DEBUG_MODES)
 
@@ -393,6 +396,9 @@ class execution(_Config):
         else:
             if Path(cls.output_dir).name != "kepost":
                 cls.output_dir = Path(cls.output_dir) / "kepost"
+
+        if cls.fs_subjects_dir is None:
+            cls.fs_subjects_dir = Path(cls.keprep_dir).parent / "freesurfer"
 
 
 # These variables are not necessary anymore
@@ -409,8 +415,10 @@ del _oc_policy
 class workflow(_Config):
     """Configure the particular execution graph of this workflow."""
 
-    anat_only = False
-    """Execute the anatomical preprocessing only."""
+    five_tissue_type_algorithm = "hsvs"
+    """Algorithm to use for the generation of the five-tissue-type image. Available algorithms are: `hsvs`, `fsl`."""
+    gm_probseg_threshold = 0.0001
+    """Threshold for the probabilistic segmentation of the gray matter."""
     atlases: list = ["all"]
     """Parcellation atlas(es) to use for the parcellation step. Available atlases are: `all`, `fan2016`, `huang2022`, `schaefer2018_{n_regions}_{n_networks}`."""
     dipy_reconstruction_method = "NLLS"

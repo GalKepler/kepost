@@ -1,0 +1,52 @@
+from pathlib import Path
+
+from bids.layout import BIDSLayout
+
+from kepost.interfaces.bids.static.queries import QUERIES
+
+
+def collect_data(
+    layout: BIDSLayout,
+    participant_label: str,
+    queries: dict = QUERIES,
+):
+    """
+    Uses pybids to retrieve the input data for a given participant
+    """
+    try:
+        subj_data = {
+            dtype: sorted(
+                layout.get(
+                    return_type="file",
+                    subject=participant_label,
+                    **query["entities"],
+                )
+            )[0]
+            for dtype, query in queries.items()
+            if query["scope"] == "subject"
+        }
+        session_data = {}
+        for session in layout.get_sessions(subject=participant_label):
+            session_data[session] = {
+                dtype: sorted(
+                    layout.get(
+                        return_type="file",
+                        subject=participant_label,
+                        session=session,
+                        **query["entities"],
+                    )
+                )[0]
+                for dtype, query in queries.items()
+                if query["scope"] == "session"
+            }
+            root = Path(layout.root) / f"sub-{participant_label}" / f"ses-{session}"
+            session_data[session].update({"eddy_qc": str(root / "dwi" / "eddy_qc")})
+
+    except IndexError:
+        raise Exception(
+            "No data found for participant {} and session {}".format(
+                participant_label, session
+            )
+        )
+
+    return subj_data, session_data
