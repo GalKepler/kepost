@@ -72,7 +72,7 @@ def init_single_subject_wf(subject_id: str, name: str):
         ),
         name="inputnode_subject",
     )
-    inputnode.iterables = ("atlases", list(config.workflow.atlases.keys()))
+    inputnode.iterables = ("atlases", list(config.workflow.atlases.keys()))  # type: ignore[attr-defined]
     inputnode.inputs.base_directory = kepost_dir
     inputnode.inputs.anatomical_reference = subject_data["anatomical_reference"]
     inputnode.inputs.anatomical_brain_mask = subject_data["anatomical_brain_mask"]

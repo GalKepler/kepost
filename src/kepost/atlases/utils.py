@@ -28,7 +28,7 @@ def get_atlas_properties(atlas: str):
     from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
 
     nifti, description, region_col, index_col = [
-        AVAILABLE_ATLASES.get(atlas).get(key)
+        AVAILABLE_ATLASES.get(atlas).get(key)  # type: ignore[union-attr]
         for key in ["nifti", "description_file", "region_col", "index_col"]
     ]
     return nifti, description, region_col, index_col
