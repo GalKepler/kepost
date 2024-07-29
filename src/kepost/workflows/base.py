@@ -52,15 +52,12 @@ def init_single_subject_wf(subject_id: str, name: str):
     """
     Initialize the single subject workflow
     """
-    single_subject_wf = pe.Workflow(name=name)  # noqa: F841
+    workflow = pe.Workflow(name=name)  # noqa: F841
     kepost_dir = config.execution.output_dir
     keprep_dir = config.execution.keprep_dir  # noqa: F841
     subject_data, sessions_data = collect_data(
         layout=config.execution.layout, participant_label=subject_id
     )
-
-    # Initiate workflow
-    workflow = pe.Workflow(name=f"single_subject_{subject_id}_wf")
 
     inputnode = pe.Node(
         niu.IdentityInterface(
@@ -77,7 +74,6 @@ def init_single_subject_wf(subject_id: str, name: str):
         ),
         name="inputnode_subject",
     )
-    inputnode.iterables = ("atlases", list(config.workflow.atlases.keys()))  # type: ignore[attr-defined]
     inputnode.inputs.base_directory = kepost_dir
     inputnode.inputs.anatomical_reference = subject_data["t1w_preproc"]
     inputnode.inputs.anatomical_brain_mask = subject_data["t1w_brain_mask"]
@@ -110,9 +106,9 @@ def init_single_subject_wf(subject_id: str, name: str):
                         "gm_probabilistic_segmentation",
                         "inputnode.gm_probabilistic_segmentation",
                     ),
-                    ("atlases", "inputnode.atlas_name"),
                     ("subject_id", "inputnode.subject_id"),
                 ],
             ),
         ]
     )
+    return workflow
