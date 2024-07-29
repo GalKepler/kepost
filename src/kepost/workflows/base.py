@@ -5,7 +5,7 @@ from packaging.version import Version
 from kepost import config
 from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
 from kepost.interfaces.bids.utils import collect_data
-from kepost.workflows.anatomical.anatomical import init_anatomical_wf
+from kepost.workflows.anatomical import init_anatomical_wf
 
 
 def init_kepost_wf():
