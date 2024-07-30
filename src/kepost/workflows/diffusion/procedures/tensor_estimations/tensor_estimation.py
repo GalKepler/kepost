@@ -10,7 +10,7 @@ from kepost.interfaces.mrtrix3 import MRConvert
 from kepost.workflows.diffusion.procedures.tensor_estimations.dipy import (
     init_dipy_tensor_wf,
 )
-from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 import (
+from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3 import (
     init_mrtrix3_tensor_wf,
 )
 
