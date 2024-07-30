@@ -24,24 +24,20 @@ def calculate_strip_score(
     list
         The striping scores
     """
-    from pathlib import Path
-
     import nibabel as nib
     import numpy as np
     from scipy.fft import fft, fftfreq
 
-    if isinstance(input_file, str) or isinstance(input_file, Path):
-        input_file = nib.load(input_file)
-    if isinstance(brain_mask, str) or isinstance(brain_mask, Path):
-        brain_mask = nib.load(brain_mask)
-    all_volumes = input_file.get_fdata()
-    brain_mask = brain_mask.get_fdata().astype(bool)
+    input_img = nib.load(input_file)
+    brain_mask_img = nib.load(brain_mask)
+    all_volumes = input_img.get_fdata()  # type: ignore[attr-defined]
+    brain_mask_data = brain_mask_img.get_fdata().astype(bool)  # type: ignore[attr-defined]
 
     strip_scores = []
     n_volumes = all_volumes.shape[-1]
     for volume in range(n_volumes):
         data = all_volumes[..., volume]
-        data[~brain_mask] = 0
+        data[~brain_mask_data] = 0
         # Compute the mean signal profile along the given axis
         mean_profile = np.mean(
             data, axis=tuple(i for i in range(data.ndim) if i != axis)
@@ -140,7 +136,7 @@ BASE_JSON_KEYS = [
 ]
 
 
-def parse_eddyqc(eddyqc_dir: str) -> dict:
+def parse_eddyqc(eddyqc_dir: str) -> str:
     """
     Parse the eddy quality control string
     """
@@ -159,11 +155,11 @@ def parse_eddyqc(eddyqc_dir: str) -> dict:
     with qc_json.open("r") as f:
         qc_dict = json.load(f)
     for key, value in EDDY_QC_JSON_PARSER.items():
-        value = value["func"](qc_dict, **value["keys"])
+        value = value["func"](qc_dict, **value["keys"])  # type: ignore[operator]
         if isinstance(value, dict):
             result.update(value)
         else:
-            result[key] = value
+            result[key] = value  # type: ignore[unreachable]
     out_file = f"{os.getcwd()}/eddyqc.json"
     with open(out_file, "w") as f:
         json.dump(result, f)

@@ -12,7 +12,7 @@ from kepost.workflows.diffusion.procedures.utils.derivatives import (
 
 def calc_snr(
     dwi_file: str, tissue_mask: str, brain_mask: str, probseg_threshold: float = 0.001
-) -> str:
+) -> list:
     """
     Calculate the signal-to-noise ratio (SNR) of the diffusion-weighted images.
 
@@ -35,9 +35,9 @@ def calc_snr(
 
     snr_values = []
     dwi_img = nib.load(dwi_file)
-    dwi_data = dwi_img.get_fdata()
-    tissue_mask_data = nib.load(tissue_mask).get_fdata() > probseg_threshold
-    brain_mask_data = nib.load(brain_mask).get_fdata().astype(bool)
+    dwi_data = dwi_img.get_fdata()  # type: ignore[attr-defined]
+    tissue_mask_data = nib.load(tissue_mask).get_fdata() > probseg_threshold  # type: ignore[attr-defined]
+    brain_mask_data = nib.load(brain_mask).get_fdata().astype(bool)  # type: ignore[attr-defined]
     n_volumes = dwi_data.shape[-1]
     for volume in range(n_volumes):
         signal = dwi_data[..., volume]
