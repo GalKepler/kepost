@@ -187,6 +187,7 @@ def init_diffusion_wf(
                     ("dwi_grad", "inputnode.dwi_grad"),
                     ("dwi_mask", "inputnode.brain_mask"),
                     ("dwi_bval", "inputnode.dwi_bval"),
+                    ("eddy_qc", "inputnode.eddy_qc"),
                 ],
             ),
             (

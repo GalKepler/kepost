@@ -1,6 +1,7 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import utility as niu
 
+from kepost.workflows.diffusion.procedures.quality_control.eddy_qc import init_eddyqc_wf
 from kepost.workflows.diffusion.procedures.quality_control.snr import init_snr_wf
 
 
@@ -44,6 +45,13 @@ def init_qc_wf(name: str = "qc_wf"):
             (inputnode, snr_wf, [("wm_probseg", "inputnode.wm_probseg")]),
             (inputnode, snr_wf, [("csf_probseg", "inputnode.csf_probseg")]),
             (snr_wf, outputnode, [("outputnode.qc_report", "snr_file")]),
+        ]
+    )
+    eddyqc_wf = init_eddyqc_wf()
+    qc_wf.connect(
+        [
+            (inputnode, eddyqc_wf, [("eddy_qc", "inputnode.eddy_qc")]),
+            (inputnode, eddyqc_wf, [("base_directory", "inputnode.base_directory")]),
         ]
     )
     return qc_wf

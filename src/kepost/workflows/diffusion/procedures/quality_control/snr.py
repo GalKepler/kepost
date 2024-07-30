@@ -2,6 +2,9 @@ import nipype.pipeline.engine as pe
 from nipype.interfaces import utility as niu
 
 from kepost.interfaces.bids import DerivativesDataSink
+from kepost.workflows.diffusion.procedures.quality_control.utils import (
+    calculate_strip_score,
+)
 from kepost.workflows.diffusion.procedures.utils.derivatives import (
     DIFFUSION_WF_OUTPUT_ENTITIES,
 )
@@ -48,7 +51,7 @@ def calc_snr(
 
 
 def tissue_snr_to_csv(
-    snr_values: list, tissues: list, dwi_bval: str, out_file: str
+    snr_values: list, striping_scores: list, tissues: list, dwi_bval: str, out_file: str
 ) -> str:
     """
     Convert the SNR values to a CSV file.
@@ -82,7 +85,12 @@ def tissue_snr_to_csv(
         df.loc[tissue] = snr
     df.loc["bval"] = bvals
     df.loc["volume"] = df.columns
-    df = df.T.melt(id_vars=["bval", "volume"], var_name="tissue", value_name="SNR")
+    df = df.T.melt(
+        id_vars=["bval", "volume"],
+        var_name="tissue",
+        value_name="SNR",
+    )
+    df.loc[df["tissue"] == "wholebrain", "striping_score"] = striping_scores
     df.to_csv(f"{cur_path}/{out_file}", index=True)
     return f"{cur_path}/{out_file}"
 
@@ -133,7 +141,13 @@ def init_snr_wf(name: str = "snr_wf") -> pe.Workflow:
     )
     snrs_to_csv = pe.Node(
         niu.Function(
-            input_names=["snr_values", "tissues", "dwi_bval", "out_file"],
+            input_names=[
+                "snr_values",
+                "striping_scores",
+                "tissues",
+                "dwi_bval",
+                "out_file",
+            ],
             output_names="out_file",
             function=tissue_snr_to_csv,
         ),
@@ -206,6 +220,33 @@ def init_snr_wf(name: str = "snr_wf") -> pe.Workflow:
                 outputnode,
                 [
                     ("out_file", "qc_report"),
+                ],
+            ),
+        ]
+    )
+    striping_scores_node = pe.Node(
+        niu.Function(
+            input_names=["input_file", "brain_mask"],
+            output_names="strip_scores",
+            function=calculate_strip_score,
+        ),
+        name="striping_scores_node",
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                striping_scores_node,
+                [
+                    ("dwi_file", "input_file"),
+                    ("brain_mask", "brain_mask"),
+                ],
+            ),
+            (
+                striping_scores_node,
+                snrs_to_csv,
+                [
+                    ("strip_scores", "striping_scores"),
                 ],
             ),
         ]
