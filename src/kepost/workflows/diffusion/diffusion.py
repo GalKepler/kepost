@@ -12,7 +12,6 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation 
     init_tensor_estimation_wf,
 )
 
-# from kepost.workflows.diffusion.procedures.quality_control.workflow import init_qc_wf
 # from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
 #     init_tensor_estimation_wf,
 # )
