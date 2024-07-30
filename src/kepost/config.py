@@ -427,6 +427,8 @@ class workflow(_Config):
     """Reconstruction method to use for the estimation of tensor-derived parameters using dipy."""
     dipy_reconstruction_sigma = None
     """Sigma parameter for the RESTORE algorithm. If none provided, sigma will be estimated."""
+    parcellate_gm = True
+    """Whether to apply gray matter masking to atlases prior to parcellation."""
 
 
 class loggers:

@@ -69,4 +69,11 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "extension": ".json",
         "reconstruction_software": "qc",
     },
+    parcellations={
+        "space": "dwi",
+        "subtype": "parcellations",
+        "direction": "",
+        "suffix": "parc",
+        "extension": ".pkl",
+    },
 )
