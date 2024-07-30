@@ -31,8 +31,8 @@ def estimate_sigma(in_file: str, in_mask: str) -> float:
     import nibabel as nib
     import numpy as np
 
-    data = nib.load(in_file).get_fdata()
-    mask = nib.load(in_mask).get_fdata().astype(bool)
+    data = nib.load(in_file).get_fdata()  # type: ignore[attr-defined]
+    mask = nib.load(in_mask).get_fdata().astype(bool)  # type: ignore[attr-defined]
     background = data[~mask]
     return 1.5267 * np.std(background)
 
@@ -92,7 +92,7 @@ def init_dipy_tensor_wf(
     )
 
     ds_tensor_wf = pe.MapNode(
-        interface=DerivativesDataSink(
+        interface=DerivativesDataSink(  # type: ignore[arg-type]
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
             reconstruction_software="dipy",
             save_meta=False,
@@ -135,7 +135,7 @@ def init_dipy_tensor_wf(
         name="corgister_tensor_wf",
     )
 
-    coreg_tensor_ds_entities = DIFFUSION_WF_OUTPUT_ENTITIES.get(
+    coreg_tensor_ds_entities = DIFFUSION_WF_OUTPUT_ENTITIES.get(  # type: ignore[union-attr]
         "dti_derived_parameters"
     ).copy()
     coreg_tensor_ds_entities.update({"space": "T1w"})
@@ -160,7 +160,7 @@ def init_dipy_tensor_wf(
         name="normalize_tensor_wf",
     )
     ds_tensor_mni_wf = pe.MapNode(
-        interface=DerivativesDataSink(
+        interface=DerivativesDataSink(  # type: ignore[arg-type]
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
             reconstruction_software="dipy",
             space="MNI152NLin2009cAsym",

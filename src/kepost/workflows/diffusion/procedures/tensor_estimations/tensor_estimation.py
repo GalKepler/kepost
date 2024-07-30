@@ -15,7 +15,7 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 im
 )
 
 
-def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> list:
+def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> tuple[list, int]:
     """
     Detect the shells from the bvals file
 
@@ -33,12 +33,12 @@ def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> list:
     """
     import numpy as np
 
-    bvals = np.loadtxt(bvals)
-    bvals = np.unique(bvals)
+    bvals = np.loadtxt(bvals)  # type: ignore[assignment]
+    bvals = np.unique(bvals)  # type: ignore[assignment]
     max_bval = max_bval if max_bval is not None else np.max(bvals)
-    bvals = bvals[bvals <= max_bval + bval_tol]
-    bvals = bvals[bvals > 0]
-    return list(set(np.round(bvals, -2))), max_bval
+    bvals = bvals[bvals <= max_bval + bval_tol]  # type: ignore[operator]
+    bvals = bvals[bvals > 0]  # type: ignore[operator]
+    return list(set(np.round(bvals, -2))), max_bval  # type: ignore[call-overload]
 
 
 def init_tensor_estimation_wf(
@@ -77,7 +77,7 @@ def init_tensor_estimation_wf(
         name="inputnode",
     )
     max_bval = config.workflow.tensor_max_bval
-    max_bval = max_bval if isdefined(max_bval) else None
+    max_bval = max_bval if isdefined(max_bval) else None  # type: ignore[assignment]
     detect_shells_node = pe.Node(
         niu.Function(
             input_names=["bvals", "max_bval"],
