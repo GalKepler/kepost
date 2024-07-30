@@ -83,15 +83,11 @@ def init_parcellations_wf(
         DerivativesDataSink(  # type: ignore[arg-type]
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
         ),
-        iterfield=["in_file", "desc"],
+        iterfield=["desc"],
         name="ds_parcellation_node",
     )
     ds_parcellation_node.inputs.desc = inputs
     ds_parcellation_node.inputs.reconstruction_software = software
-    select_node = pe.Node(
-        niu.Select(index=[0]),
-        name="select_node",
-    )
     workflow.connect(
         [
             (
@@ -108,17 +104,7 @@ def init_parcellations_wf(
             (
                 parcellate_node,
                 ds_parcellation_node,
-                [("atlas_name", "atlas")],
-            ),
-            (
-                parcellate_node,
-                select_node,
-                [("out_file", "inlist")],
-            ),
-            (
-                select_node,
-                ds_parcellation_node,
-                [("out", "in_file")],
+                [("out_file", "in_file"), ("atlas_name", "desc")],
             ),
             (inputnode, ds_parcellation_node, [("acq_label", "acquisition")]),
         ]
