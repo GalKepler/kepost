@@ -50,8 +50,15 @@ def init_qc_wf(name: str = "qc_wf"):
     eddyqc_wf = init_eddyqc_wf()
     qc_wf.connect(
         [
-            (inputnode, eddyqc_wf, [("eddy_qc", "inputnode.eddy_qc")]),
-            (inputnode, eddyqc_wf, [("base_directory", "inputnode.base_directory")]),
+            (
+                inputnode,
+                eddyqc_wf,
+                [
+                    ("eddy_qc", "inputnode.eddy_qc"),
+                    ("dwi_file", "inputnode.source_file"),
+                    ("base_directory", "inputnode.base_directory"),
+                ],
+            )
         ]
     )
     return qc_wf

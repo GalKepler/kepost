@@ -61,4 +61,12 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "extension": ".csv",
         "reconstruction_software": "qc",
     },
+    eddy_qc={
+        "space": "dwi",
+        "desc": "eddy",
+        "direction": "",
+        "suffix": "qc",
+        "extension": ".json",
+        "reconstruction_software": "qc",
+    },
 )

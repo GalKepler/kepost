@@ -91,8 +91,9 @@ def tissue_snr_to_csv(
         value_name="SNR",
     )
     df.loc[df["tissue"] == "wholebrain", "striping_score"] = striping_scores
-    df.to_csv(f"{cur_path}/{out_file}", index=True)
-    return f"{cur_path}/{out_file}"
+    out_file = f"{cur_path}/{out_file}"
+    df.to_csv(out_file, index=True)
+    return out_file
 
 
 def init_snr_wf(name: str = "snr_wf") -> pe.Workflow:

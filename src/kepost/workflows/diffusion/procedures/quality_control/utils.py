@@ -145,6 +145,7 @@ def parse_eddyqc(eddyqc_dir: str) -> dict:
     Parse the eddy quality control string
     """
     import json
+    import os
     from pathlib import Path
 
     from kepost.workflows.diffusion.procedures.quality_control.utils import (
@@ -163,4 +164,7 @@ def parse_eddyqc(eddyqc_dir: str) -> dict:
             result.update(value)
         else:
             result[key] = value
-    return result
+    out_file = f"{os.getcwd()}/eddyqc.json"
+    with open(out_file, "w") as f:
+        json.dump(result, f)
+    return out_file
