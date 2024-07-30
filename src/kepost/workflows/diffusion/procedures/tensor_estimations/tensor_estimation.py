@@ -4,14 +4,15 @@ from nipype.interfaces.base import isdefined
 from nipype.pipeline import engine as pe
 
 from kepost import config
+from kepost.interfaces.bids import DerivativesDataSink
+from kepost.interfaces.bids.utils import gen_acq_label
 from kepost.interfaces.mrtrix3 import MRConvert
 from kepost.workflows.diffusion.procedures.tensor_estimations.dipy import (
     init_dipy_tensor_wf,
 )
-
-# from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3 import (
-#     init_mrtrix3_tensor_wf,
-# )
+from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 import (
+    init_mrtrix3_tensor_wf,
+)
 
 
 def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> list:
@@ -98,9 +99,39 @@ def init_tensor_estimation_wf(
             out_bvec="dwi_max_bval.bvec",
             out_bval="dwi_max_bval.bval",
             out_mrtrix_grad="dwi_max_bval.b",
+            json_export="dwi_max_bval.json",
         ),
         name="mrconvert",
     )
+    gen_acq_label_node = pe.Node(
+        niu.Function(
+            input_names=["max_bval"],
+            output_names=["acq_label"],
+            function=gen_acq_label,
+        ),
+        name="gen_acq_label",
+    )
+    ds_dwiextract_node = pe.Node(
+        interface=DerivativesDataSink(
+            compress=True,
+            dismiss_entities=["direction"],
+            datatype="dwi",
+            space="dwi",
+        ),
+        name="ds_dwiextract",
+    )
+    listify_gradients = pe.Node(niu.Merge(4), name="listify_associated_gradients")
+    ds_dwi_supp = pe.MapNode(
+        DerivativesDataSink(
+            suffix="dwi",
+            datatype="dwi",
+            dismiss_entities=["direction"],
+        ),
+        iterfield=["in_file"],
+        name="ds_dwi_gradients",
+        run_without_submitting=True,
+    )
+
     workflow.connect(
         [
             (
@@ -126,10 +157,63 @@ def init_tensor_estimation_wf(
                 ],
             ),
             (
+                detect_shells_node,
+                gen_acq_label_node,
+                [
+                    ("max_bval", "max_bval"),
+                ],
+            ),
+            (
                 dwiextract_node,
                 mrconvert_node,
                 [
                     ("out_file", "in_file"),
+                ],
+            ),
+            (
+                mrconvert_node,
+                ds_dwiextract_node,
+                [("out_file", "in_file")],
+            ),
+            (
+                gen_acq_label_node,
+                ds_dwiextract_node,
+                [("acq_label", "acquisition")],
+            ),
+            (
+                inputnode,
+                ds_dwiextract_node,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                mrconvert_node,
+                listify_gradients,
+                [
+                    ("out_bvec", "in1"),
+                    ("out_bval", "in2"),
+                    ("out_mrtrix_grad", "in3"),
+                    ("json_export", "in4"),
+                ],
+            ),
+            (
+                listify_gradients,
+                ds_dwi_supp,
+                [("out", "in_file")],
+            ),
+            (
+                gen_acq_label_node,
+                ds_dwi_supp,
+                [("acq_label", "acquisition")],
+            ),
+            (
+                inputnode,
+                ds_dwi_supp,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
                 ],
             ),
         ]
@@ -169,27 +253,38 @@ def init_tensor_estimation_wf(
             ),
         ]
     )
+    mrtrix3_tensor_wf = init_mrtrix3_tensor_wf()
+    workflow.connect(
+        [
+            (
+                inputnode,
+                mrtrix3_tensor_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_nifti", "inputnode.source_file"),
+                    ("dwi_mask", "inputnode.dwi_mask"),
+                    (
+                        "native_to_mni_transform",
+                        "inputnode.native_to_mni_transform",
+                    ),
+                    ("dwi_to_t1w_transform", "inputnode.dwi_to_t1w_transform"),
+                    ("t1w_reference", "inputnode.t1w_reference"),
+                ],
+            ),
+            (
+                detect_shells_node,
+                mrtrix3_tensor_wf,
+                [
+                    ("max_bval", "inputnode.max_bval"),
+                ],
+            ),
+            (
+                dwiextract_node,
+                mrtrix3_tensor_wf,
+                [
+                    ("out_file", "inputnode.dwi_mif"),
+                ],
+            ),
+        ]
+    )
     return workflow
-    # return workflow
-    # mrtrix3_tensor_wf = init_mrtrix3_tensor_wf()
-    # workflow.connect(
-    #     [
-    #         (
-    #             inputnode,
-    #             mrtrix3_tensor_wf,
-    #             [
-    #                 ("base_directory", "inputnode.base_directory"),
-    #                 ("dwi_nifti", "inputnode.dwi_nifti"),
-    #                 ("dwi_grad", "inputnode.dwi_grad"),
-    #                 ("dwi_mask", "inputnode.dwi_mask"),
-    #                 (
-    #                     "native_to_mni_transform",
-    #                     "inputnode.native_to_mni_transform",
-    #                 ),
-    #                 ("dwi_to_t1w_transform", "inputnode.dwi_to_t1w_transform"),
-    #                 ("t1w_reference", "inputnode.t1w_reference"),
-    #             ],
-    #         ),
-    #     ]
-    # )
-    # return workflow

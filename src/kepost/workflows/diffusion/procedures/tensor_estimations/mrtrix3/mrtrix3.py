@@ -1,74 +1,52 @@
 from neuromaps import datasets
-from nipype.interfaces import ants, fsl
+from nipype.interfaces import ants, fsl, mrtrix3
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import gen_acq_label
-from kepost.interfaces.dipy import ReconstDTI
 from kepost.workflows.diffusion.procedures.utils.derivatives import (
     DIFFUSION_WF_OUTPUT_ENTITIES,
 )
 
-TENSOR_PARAMETERS = ["fa", "ga", "md", "ad", "rd", "mode"]
+TENSOR_PARAMETERS = [
+    "adc",
+    "fa",
+    "ad",
+    "rd",
+    "cl",
+    "cp",
+    "cs",
+]
 
 
-def estimate_sigma(in_file: str, in_mask: str) -> float:
-    """
-    Estimate the sigma value (1.5267 * std(background_noise))
-
-    Parameters
-    ----------
-    in_file : str
-        The input file
-
-    Returns
-    -------
-    float
-        The sigma value
-    """
-    import nibabel as nib
-    import numpy as np
-
-    data = nib.load(in_file).get_fdata()
-    mask = nib.load(in_mask).get_fdata().astype(bool)
-    background = data[~mask]
-    return 1.5267 * np.std(background)
-
-
-def init_dipy_tensor_wf(
-    name: str = "dipy_tensor_wf",
-) -> pe.Workflow:
+def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
     """
     Initialize the tensor estimation workflow.
 
     Parameters
     ----------
     name : str, optional
-        The name of the workflow, by default "tensor_estimation_wf"
+            The name of the workflow, by default "tensor_estimation_wf"
 
     Returns
     -------
     pe.Workflow
-        The tensor estimation workflow
+            The tensor estimation workflow
     """
     workflow = pe.Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
                 "base_directory",
-                "dwi_nifti",
-                "dwi_bvec",
-                "dwi_bval",
-                "dwi_mask",
-                "dwi_bzero",
-                "fit_method",
                 "source_file",
-                "max_bval",
+                "dwi_mif",
+                "dwi_mask",
                 "native_to_mni_transform",
                 "dwi_to_t1w_transform",
                 "t1w_reference",
+                "max_bval",
             ]
         ),
         name="inputnode",
@@ -85,16 +63,24 @@ def init_dipy_tensor_wf(
         ),
         name="acq_label",
     )
-    tensor_wf = pe.Node(interface=ReconstDTI(), name="dipy_tensor_wf")
-    listify_tensor_params = pe.Node(
-        interface=niu.Merge(numinputs=len(TENSOR_PARAMETERS)),
+    dwi2tensor_wf = pe.Node(
+        interface=mrtrix3.FitTensor(nthreads=config.nipype.omp_nthreads),
+        name="mrtrix3_tensor_wf",
+    )
+    tensor2metric_wf = pe.Node(
+        interface=mrtrix3.TensorMetrics(
+            **{f"out_{param}": f"{param}.nii.gz" for param in TENSOR_PARAMETERS},
+        ),
+        name="mrtrix3_tensor2metric_wf",
+    )
+    listify_metrics_wf = pe.Node(
+        interface=niu.Merge(len(TENSOR_PARAMETERS)),
         name="listify_tensor_params",
     )
-
     ds_tensor_wf = pe.MapNode(
         interface=DerivativesDataSink(
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
-            reconstruction_software="dipy",
+            reconstruction_software="mrtrix3",
             save_meta=False,
         ),
         iterfield=["in_file", "desc"],
@@ -102,31 +88,6 @@ def init_dipy_tensor_wf(
     )
     ds_tensor_wf.inputs.desc = TENSOR_PARAMETERS
 
-    if config.workflow.dipy_reconstruction_method.lower() in ["rt", "restore"]:
-        estimate_sigma_node = pe.Node(
-            niu.Function(
-                input_names=["in_file", "in_mask"],
-                output_names=["sigma"],
-                function=estimate_sigma,
-            ),
-            name="estimate_sigma",
-        )
-        workflow.connect(
-            [
-                (
-                    inputnode,
-                    estimate_sigma_node,
-                    [("dwi_bzero", "in_file"), ("dwi_mask", "in_mask")],
-                ),
-                (
-                    estimate_sigma_node,
-                    tensor_wf,
-                    [("sigma", "sigma")],
-                ),
-            ]
-        )
-
-    # Coregistrations
     coregister_tensor_wf = pe.MapNode(
         fsl.ApplyXFM(
             apply_xfm=True,
@@ -134,7 +95,6 @@ def init_dipy_tensor_wf(
         iterfield=["in_file"],
         name="corgister_tensor_wf",
     )
-
     coreg_tensor_ds_entities = DIFFUSION_WF_OUTPUT_ENTITIES.get(
         "dti_derived_parameters"
     ).copy()
@@ -142,7 +102,7 @@ def init_dipy_tensor_wf(
     ds_coreg_tensor_wf = pe.MapNode(
         interface=DerivativesDataSink(
             **coreg_tensor_ds_entities,
-            reconstruction_software="dipy",
+            reconstruction_software="mrtrix3",
             save_meta=False,
         ),
         iterfield=["in_file", "desc"],
@@ -159,18 +119,20 @@ def init_dipy_tensor_wf(
         iterfield=["input_image"],
         name="normalize_tensor_wf",
     )
+    mni_tensor_entities = DIFFUSION_WF_OUTPUT_ENTITIES.get(
+        "dti_derived_parameters"
+    ).copy()
+    mni_tensor_entities.update({"space": "MNI152NLin2009cAsym"})
     ds_tensor_mni_wf = pe.MapNode(
         interface=DerivativesDataSink(
-            **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
-            reconstruction_software="dipy",
-            space="MNI152NLin2009cAsym",
+            **mni_tensor_entities,
+            reconstruction_software="mrtrix3",
             save_meta=False,
         ),
         iterfield=["in_file", "desc"],
         name="ds_tensor_mni_wf",
     )
     ds_tensor_mni_wf.inputs.desc = TENSOR_PARAMETERS
-
     workflow.connect(
         [
             (
@@ -180,30 +142,35 @@ def init_dipy_tensor_wf(
             ),
             (
                 inputnode,
-                tensor_wf,
+                dwi2tensor_wf,
                 [
-                    ("dwi_nifti", "in_file"),
-                    ("dwi_bvec", "in_bvec"),
-                    ("dwi_bval", "in_bval"),
-                    ("dwi_mask", "mask_file"),
-                    ("fit_method", "fit_method"),
+                    ("dwi_mif", "in_file"),
+                    ("dwi_mask", "in_mask"),
                 ],
             ),
             (
-                tensor_wf,
+                dwi2tensor_wf,
+                tensor2metric_wf,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                tensor2metric_wf,
                 outputnode,
-                [(f"{param}_file", param) for param in TENSOR_PARAMETERS],
+                [(f"out_{param}", param) for param in TENSOR_PARAMETERS],
             ),
             (
                 outputnode,
-                listify_tensor_params,
+                listify_metrics_wf,
                 [(param, f"in{i+1}") for i, param in enumerate(TENSOR_PARAMETERS)],
             ),
             (
-                listify_tensor_params,
+                listify_metrics_wf,
                 ds_tensor_wf,
                 [("out", "in_file")],
             ),
+            (acq_label, ds_tensor_wf, [("acq_label", "acquisition")]),
             (
                 inputnode,
                 ds_tensor_wf,
@@ -212,9 +179,8 @@ def init_dipy_tensor_wf(
                     ("source_file", "source_file"),
                 ],
             ),
-            (acq_label, ds_tensor_wf, [("acq_label", "acquisition")]),
             (
-                listify_tensor_params,
+                listify_metrics_wf,
                 coregister_tensor_wf,
                 [("out", "in_file")],
             ),
@@ -243,6 +209,13 @@ def init_dipy_tensor_wf(
                 ],
             ),
             (
+                coregister_tensor_wf,
+                normalize_tensor_wf,
+                [
+                    ("out_file", "input_image"),
+                ],
+            ),
+            (
                 inputnode,
                 normalize_tensor_wf,
                 [
@@ -265,13 +238,6 @@ def init_dipy_tensor_wf(
                 ],
             ),
             (acq_label, ds_tensor_mni_wf, [("acq_label", "acquisition")]),
-            (
-                coregister_tensor_wf,
-                normalize_tensor_wf,
-                [
-                    ("out_file", "input_image"),
-                ],
-            ),
         ]
     )
     return workflow
