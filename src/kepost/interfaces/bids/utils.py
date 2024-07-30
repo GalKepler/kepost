@@ -50,3 +50,20 @@ def collect_data(
         )
 
     return subj_data, session_data
+
+
+def gen_acq_label(max_bval: int) -> str:
+    """
+    Generate the acquisition label
+
+    Parameters
+    ----------
+    max_bval : int
+        The maximum bval
+
+    Returns
+    -------
+    str
+        The acquisition label
+    """
+    return f"shell{int(max_bval)}"

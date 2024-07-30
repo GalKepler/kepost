@@ -421,8 +421,12 @@ class workflow(_Config):
     """Threshold for the probabilistic segmentation of the gray matter."""
     atlases: list = ["all"]
     """Parcellation atlas(es) to use for the parcellation step. Available atlases are: `all`, `fan2016`, `huang2022`, `schaefer2018_{n_regions}_{n_networks}`."""
+    tensor_max_bval = 1000
+    """Maximum b-value to consider for tensor estimation."""
     dipy_reconstruction_method = "NLLS"
     """Reconstruction method to use for the estimation of tensor-derived parameters using dipy."""
+    dipy_reconstruction_sigma = None
+    """Sigma parameter for the RESTORE algorithm. If none provided, sigma will be estimated."""
 
 
 class loggers:

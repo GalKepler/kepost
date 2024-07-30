@@ -7,12 +7,12 @@ from nipype.pipeline import engine as pe
 
 from kepost import config
 from kepost.atlases.utils import get_atlas_properties
-from kepost.workflows.anatomical.procedures.crop_to_gm import init_gm_cropping_wf
-from kepost.workflows.anatomical.procedures.derivatives import init_derivatives_wf
-from kepost.workflows.anatomical.procedures.five_tissue_type import (
+from kepost.workflows.anatomical.procedures import (
+    init_derivatives_wf,
     init_five_tissue_type_wf,
+    init_gm_cropping_wf,
+    init_registration_wf,
 )
-from kepost.workflows.anatomical.procedures.register_atlas import init_registration_wf
 
 
 def init_anatomical_wf(
@@ -48,6 +48,7 @@ def init_anatomical_wf(
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
+                "atlas_name",
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
             ]
@@ -64,6 +65,13 @@ def init_anatomical_wf(
     )
     workflow.connect(
         [
+            (
+                inputnode,
+                outputnode,
+                [
+                    ("atlas_name", "atlas_name"),
+                ],
+            ),
             (
                 atlases_node,
                 get_atlas_info_node,
