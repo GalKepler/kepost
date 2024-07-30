@@ -1,20 +1,14 @@
 import nipype.pipeline.engine as pe
-from nipype.interfaces import fsl
-from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 
-from kepost.interfaces.bids import DerivativesDataSink
-from kepost.interfaces.mrtrix3 import MRFilter
-from kepost.workflows.diffusion.procedures.utils.derivatives import (
-    DIFFUSION_WF_OUTPUT_ENTITIES,
-)
+from kepost.workflows.diffusion.procedures.quality_control.snr import init_snr_wf
 
 
-def init_qc_wf(name: str = "qc_wf") -> pe.Workflow:
+def init_qc_wf(name: str = "qc_wf"):
     """
-    Workflow to perform tractography using MRtrix3.
+    Initialize the quality control workflow
     """
-    workflow = pe.Workflow(name=name)
+    qc_wf = pe.Workflow(name=name)
 
     inputnode = pe.Node(
         niu.IdentityInterface(
@@ -22,117 +16,34 @@ def init_qc_wf(name: str = "qc_wf") -> pe.Workflow:
                 "base_directory",
                 "dwi_file",
                 "dwi_grad",
+                "dwi_bval",
+                "brain_mask",
+                "eddy_qc",
+                "gm_probseg",
+                "wm_probseg",
+                "csf_probseg",
             ]
         ),
         name="inputnode",
     )
 
     outputnode = pe.Node(
-        niu.IdentityInterface(
-            fields=[
-                "qc_report",
-            ]
-        ),
+        niu.IdentityInterface(fields=["snr_file"]),
         name="outputnode",
     )
 
-    extract_b0_node = pe.Node(
-        mrt.DWIExtract(bzero=True, out_file="b0.mif"),
-        name="extract_b0",
-    )
-    calc_mean_b0_node = pe.Node(
-        mrt.MRMath(operation="mean", axis=3, out_file="mean_b0.nii.gz"),
-        name="calc_mean_b0",
-    )
-    calc_std_b0_node = pe.Node(
-        mrt.MRMath(operation="std", axis=3, out_file="std_b0.nii.gz"),
-        name="calc_std_b0",
-    )
-    calc_snr_node = pe.Node(
-        fsl.BinaryMaths(operation="div", out_file="snr.nii.gz"),
-        name="calc_snr",
-    )
-    median_filter_node = pe.Node(
-        MRFilter(
-            filter="median",
-            out_file="snr_filtered.nii.gz",
-        ),
-        name="median_filter",
-    )
-    ds_snr = pe.Node(
-        interface=DerivativesDataSink(
-            **DIFFUSION_WF_OUTPUT_ENTITIES["snr_image"],
-            dismiss_entities="reconstruction_software",
-        ),
-        name="ds_snr",
-    )
-    workflow.connect(
+    snr_wf = init_snr_wf()
+    qc_wf.connect(
         [
-            (
-                inputnode,
-                extract_b0_node,
-                [
-                    ("dwi_file", "in_file"),
-                    ("dwi_grad", "grad_file"),
-                ],
-            ),
-            (
-                extract_b0_node,
-                calc_mean_b0_node,
-                [
-                    ("out_file", "in_file"),
-                ],
-            ),
-            (
-                extract_b0_node,
-                calc_std_b0_node,
-                [
-                    ("out_file", "in_file"),
-                ],
-            ),
-            (
-                calc_mean_b0_node,
-                calc_snr_node,
-                [
-                    ("out_file", "in_file"),
-                ],
-            ),
-            (
-                calc_std_b0_node,
-                calc_snr_node,
-                [
-                    ("out_file", "operand_file"),
-                ],
-            ),
-            (
-                calc_snr_node,
-                median_filter_node,
-                [
-                    ("out_file", "in_file"),
-                ],
-            ),
-            (
-                median_filter_node,
-                outputnode,
-                [
-                    ("out_file", "qc_report"),
-                ],
-            ),
-            (
-                median_filter_node,
-                ds_snr,
-                [
-                    ("out_file", "in_file"),
-                ],
-            ),
-            (
-                inputnode,
-                ds_snr,
-                [
-                    ("base_directory", "base_directory"),
-                    ("dwi_file", "source_file"),
-                ],
-            ),
+            (inputnode, snr_wf, [("dwi_file", "inputnode.dwi_file")]),
+            (inputnode, snr_wf, [("dwi_grad", "inputnode.dwi_grad")]),
+            (inputnode, snr_wf, [("dwi_bval", "inputnode.dwi_bval")]),
+            (inputnode, snr_wf, [("brain_mask", "inputnode.brain_mask")]),
+            (inputnode, snr_wf, [("base_directory", "inputnode.base_directory")]),
+            (inputnode, snr_wf, [("gm_probseg", "inputnode.gm_probseg")]),
+            (inputnode, snr_wf, [("wm_probseg", "inputnode.wm_probseg")]),
+            (inputnode, snr_wf, [("csf_probseg", "inputnode.csf_probseg")]),
+            (snr_wf, outputnode, [("outputnode.qc_report", "snr_file")]),
         ]
     )
-    return workflow
+    return qc_wf

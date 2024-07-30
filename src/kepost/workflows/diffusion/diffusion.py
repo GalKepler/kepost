@@ -8,6 +8,7 @@ from kepost.workflows.diffusion.procedures.coregister_atlas import (
 from kepost.workflows.diffusion.procedures.coregister_tissues import (
     init_tissue_coregistration_wf,
 )
+from kepost.workflows.diffusion.procedures.quality_control import init_qc_wf
 from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
     init_tensor_estimation_wf,
 )
@@ -66,6 +67,7 @@ def init_diffusion_wf(
                 "wm_probabilistic_segmentation",
                 "csf_probabilistic_segmentation",
                 "native_to_mni_transform",
+                "eddy_qc",
             ]
         ),
         name="inputnode",
@@ -78,6 +80,7 @@ def init_diffusion_wf(
     inputnode.inputs.dwi_reference = dwi_data["dwi_reference"]
     inputnode.inputs.t1w_to_dwi_transform = dwi_data["t1w_to_dwi_transform"]
     inputnode.inputs.dwi_to_t1w_transform = dwi_data["dwi_to_t1w_transform"]
+    inputnode.inputs.eddy_qc = dwi_data["eddy_qc"]
     inputnode.inputs.dipy_fit_method = config.workflow.dipy_reconstruction_method
 
     outputnode = pe.Node(
@@ -172,8 +175,32 @@ def init_diffusion_wf(
             ),
         ]
     )
+    qc_wf = init_qc_wf()
+    workflow.connect(
+        [
+            (
+                inputnode,
+                qc_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_nifti", "inputnode.dwi_file"),
+                    ("dwi_grad", "inputnode.dwi_grad"),
+                    ("dwi_mask", "inputnode.brain_mask"),
+                    ("dwi_bval", "inputnode.dwi_bval"),
+                ],
+            ),
+            (
+                tissue_coreg_wf,
+                qc_wf,
+                [
+                    ("outputnode.gm_probseg_dwiref", "inputnode.gm_probseg"),
+                    ("outputnode.wm_probseg_dwiref", "inputnode.wm_probseg"),
+                    ("outputnode.csf_probseg_dwiref", "inputnode.csf_probseg"),
+                ],
+            ),
+        ]
+    )
     return workflow
-    # qc_wf = init_qc_wf()
     # tractography_wf = init_tractography_wf()
     # workflow.connect(
     #     [

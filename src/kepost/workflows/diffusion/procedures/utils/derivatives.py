@@ -51,6 +51,14 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "direction": "",
         "suffix": "dwiref",
         "extension": ".nii.gz",
-        "reconstruction_software": "",
+        "reconstruction_software": "qc",
+    },
+    snr_csv={
+        "space": "dwi",
+        "desc": "snr",
+        "direction": "",
+        "suffix": "qc",
+        "extension": ".csv",
+        "reconstruction_software": "qc",
     },
 )
