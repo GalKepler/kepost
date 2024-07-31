@@ -21,6 +21,9 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 im
 from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
     init_tensor_estimation_wf,
 )
+from kepost.workflows.diffusion.procedures.tractography.tractography import (
+    init_tractography_wf,
+)
 
 # from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
 #     init_tensor_estimation_wf,
@@ -75,6 +78,7 @@ def init_diffusion_wf(
                 "gm_probabilistic_segmentation",
                 "wm_probabilistic_segmentation",
                 "csf_probabilistic_segmentation",
+                "five_tissue_type",
                 "native_to_mni_transform",
                 "eddy_qc",
             ]
@@ -325,45 +329,29 @@ def init_diffusion_wf(
             ]
         )
 
+    tractography_wf = init_tractography_wf()
+    workflow.connect(
+        [
+            (
+                inputnode,
+                tractography_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_reference", "inputnode.dwi_reference"),
+                    ("dwi_nifti", "inputnode.dwi_nifti"),
+                    ("dwi_grad", "inputnode.dwi_grad"),
+                    ("dwi_mask", "inputnode.dwi_mask"),
+                    ("t1w_preproc", "inputnode.t1w_reference"),
+                    (
+                        "t1w_to_dwi_transform",
+                        "inputnode.t1w_to_dwi_transform",
+                    ),
+                    ("five_tissue_type", "inputnode.five_tissue_type"),
+                ],
+            ),
+        ]
+    )
     return workflow
-    # tractography_wf = init_tractography_wf()
-    # workflow.connect(
-    #     [
-    #         (
-    #             inputnode,
-    #             qc_wf,
-    #             [
-    #                 ("base_directory", "inputnode.base_directory"),
-    #                 ("dwi_nifti", "inputnode.dwi_file"),
-    #                 ("dwi_grad", "inputnode.dwi_grad"),
-    #             ],
-    #         ),
-    #     ]
-    # )
-    # if config.workflow.do_tractography:
-    #     workflow.connect(
-    #         [
-    #             (
-    #                 inputnode,
-    #                 tractography_wf,
-    #                 [
-    #                     ("base_directory", "inputnode.base_directory"),
-    #                     ("dwi_reference", "inputnode.dwi_reference"),
-    #                     ("dwi_nifti", "inputnode.dwi_nifti"),
-    #                     ("dwi_bval", "inputnode.dwi_bval"),
-    #                     ("dwi_bvec", "inputnode.dwi_bvec"),
-    #                     ("dwi_grad", "inputnode.dwi_grad"),
-    #                     ("dwi_mask", "inputnode.dwi_mask"),
-    #                     ("t1w_preproc", "inputnode.t1w_file"),
-    #                     ("t1w_brain_mask", "inputnode.t1w_mask_file"),
-    #                     (
-    #                         "t1w_to_dwi_transform",
-    #                         "inputnode.t1w_to_dwi_transform",
-    #                     ),
-    #                 ],
-    #             ),
-    #         ]
-    #     )
     #     if register_atlas:
     #         connectome_wf = init_connectome_wf()
     #         workflow.connect(

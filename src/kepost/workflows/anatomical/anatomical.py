@@ -51,6 +51,7 @@ def init_anatomical_wf(
                 "atlas_name",
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
+                "five_tissue_type",
             ]
         ),
         name="outputnode",
@@ -164,6 +165,11 @@ def init_anatomical_wf(
                     ("t1w_preproc", "inputnode.t1w_preproc"),
                     ("subject_id", "inputnode.subject_id"),
                 ],
+            ),
+            (
+                five_tissue_type,
+                outputnode,
+                [("outputnode.five_tissue_type", "five_tissue_type")],
             ),
         ]
     )
