@@ -343,7 +343,7 @@ class execution(_Config):
     """Folder where derivatives will be stored."""
     run_uuid = f"{strftime('%Y%m%d-%H%M%S')}_{uuid4()}"
     """Unique identifier of this particular run."""
-    participant_label = None
+    participant_label: list | None = None
     """List of participant identifiers that are to be preprocessed."""
     work_dir = Path("work").absolute()
     """Path to a working directory where intermediate results will be available."""
@@ -427,6 +427,8 @@ class workflow(_Config):
     """Reconstruction method to use for the estimation of tensor-derived parameters using dipy."""
     dipy_reconstruction_sigma = None
     """Sigma parameter for the RESTORE algorithm. If none provided, sigma will be estimated."""
+    parcellate_gm = True
+    """Whether to apply gray matter masking to atlases prior to parcellation."""
 
 
 class loggers:

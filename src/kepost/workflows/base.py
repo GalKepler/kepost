@@ -1,3 +1,6 @@
+from copy import deepcopy
+from pathlib import Path
+
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 from packaging.version import Version
@@ -38,15 +41,26 @@ def init_kepost_wf():
     kepost_wf.base_dir = config.execution.work_dir
     for subject_id in config.execution.participant_label:
         name = f"single_subject_{subject_id}_wf"
-        single_subject_wf = init_single_subject_wf(
-            subject_id=subject_id, atlases=atlases, name=name
-        )
+        single_subject_wf = init_single_subject_wf(subject_id=subject_id, name=name)
         single_subject_wf.config["execution"]["crashdump_dir"] = str(
             config.execution.output_dir
             / f"sub-{subject_id}"
             / "log"
             / config.execution.run_uuid
         )
+        for node in single_subject_wf._get_all_nodes():
+            node.config = deepcopy(single_subject_wf.config)
+        kepost_wf.add_nodes([single_subject_wf])
+    # Dump a copy of the config file into the log directory
+    log_dir = (
+        Path(config.execution.output_dir)  # type: ignore[operator, attr-defined]
+        / f"sub-{subject_id}"
+        / "log"
+        / config.execution.run_uuid
+    )
+    log_dir.mkdir(exist_ok=True, parents=True)
+    config.to_filename(log_dir / "kepost.toml")
+    return kepost_wf
 
 
 def init_single_subject_wf(subject_id: str, name: str):

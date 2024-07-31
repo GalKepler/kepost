@@ -8,7 +8,16 @@ from kepost.workflows.diffusion.procedures.coregister_atlas import (
 from kepost.workflows.diffusion.procedures.coregister_tissues import (
     init_tissue_coregistration_wf,
 )
+from kepost.workflows.diffusion.procedures.parcellations.parcellations import (
+    init_parcellations_wf,
+)
 from kepost.workflows.diffusion.procedures.quality_control import init_qc_wf
+from kepost.workflows.diffusion.procedures.tensor_estimations.dipy.dipy import (
+    TENSOR_PARAMETERS as dipy_parameters,
+)
+from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 import (
+    TENSOR_PARAMETERS as mrtrix3_parameters,
+)
 from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
     init_tensor_estimation_wf,
 )
@@ -201,6 +210,121 @@ def init_diffusion_wf(
             ),
         ]
     )
+    dipy_parcellations_wf = init_parcellations_wf(
+        inputs=dipy_parameters, software="dipy"
+    )
+    mrtrix3_parcellations_wf = init_parcellations_wf(
+        inputs=mrtrix3_parameters, software="mrtrix3"
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                dipy_parcellations_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_nifti", "inputnode.source_file"),
+                    ("atlas_name", "inputnode.atlas_name"),
+                ],
+            ),
+            (
+                inputnode,
+                mrtrix3_parcellations_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_nifti", "inputnode.source_file"),
+                    ("atlas_name", "inputnode.atlas_name"),
+                ],
+            ),
+            (
+                tensor_estimation_wf,
+                dipy_parcellations_wf,
+                [
+                    (f"dipy_tensor_wf.outputnode.{param}", f"inputnode.{param}")
+                    for param in dipy_parameters
+                ],
+            ),
+            (
+                tensor_estimation_wf,
+                mrtrix3_parcellations_wf,
+                [
+                    (f"mrtrix3_tensor_wf.outputnode.{param}", f"inputnode.{param}")
+                    for param in mrtrix3_parameters
+                ],
+            ),
+            (
+                tensor_estimation_wf,
+                dipy_parcellations_wf,
+                [
+                    (
+                        "outputnode.acq_label",
+                        "inputnode.acq_label",
+                    )
+                ],
+            ),
+            (
+                tensor_estimation_wf,
+                mrtrix3_parcellations_wf,
+                [
+                    (
+                        "outputnode.acq_label",
+                        "inputnode.acq_label",
+                    )
+                ],
+            ),
+        ]
+    )
+    if config.workflow.parcellate_gm:
+        workflow.connect(
+            [
+                (
+                    coregister_wf,
+                    dipy_parcellations_wf,
+                    [
+                        (
+                            "outputnode.gm_cropped_parcellation",
+                            "inputnode.atlas_nifti",
+                        ),
+                    ],
+                ),
+                (
+                    coregister_wf,
+                    mrtrix3_parcellations_wf,
+                    [
+                        (
+                            "outputnode.gm_cropped_parcellation",
+                            "inputnode.atlas_nifti",
+                        ),
+                    ],
+                ),
+            ]
+        )
+    else:
+        workflow.connect(
+            [
+                (
+                    coregister_wf,
+                    dipy_parcellations_wf,
+                    [
+                        (
+                            "outputnode.whole_brain_parcellation",
+                            "inputnode.atlas_nifti",
+                        ),
+                    ],
+                ),
+                (
+                    coregister_wf,
+                    mrtrix3_parcellations_wf,
+                    [
+                        (
+                            "outputnode.whole_brain_parcellation",
+                            "inputnode.atlas_nifti",
+                        ),
+                    ],
+                ),
+            ]
+        )
+
     return workflow
     # tractography_wf = init_tractography_wf()
     # workflow.connect(
