@@ -15,6 +15,9 @@ from kepost.workflows.diffusion.procedures.quality_control import init_qc_wf
 from kepost.workflows.diffusion.procedures.tensor_estimations.dipy.dipy import (
     TENSOR_PARAMETERS as dipy_parameters,
 )
+from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 import (
+    TENSOR_PARAMETERS as mrtrix3_parameters,
+)
 from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
     init_tensor_estimation_wf,
 )
@@ -210,11 +213,23 @@ def init_diffusion_wf(
     dipy_parcellations_wf = init_parcellations_wf(
         inputs=dipy_parameters, software="dipy"
     )
+    mrtrix3_parcellations_wf = init_parcellations_wf(
+        inputs=mrtrix3_parameters, software="mrtrix3"
+    )
     workflow.connect(
         [
             (
                 inputnode,
                 dipy_parcellations_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                    ("dwi_nifti", "inputnode.source_file"),
+                    ("atlas_name", "inputnode.atlas_name"),
+                ],
+            ),
+            (
+                inputnode,
+                mrtrix3_parcellations_wf,
                 [
                     ("base_directory", "inputnode.base_directory"),
                     ("dwi_nifti", "inputnode.source_file"),
@@ -231,10 +246,28 @@ def init_diffusion_wf(
             ),
             (
                 tensor_estimation_wf,
+                mrtrix3_parcellations_wf,
+                [
+                    (f"mrtrix3_tensor_wf.outputnode.{param}", f"inputnode.{param}")
+                    for param in mrtrix3_parameters
+                ],
+            ),
+            (
+                tensor_estimation_wf,
                 dipy_parcellations_wf,
                 [
                     (
-                        "gen_acq_label.acq_label",
+                        "outputnode.acq_label",
+                        "inputnode.acq_label",
+                    )
+                ],
+            ),
+            (
+                tensor_estimation_wf,
+                mrtrix3_parcellations_wf,
+                [
+                    (
+                        "outputnode.acq_label",
                         "inputnode.acq_label",
                     )
                 ],
@@ -247,6 +280,16 @@ def init_diffusion_wf(
                 (
                     coregister_wf,
                     dipy_parcellations_wf,
+                    [
+                        (
+                            "outputnode.gm_cropped_parcellation",
+                            "inputnode.atlas_nifti",
+                        ),
+                    ],
+                ),
+                (
+                    coregister_wf,
+                    mrtrix3_parcellations_wf,
                     [
                         (
                             "outputnode.gm_cropped_parcellation",
@@ -268,7 +311,17 @@ def init_diffusion_wf(
                             "inputnode.atlas_nifti",
                         ),
                     ],
-                )
+                ),
+                (
+                    coregister_wf,
+                    mrtrix3_parcellations_wf,
+                    [
+                        (
+                            "outputnode.whole_brain_parcellation",
+                            "inputnode.atlas_nifti",
+                        ),
+                    ],
+                ),
             ]
         )
 

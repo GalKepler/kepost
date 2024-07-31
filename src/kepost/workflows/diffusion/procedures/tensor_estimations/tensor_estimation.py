@@ -78,6 +78,16 @@ def init_tensor_estimation_wf(
     )
     max_bval = config.workflow.tensor_max_bval
     max_bval = max_bval if isdefined(max_bval) else None  # type: ignore[assignment]
+
+    outputnode = pe.Node(
+        interface=niu.IdentityInterface(
+            fields=[
+                "acq_label",
+            ]
+        ),
+        name="outputnode",
+    )
+
     detect_shells_node = pe.Node(
         niu.Function(
             input_names=["bvals", "max_bval"],
@@ -214,6 +224,13 @@ def init_tensor_estimation_wf(
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                gen_acq_label_node,
+                outputnode,
+                [
+                    ("acq_label", "acq_label"),
                 ],
             ),
         ]

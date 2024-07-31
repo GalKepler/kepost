@@ -66,48 +66,103 @@ def init_parcellations_wf(
         name="inputnode",
     )
 
-    parcellate_node = pe.MapNode(
-        niu.Function(
-            input_names=["in_file", "atlas_nifti"],
-            output_names=["out_file", "atlas_name"],
-            function=parcellate_all_measures,
-        ),
-        name="parcellate_node",
-        iterfield=["in_file"],
-    )
-    listify_inputs_node = pe.Node(
-        niu.Merge(len(inputs), ravel_inputs=True),
-        name="listify_inputs_node",
-    )
-    ds_parcellation_node = pe.MapNode(
-        DerivativesDataSink(  # type: ignore[arg-type]
-            **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
-        ),
-        iterfield=["desc"],
-        name="ds_parcellation_node",
-    )
-    ds_parcellation_node.inputs.desc = inputs
-    ds_parcellation_node.inputs.reconstruction_software = software
-    workflow.connect(
-        [
-            (
-                inputnode,
-                listify_inputs_node,
-                [(p, f"in{i}") for i, p in enumerate(inputs)],
+    nodes = {}
+    for i, p in enumerate(inputs):
+        nodes[f"parcellate_node_{i}"] = pe.Node(
+            niu.Function(
+                input_names=["in_file", "atlas_nifti"],
+                output_names=["out_file", "atlas_name"],
+                function=parcellate_all_measures,
             ),
-            (listify_inputs_node, parcellate_node, [("out", "in_file")]),
-            (
-                inputnode,
-                parcellate_node,
-                [("atlas_nifti", "atlas_nifti")],
+            name=f"parcellate_node_{i}",
+        )
+        nodes[f"ds_parcellation_node_{i}"] = pe.Node(
+            DerivativesDataSink(  # type: ignore[arg-type]
+                **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
+                reconstruction_software=software,
+                desc=p,
             ),
-            (
-                parcellate_node,
-                ds_parcellation_node,
-                [("out_file", "in_file"), ("atlas_name", "desc")],
-            ),
-            (inputnode, ds_parcellation_node, [("acq_label", "acquisition")]),
-        ]
-    )
+            name=f"ds_parcellation_node_{i}",
+        )
+        workflow.connect(
+            [
+                (
+                    inputnode,
+                    nodes[f"parcellate_node_{i}"],
+                    [(p, "in_file")],
+                ),
+                (
+                    inputnode,
+                    nodes[f"parcellate_node_{i}"],
+                    [("atlas_nifti", "atlas_nifti")],
+                ),
+                (
+                    nodes[f"parcellate_node_{i}"],
+                    nodes[f"ds_parcellation_node_{i}"],
+                    [("out_file", "in_file"), ("atlas_name", "atlas")],
+                ),
+                (
+                    inputnode,
+                    nodes[f"ds_parcellation_node_{i}"],
+                    [
+                        ("acq_label", "acquisition"),
+                        ("source_file", "source_file"),
+                        ("base_directory", "base_directory"),
+                    ],
+                ),
+            ]
+        )
+
+    # parcellate_node = pe.MapNode(
+    #     niu.Function(
+    #         input_names=["in_file", "atlas_nifti"],
+    #         output_names=["out_file", "atlas_name"],
+    #         function=parcellate_all_measures,
+    #     ),
+    #     name="parcellate_node",
+    #     iterfield=["in_file"],
+    # )
+    # listify_inputs_node = pe.Node(
+    #     niu.Merge(len(inputs)),
+    #     name="listify_inputs_node",
+    # )
+    # ds_parcellation_node = pe.MapNode(
+    #     DerivativesDataSink(  # type: ignore[arg-type]
+    #         **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
+    #         reconstruction_software=software,
+    #         desc=inputs,
+    #     ),
+    #     iterfield=["desc", "in_file"],
+    #     name="ds_parcellation_node",
+    # )
+    # workflow.connect(
+    #     [
+    #         (
+    #             inputnode,
+    #             listify_inputs_node,
+    #             [(p, f"in{i+1}") for i, p in enumerate(inputs)],
+    #         ),
+    #         (listify_inputs_node, parcellate_node, [("out", "in_file")]),
+    #         (
+    #             inputnode,
+    #             parcellate_node,
+    #             [("atlas_nifti", "atlas_nifti")],
+    #         ),
+    #         (
+    #             parcellate_node,
+    #             ds_parcellation_node,
+    #             [("out_file", "in_file"), ("atlas_name", "atlas")],
+    #         ),
+    #         (
+    #             inputnode,
+    #             ds_parcellation_node,
+    #             [
+    #                 ("acq_label", "acquisition"),
+    #                 ("source_file", "source_file"),
+    #                 ("base_directory", "base_directory"),
+    #             ],
+    #         ),
+    #     ]
+    # )
 
     return workflow
