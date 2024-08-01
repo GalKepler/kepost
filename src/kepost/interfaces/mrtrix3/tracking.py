@@ -71,7 +71,7 @@ class TckSift2InputSpec(MRTrix3BaseInputSpec):
         argstr="-out_mu %s",
         desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long
     )
-    output_debug = traits.Directory(
+    out_debug = traits.Directory(
         exists=False,
         argstr="-output_debug %s",
         desc="output debugging information to a directory",
@@ -93,6 +93,10 @@ class TckSift2OutputSpec(TraitedSpec):
     out_coeffs = File(
         exists=True,
         desc="output text file containing the weighting coefficient for each streamline",  # pylint: disable=line-too-long
+    )
+    out_debug = Directory(
+        exists=True,
+        desc="output debugging information to a directory",
     )
 
 
@@ -125,6 +129,8 @@ class TckSift2(MRTrix3Base):  # pylint: disable=abstract-method
             outputs["out_mu"] = op.abspath(self.inputs.out_mu)
         if self.inputs.out_coeffs:
             outputs["out_coeffs"] = op.abspath(self.inputs.out_coeffs)
+        if self.inputs.out_debug:
+            outputs["out_debug"] = op.abspath(self.inputs.out_debug)
         return outputs
 
 
@@ -185,7 +191,7 @@ class TckSiftInputSpec(MRTrix3BaseInputSpec):
         argstr="-out_mu %s",
         desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long
     )
-    output_debug = traits.Directory(
+    out_debug = traits.Directory(
         exists=False,
         argstr="-output_debug %s",
         desc="output debugging information to a directory",
@@ -219,6 +225,10 @@ class TckSiftOutputSpec(TraitedSpec):
     out_selection = File(
         exists=True,
         desc="output a text file containing the binary selection of streamlines",
+    )
+    out_debug = Directory(
+        exists=True,
+        desc="output debugging information to a directory",
     )
 
 

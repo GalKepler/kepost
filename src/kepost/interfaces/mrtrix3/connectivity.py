@@ -58,6 +58,11 @@ class BuildConnectomeInputSpec(MRTrix3BaseInputSpec):
         argstr="-stat_edge %s",
         desc="select the statistic to compute for each edge.",
     )
+    tck_weights_in = File(
+        exists=True,
+        argstr="-tck_weights_in %s",
+        desc="input track weights as produced by SIFT2 algorithm.",
+    )
 
 
 class BuildConnectomeOutputSpec(TraitedSpec):
