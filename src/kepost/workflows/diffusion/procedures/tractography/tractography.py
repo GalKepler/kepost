@@ -5,9 +5,7 @@ from nipype.interfaces import utility as niu
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.mrtrix3 import TckSift, TckSift2
-from kepost.workflows.diffusion.procedures.coregister_5tt.coregister_5tt import (
-    init_5tt_coreg_wf,
-)
+from kepost.workflows.diffusion.procedures.coregisterations import init_5tt_coreg_wf
 
 
 def estimate_tractography_parameters(

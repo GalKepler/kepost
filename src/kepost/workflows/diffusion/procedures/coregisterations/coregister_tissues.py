@@ -3,11 +3,13 @@ from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from kepost.interfaces.bids import DerivativesDataSink
-from kepost.workflows.diffusion.procedures.utils import DIFFUSION_WF_OUTPUT_ENTITIES
+from kepost.workflows.diffusion.procedures.utils.derivatives import (
+    DIFFUSION_WF_OUTPUT_ENTITIES,
+)
 
 
-def init_coregistration_wf(
-    name: str = "atlas_coregistration",
+def init_tissue_coregistration_wf(
+    name: str = "tissues_coregistration_wf",
     workflow_entities: dict = DIFFUSION_WF_OUTPUT_ENTITIES,
 ) -> pe.Workflow:
     """
@@ -31,9 +33,9 @@ def init_coregistration_wf(
                 "dwi_reference",
                 "t1w_preproc",
                 "t1w_to_dwi_transform",
-                "atlas_name",
-                "whole_brain_parcellation",
-                "gm_cropped_parcellation",
+                "gm_probseg",
+                "wm_probseg",
+                "csf_probseg",
             ]
         ),
         name="inputnode",
@@ -41,144 +43,149 @@ def init_coregistration_wf(
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
-                "whole_brain_parcellation",
-                "gm_cropped_parcellation",
-                "t1w_in_dwi_space",
-                "dwi_brain_mask",
+                "gm_probseg_dwiref",
+                "wm_probseg_dwiref",
+                "csf_probseg_dwiref",
             ]
         ),
         name="outputnode",
     )
     # run apply transforms on both parcellations, naming them appropriately
-    apply_transforms_wholebrain = pe.Node(
-        fsl.ApplyXFM(interp="nearestneighbour", apply_xfm=True, datatype="int"),
-        name="apply_transforms_wholebrain",
-    )
-    apply_transforms_gm_cropped = pe.Node(
-        fsl.ApplyXFM(interp="nearestneighbour", apply_xfm=True, datatype="int"),
-        name="apply_transforms_gm_cropped",
-    )
-    apply_transforms_t1w = pe.Node(
+    apply_transforms_gm = pe.Node(
         fsl.ApplyXFM(
+            interp="nearestneighbour",
             apply_xfm=True,
         ),
-        name="apply_transforms_t1w",
+        name="apply_transforms_gm",
     )
-
-    ds_wholebrain = pe.Node(
-        interface=DerivativesDataSink(
-            **workflow_entities["wholebrain_parcellation"],
+    apply_transforms_wm = pe.Node(
+        fsl.ApplyXFM(
+            interp="nearestneighbour",
+            apply_xfm=True,
         ),
-        name="ds_wholebrain",
+        name="apply_transforms_wm",
     )
-
-    ds_gm_cropped = pe.Node(
-        interface=DerivativesDataSink(
-            **workflow_entities["gm_cropped_parcellation"],
+    apply_transforms_csf = pe.Node(
+        fsl.ApplyXFM(
+            interp="nearestneighbour",
+            apply_xfm=True,
         ),
-        name="ds_gm_cropped",
+        name="apply_transforms_csf",
     )
-    ds_t1w = pe.Node(
+    ds_gm = pe.Node(
         interface=DerivativesDataSink(
-            **workflow_entities["t1w_in_dwi_space"],
+            **workflow_entities["tissue_dwiref_probseg"],
+            label="GM",
         ),
-        name="ds_t1w",
+        name="ds_gm",
+    )
+    ds_wm = pe.Node(
+        interface=DerivativesDataSink(
+            **workflow_entities["tissue_dwiref_probseg"],
+            label="WM",
+        ),
+        name="ds_wm",
+    )
+    ds_csf = pe.Node(
+        interface=DerivativesDataSink(
+            **workflow_entities["tissue_dwiref_probseg"],
+            label="CSF",
+        ),
+        name="ds_csf",
     )
     workflow.connect(
         [
             (
                 inputnode,
-                apply_transforms_wholebrain,
+                apply_transforms_gm,
                 [
-                    ("whole_brain_parcellation", "in_file"),
+                    ("gm_probseg", "in_file"),
                     ("dwi_reference", "reference"),
                     ("t1w_to_dwi_transform", "in_matrix_file"),
                 ],
             ),
             (
                 inputnode,
-                apply_transforms_gm_cropped,
+                apply_transforms_wm,
                 [
-                    ("gm_cropped_parcellation", "in_file"),
+                    ("wm_probseg", "in_file"),
                     ("dwi_reference", "reference"),
                     ("t1w_to_dwi_transform", "in_matrix_file"),
                 ],
             ),
             (
                 inputnode,
-                apply_transforms_t1w,
+                apply_transforms_csf,
                 [
-                    ("t1w_preproc", "in_file"),
+                    ("csf_probseg", "in_file"),
                     ("dwi_reference", "reference"),
                     ("t1w_to_dwi_transform", "in_matrix_file"),
                 ],
             ),
             (
-                apply_transforms_wholebrain,
-                outputnode,
+                apply_transforms_gm,
+                ds_gm,
                 [
-                    ("out_file", "whole_brain_parcellation"),
+                    ("out_file", "in_file"),
                 ],
             ),
             (
-                apply_transforms_gm_cropped,
-                outputnode,
+                apply_transforms_wm,
+                ds_wm,
                 [
-                    ("out_file", "gm_cropped_parcellation"),
+                    ("out_file", "in_file"),
                 ],
             ),
             (
-                apply_transforms_t1w,
-                outputnode,
+                apply_transforms_csf,
+                ds_csf,
                 [
-                    ("out_file", "t1w_in_dwi_space"),
-                ],
-            ),
-            (
-                inputnode,
-                ds_wholebrain,
-                [
-                    ("base_directory", "base_directory"),
-                    ("dwi_reference", "source_file"),
-                    ("atlas_name", "atlas"),
-                ],
-            ),
-            (
-                outputnode,
-                ds_wholebrain,
-                [
-                    ("whole_brain_parcellation", "in_file"),
+                    ("out_file", "in_file"),
                 ],
             ),
             (
                 inputnode,
-                ds_gm_cropped,
-                [
-                    ("base_directory", "base_directory"),
-                    ("dwi_reference", "source_file"),
-                    ("atlas_name", "atlas"),
-                ],
-            ),
-            (
-                outputnode,
-                ds_gm_cropped,
-                [
-                    ("gm_cropped_parcellation", "in_file"),
-                ],
-            ),
-            (
-                inputnode,
-                ds_t1w,
+                ds_gm,
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_reference", "source_file"),
                 ],
             ),
             (
-                outputnode,
-                ds_t1w,
+                inputnode,
+                ds_wm,
                 [
-                    ("t1w_in_dwi_space", "in_file"),
+                    ("base_directory", "base_directory"),
+                    ("dwi_reference", "source_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_csf,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_reference", "source_file"),
+                ],
+            ),
+            (
+                apply_transforms_gm,
+                outputnode,
+                [
+                    ("out_file", "gm_probseg_dwiref"),
+                ],
+            ),
+            (
+                apply_transforms_wm,
+                outputnode,
+                [
+                    ("out_file", "wm_probseg_dwiref"),
+                ],
+            ),
+            (
+                apply_transforms_csf,
+                outputnode,
+                [
+                    ("out_file", "csf_probseg_dwiref"),
                 ],
             ),
         ]
