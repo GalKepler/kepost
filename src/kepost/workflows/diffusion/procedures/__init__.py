@@ -1,10 +1,8 @@
 from kepost.workflows.diffusion.procedures.connectomes.connectomes import (  # noqa: F401
     init_connectome_wf,
 )
-from kepost.workflows.diffusion.procedures.coregister_atlas import (  # noqa: F401
+from kepost.workflows.diffusion.procedures.coregisterations import (  # noqa: F401
     init_coregistration_wf,
-)
-from kepost.workflows.diffusion.procedures.coregister_tissues import (  # noqa: F401
     init_tissue_coregistration_wf,
 )
 from kepost.workflows.diffusion.procedures.parcellations.parcellations import (  # noqa: F401
