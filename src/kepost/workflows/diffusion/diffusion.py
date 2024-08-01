@@ -2,41 +2,21 @@ from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from kepost import config
-from kepost.workflows.diffusion.procedures.connectomes.connectomes import (
+from kepost.workflows.diffusion.procedures import (
     init_connectome_wf,
-)
-from kepost.workflows.diffusion.procedures.coregister_atlas import (
     init_coregistration_wf,
-)
-from kepost.workflows.diffusion.procedures.coregister_tissues import (
-    init_tissue_coregistration_wf,
-)
-from kepost.workflows.diffusion.procedures.parcellations.parcellations import (
     init_parcellations_wf,
+    init_qc_wf,
+    init_tensor_estimation_wf,
+    init_tissue_coregistration_wf,
+    init_tractography_wf,
 )
-from kepost.workflows.diffusion.procedures.quality_control import init_qc_wf
 from kepost.workflows.diffusion.procedures.tensor_estimations.dipy.dipy import (
     TENSOR_PARAMETERS as dipy_parameters,
 )
 from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 import (
     TENSOR_PARAMETERS as mrtrix3_parameters,
 )
-from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
-    init_tensor_estimation_wf,
-)
-from kepost.workflows.diffusion.procedures.tractography.tractography import (
-    init_tractography_wf,
-)
-
-# from kepost.workflows.diffusion.procedures.tensor_estimations.tensor_estimation import (
-#     init_tensor_estimation_wf,
-# )
-# from kepost.workflows.diffusion.procedures.tractography.connectome import (
-#     init_connectome_wf,
-# )
-# from kepost.workflows.diffusion.procedures.tractography.tractography import (
-#     init_tractography_wf,
-# )
 
 
 def init_diffusion_wf(
