@@ -112,7 +112,7 @@ def init_connectome_wf(name: str = "connectome_wf") -> pe.Workflow:
                 measure=metric,
                 subtype="connectomes",
                 extension=".csv",
-                weight="SIFT2" if "unsifted" in in_tracts else "SIFT",
+                weight="SIFT2" if "unsifted" in in_tracts else "SIFT",  # type: ignore[operator]
             ),
             name=f"ds_connectome_scale-{scale}_metric-{metric}_in-tracts-{in_tracts}",
             run_without_submitting=True,
@@ -124,7 +124,7 @@ def init_connectome_wf(name: str = "connectome_wf") -> pe.Workflow:
                 measure=metric,
                 subtype="connectomes",
                 extension=".csv",
-                weight="SIFT2" if "unsifted" in in_tracts else "SIFT",
+                weight="SIFT2" if "unsifted" in in_tracts else "SIFT",  # type: ignore[operator]
             ),
             name=f"ds_assignments_scale-{scale}_metric-{metric}_in-tracts-{in_tracts}",
             run_without_submitting=True,
@@ -205,7 +205,7 @@ def init_connectome_wf(name: str = "connectome_wf") -> pe.Workflow:
                 ),
             ]
         )
-        if "unsifted" in in_tracts:
+        if "unsifted" in in_tracts:  # type: ignore[operator]
             workflow.connect(
                 [
                     (
