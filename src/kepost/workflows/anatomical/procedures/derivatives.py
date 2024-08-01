@@ -2,6 +2,7 @@ from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from kepost.interfaces.bids import DerivativesDataSink
+from kepost.interfaces.bids.utils import get_entity
 
 wholebrain_entities = {
     "space": "T1w",
@@ -47,6 +48,18 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
         ),
         name="inputnode",
     )
+    get_atlas_name_node = pe.Node(
+        niu.Function(
+            input_names=["in_file", "entity"],
+            output_names=[
+                "atlas_name",
+            ],
+            function=get_entity,
+        ),
+        name="get_atlas_name",
+    )
+    get_atlas_name_node.inputs.entity = "atlas"
+
     ds_wholebrain = pe.Node(
         interface=DerivativesDataSink(**wholebrain_entities),
         name="ds_wholebrain",
@@ -62,12 +75,18 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
         [
             (
                 inputnode,
+                get_atlas_name_node,
+                [
+                    ("whole_brain_parcellation", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
                 ds_wholebrain,
                 [
                     ("base_directory", "base_directory"),
                     ("t1w_preproc", "source_file"),
                     ("whole_brain_parcellation", "in_file"),
-                    ("atlas_name", "atlas"),
                 ],
             ),
             (
@@ -77,6 +96,19 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                     ("base_directory", "base_directory"),
                     ("t1w_preproc", "source_file"),
                     ("gm_cropped_parcellation", "in_file"),
+                ],
+            ),
+            (
+                get_atlas_name_node,
+                ds_wholebrain,
+                [
+                    ("atlas_name", "atlas"),
+                ],
+            ),
+            (
+                get_atlas_name_node,
+                ds_gm_cropped,
+                [
                     ("atlas_name", "atlas"),
                 ],
             ),

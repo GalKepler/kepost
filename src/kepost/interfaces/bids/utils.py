@@ -5,6 +5,26 @@ from bids.layout import BIDSLayout
 from kepost.interfaces.bids.static.queries import QUERIES
 
 
+def get_entity(in_file: str, entity: str) -> str:
+    """
+    Get the atlas name from the atlas nifti file.
+
+    Parameters
+    ----------
+    atlas_nifti : str
+        Path to the atlas nifti file.
+
+    Returns
+    -------
+    atlas_name : str
+        Name of the atlas.
+    """
+    from bids.layout import parse_file_entities
+
+    entities = parse_file_entities(in_file)
+    return entities[entity]
+
+
 def collect_data(
     layout: BIDSLayout,
     participant_label: str,

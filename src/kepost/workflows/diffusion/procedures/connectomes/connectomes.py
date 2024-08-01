@@ -3,27 +3,8 @@ from nipype.pipeline import engine as pe
 
 from kepost.interfaces import mrtrix3 as mrt
 from kepost.interfaces.bids import DerivativesDataSink
+from kepost.interfaces.bids.utils import get_entity
 from kepost.workflows.diffusion.procedures.connectomes.utils import COMBINATIONS
-
-
-def get_entity(in_file: str, entity: str) -> str:
-    """
-    Get the atlas name from the atlas nifti file.
-
-    Parameters
-    ----------
-    atlas_nifti : str
-        Path to the atlas nifti file.
-
-    Returns
-    -------
-    atlas_name : str
-        Name of the atlas.
-    """
-    from bids.layout import parse_file_entities
-
-    entities = parse_file_entities(in_file)
-    return entities[entity]
 
 
 def init_connectome_wf(name: str = "connectome_wf") -> pe.Workflow:
