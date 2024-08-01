@@ -4,6 +4,130 @@ from nipype.interfaces.base import Directory, File, TraitedSpec, traits
 from nipype.interfaces.mrtrix3.base import MRTrix3Base, MRTrix3BaseInputSpec
 
 
+class TckSift2InputSpec(MRTrix3BaseInputSpec):
+    in_file = File(
+        exists=True,
+        argstr="%s",
+        mandatory=True,
+        position=-3,
+        desc="input tractogram",
+    )
+    in_fod = File(
+        exists=True,
+        argstr="%s",
+        mandatory=True,
+        position=-2,
+        desc="input FOD image",
+    )
+    out_file = File(
+        "sift2_weights.txt",
+        argstr="%s",
+        mandatory=False,
+        position=-1,
+        usedefault=True,
+        desc="output sift tractogram",
+    )
+    proc_mask = File(
+        exists=True,
+        argstr="-proc_mask %s",
+        desc="mask image containing the processing mask weights for the model.",
+    )
+    act_file = File(
+        exists=True,
+        argstr="-act %s",
+        desc="ACT five-tissue-type segmentation image",
+    )
+    fd_scale_gm = traits.Bool(
+        default_value=True,
+        argstr="-fd_scale_gm",
+        desc="heuristically downsize the fibre density estimates based on the presence of GM in the voxel.",  # pylint: disable=line-too-long
+    )
+    no_dilate_lut = traits.Bool(
+        default_value=False,
+        argstr="-no_dilate_lut",
+        desc="do NOT dilate FOD lobe lookup tables.",
+    )
+    make_null_lobes = traits.Bool(
+        default_value=False,
+        argstr="-make_null_lobes",
+        desc="add an additional FOD lobe to each voxel, with zero integral, that covers all directions with zero / negative FOD amplitudes",  # pylint: disable=line-too-long
+    )
+    remove_untracked = traits.Bool(
+        default_value=False,
+        argstr="-remove_untracked",
+        desc="Remove FOD lobes that do not have any streamline density attributed to them.",  # pylint: disable=line-too-long
+    )
+    fd_thresh = traits.Float(
+        argstr="-fd_thresh %f",
+        desc="fibre density threshold.",
+    )
+    out_csv = File(
+        exists=False,
+        argstr="-csv %s",
+        desc="output statistics of execution per iteration to a .csv file",
+    )
+    out_mu = File(
+        exists=False,
+        argstr="-out_mu %s",
+        desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long
+    )
+    output_debug = traits.Directory(
+        exists=False,
+        argstr="-output_debug %s",
+        desc="output debugging information to a directory",
+    )
+    out_coeffs = File(
+        exists=False,
+        argstr="-out_coeffs %s",
+        desc="output text file containing the weighting coefficient for each streamline",  # pylint: disable=line-too-long
+    )
+
+
+class TckSift2OutputSpec(TraitedSpec):
+    out_file = File(exists=True, desc="output sift tractogram")
+    out_csv = File(exists=True, desc="output statistics of execution per iteration")
+    out_mu = File(
+        exists=True,
+        desc="output the final value of SIFT proportionality coefficient mu to a text file",  # pylint: disable=line-too-long
+    )
+    out_coeffs = File(
+        exists=True,
+        desc="output text file containing the weighting coefficient for each streamline",  # pylint: disable=line-too-long
+    )
+
+
+class TckSift2(MRTrix3Base):  # pylint: disable=abstract-method
+    """
+    Optimise per-streamline cross-section multipliers to match
+    a whole-brain tractogram to fixel-wise fibre densities
+
+    Example
+    -------
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> sift = mrt.TCKSift2()
+    >>> sift.inputs.in_file = 'tracks.tck'
+    >>> sift.inputs.in_fod = 'fod.mif'
+    >>> sift.cmdline
+    'tcksift2 tracks.tck fod.mif sift2_weights.txt'
+    >>> sift.run()  # doctest: +SKIP
+    """
+
+    _cmd = "tcksift2"
+    input_spec = TckSift2InputSpec
+    output_spec = TckSift2OutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_file"] = op.abspath(self.inputs.out_file)
+        if self.inputs.out_csv:
+            outputs["out_csv"] = op.abspath(self.inputs.out_csv)
+        if self.inputs.out_mu:
+            outputs["out_mu"] = op.abspath(self.inputs.out_mu)
+        if self.inputs.out_coeffs:
+            outputs["out_coeffs"] = op.abspath(self.inputs.out_coeffs)
+        return outputs
+
+
 class TckSiftInputSpec(MRTrix3BaseInputSpec):
     in_file = File(
         exists=True,
@@ -45,7 +169,7 @@ class TckSiftInputSpec(MRTrix3BaseInputSpec):
     remove_untracked = traits.Bool(
         default_value=False,
         argstr="-remove_untracked",
-        desc="emove FOD lobes that do not have any streamline density attributed to them.",  # pylint: disable=line-too-long
+        desc="Femove FOD lobes that do not have any streamline density attributed to them.",  # pylint: disable=line-too-long
     )
     fd_thresh = traits.Float(
         argstr="-fd_thresh %f",

@@ -72,7 +72,6 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
     parcellations={
         "space": "dwi",
         "subtype": "parcellations",
-        "direction": "",
         "suffix": "parc",
         "extension": ".pkl",
     },
