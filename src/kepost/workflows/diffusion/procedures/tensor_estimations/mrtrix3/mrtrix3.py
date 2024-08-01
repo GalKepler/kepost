@@ -70,7 +70,7 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
     tensor2metric_wf = pe.Node(
         interface=mrtrix3.TensorMetrics(
             **{f"out_{param}": f"{param}.nii.gz" for param in TENSOR_PARAMETERS},
-            nthreads=config.nipype.omp_nthreads,
+            args=f"-nthreads {config.nipype.omp_nthreads}",
         ),
         name="mrtrix3_tensor2metric_wf",
     )
