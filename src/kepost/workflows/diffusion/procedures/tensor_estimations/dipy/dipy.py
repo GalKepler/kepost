@@ -7,34 +7,14 @@ from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import gen_acq_label
 from kepost.interfaces.dipy import ReconstDTI
+from kepost.workflows.diffusion.procedures.tensor_estimations.dipy.utils import (
+    estimate_sigma,
+)
 from kepost.workflows.diffusion.procedures.utils.derivatives import (
     DIFFUSION_WF_OUTPUT_ENTITIES,
 )
 
 TENSOR_PARAMETERS = ["fa", "ga", "md", "ad", "rd", "mode"]
-
-
-def estimate_sigma(in_file: str, in_mask: str) -> float:
-    """
-    Estimate the sigma value (1.5267 * std(background_noise))
-
-    Parameters
-    ----------
-    in_file : str
-        The input file
-
-    Returns
-    -------
-    float
-        The sigma value
-    """
-    import nibabel as nib
-    import numpy as np
-
-    data = nib.load(in_file).get_fdata()  # type: ignore[attr-defined]
-    mask = nib.load(in_mask).get_fdata().astype(bool)  # type: ignore[attr-defined]
-    background = data[~mask]
-    return 1.5267 * np.std(background)
 
 
 def init_dipy_tensor_wf(
