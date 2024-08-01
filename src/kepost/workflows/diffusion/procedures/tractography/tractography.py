@@ -4,7 +4,7 @@ from nipype.interfaces import utility as niu
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
-from kepost.interfaces.mrtrix3 import TckSift
+from kepost.interfaces.mrtrix3 import TckSift, TckSift2
 from kepost.workflows.diffusion.procedures.coregister_5tt.coregister_5tt import (
     init_5tt_coreg_wf,
 )
@@ -245,7 +245,21 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
         name="tcksift",
     )
     if config.workflow.debug_sift:
-        tcksift_node.inputs.output_debug = "sift_debug"
+        tcksift_node.inputs.out_debug = "sift_debug"
+
+    tcksift2_node = pe.Node(
+        TckSift2(
+            nthreads=config.nipype.omp_nthreads,
+            out_file="sift2.txt",
+            out_csv="sift2.csv",
+            out_mu="sift2_mu.txt",
+            out_coeffs="sift2_coeffs.txt",
+            fd_scale_gm=config.workflow.fs_scale_gm,
+        ),
+        name="tcksift2",
+    )
+    if config.workflow.debug_sift:
+        tcksift2_node.inputs.out_debug = "sift2_debug"
 
     workflow.connect(
         [
@@ -299,6 +313,21 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
                     ("out_file", "in_file"),
                 ],
             ),
+            (
+                dwi2fod_node,
+                tcksift2_node,
+                [
+                    ("wm_odf", "in_fod"),
+                ],
+            ),
+            (coreg_5tt_wf, tcksift2_node, [("outputnode.5tt_coreg", "act_file")]),
+            (
+                tractography,
+                tcksift2_node,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
         ]
     )
     ds_tracts = pe.Node(
@@ -319,6 +348,16 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
             reconstruction="mrtrix3",
         ),
         name="ds_sifted_tracts",
+        run_without_submitting=True,
+    )
+    ds_sift2_txt = pe.Node(
+        DerivativesDataSink(
+            suffix="weights",
+            extension=".txt",
+            desc="SIFT2",
+            reconstruction="mrtrix3",
+        ),
+        name="ds_sift2_txt",
         run_without_submitting=True,
     )
     workflow.connect(
@@ -354,6 +393,21 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
                 ],
             ),
             (
+                inputnode,
+                ds_sift2_txt,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                tcksift2_node,
+                ds_sift2_txt,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
                 ds_tracts,
                 outputnode,
                 [
@@ -365,6 +419,13 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
                 outputnode,
                 [
                     ("out_file", "sifted_tck"),
+                ],
+            ),
+            (
+                ds_sift2_txt,
+                outputnode,
+                [
+                    ("out_file", "sift2_weights"),
                 ],
             ),
         ]

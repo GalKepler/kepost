@@ -379,9 +379,14 @@ def init_diffusion_wf(
                 connectome_wf,
                 [
                     (
-                        "outputnode.sifted_tck",
-                        "inputnode.in_tracts",
+                        "outputnode.unsifted_tck",
+                        "inputnode.tracts_unsifted",
                     ),
+                    (
+                        "outputnode.sifted_tck",
+                        "inputnode.tracts_sifted",
+                    ),
+                    ("outputnode.sift2_weights", "inputnode.tck_weights"),
                 ],
             ),
         ]
