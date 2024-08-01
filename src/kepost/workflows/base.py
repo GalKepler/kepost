@@ -179,6 +179,10 @@ def init_single_subject_wf(subject_id: str, name: str):
                             "outputnode.atlas_name",
                             "inputnode.atlas_name",
                         ),
+                        (
+                            "outputnode.five_tissue_type",
+                            "inputnode.five_tissue_type",
+                        ),
                     ],
                 ),
             ]

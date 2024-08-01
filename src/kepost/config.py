@@ -429,6 +429,28 @@ class workflow(_Config):
     """Sigma parameter for the RESTORE algorithm. If none provided, sigma will be estimated."""
     parcellate_gm = True
     """Whether to apply gray matter masking to atlases prior to parcellation."""
+    response_algorithm = "dhollander"
+    """Algorithm to estimate the response function."""
+    fod_algorithm = "msmt_csd"
+    """Algorithm to estimate the fiber orientation distribution."""
+    n_raw_tracts = 200000
+    """Number of streamlines to generate in the tractography."""
+    n_tracts = 20000
+    """Number of streamlines to keep after filtering."""
+    tracking_algorithm = "SD_Stream"
+    """Algorithm to perform tractography."""
+    tracking_max_angle = 45
+    """Maximum angle between steps in the tractography."""
+    tracking_lenscale_min = 30
+    """Minimum length scale for the tractography."""
+    tracking_lenscale_max = 500
+    """Maximum length scale for the tractography."""
+    tracking_stepscale = 0.2
+    """Step scale for the tractography."""
+    fs_scale_gm = True
+    """Heuristically downsize the fibre density estimates based on the presence of GM in the voxel."""
+    debug_sift = False
+    """Enable debugging mode for SIFT."""
 
 
 class loggers:
