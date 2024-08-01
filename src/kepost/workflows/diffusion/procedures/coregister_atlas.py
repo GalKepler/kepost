@@ -51,17 +51,11 @@ def init_coregistration_wf(
     )
     # run apply transforms on both parcellations, naming them appropriately
     apply_transforms_wholebrain = pe.Node(
-        fsl.ApplyXFM(
-            interp="nearestneighbour",
-            apply_xfm=True,
-        ),
+        fsl.ApplyXFM(interp="nearestneighbour", apply_xfm=True, datatype="int"),
         name="apply_transforms_wholebrain",
     )
     apply_transforms_gm_cropped = pe.Node(
-        fsl.ApplyXFM(
-            interp="nearestneighbour",
-            apply_xfm=True,
-        ),
+        fsl.ApplyXFM(interp="nearestneighbour", apply_xfm=True, datatype="int"),
         name="apply_transforms_gm_cropped",
     )
     apply_transforms_t1w = pe.Node(

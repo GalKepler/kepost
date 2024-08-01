@@ -3,6 +3,7 @@ from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 
 from kepost import config
+from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.mrtrix3 import TckSift
 from kepost.workflows.diffusion.procedures.coregister_5tt.coregister_5tt import (
     init_5tt_coreg_wf,
@@ -95,6 +96,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
                 "predicted_signal",
                 "unsifted_tck",
                 "sifted_tck",
+                "sift2_weights",
             ]
         ),
         name="outputnode",
@@ -297,15 +299,69 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
                     ("out_file", "in_file"),
                 ],
             ),
+        ]
+    )
+    ds_tracts = pe.Node(
+        DerivativesDataSink(
+            suffix="tracts",
+            extension=".tck",
+            desc="unfiltered",
+            reconstruction="mrtrix3",
+        ),
+        name="ds_unfiltered_tracts",
+        run_without_submitting=True,
+    )
+    ds_sifted_tracts = pe.Node(
+        DerivativesDataSink(
+            suffix="tracts",
+            extension=".tck",
+            desc="SIFT",
+            reconstruction="mrtrix3",
+        ),
+        name="ds_sifted_tracts",
+        run_without_submitting=True,
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                ds_tracts,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
             (
                 tractography,
+                ds_tracts,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_sifted_tracts,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                tcksift_node,
+                ds_sifted_tracts,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                ds_tracts,
                 outputnode,
                 [
                     ("out_file", "unsifted_tck"),
                 ],
             ),
             (
-                tcksift_node,
+                ds_sifted_tracts,
                 outputnode,
                 [
                     ("out_file", "sifted_tck"),

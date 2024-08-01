@@ -80,6 +80,7 @@ def init_parcellations_wf(
             DerivativesDataSink(  # type: ignore[arg-type]
                 **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
                 reconstruction_software=software,
+                dismiss_entities="direction",
                 desc=p,
             ),
             name=f"ds_parcellation_node_{i}",
@@ -112,57 +113,5 @@ def init_parcellations_wf(
                 ),
             ]
         )
-
-    # parcellate_node = pe.MapNode(
-    #     niu.Function(
-    #         input_names=["in_file", "atlas_nifti"],
-    #         output_names=["out_file", "atlas_name"],
-    #         function=parcellate_all_measures,
-    #     ),
-    #     name="parcellate_node",
-    #     iterfield=["in_file"],
-    # )
-    # listify_inputs_node = pe.Node(
-    #     niu.Merge(len(inputs)),
-    #     name="listify_inputs_node",
-    # )
-    # ds_parcellation_node = pe.MapNode(
-    #     DerivativesDataSink(  # type: ignore[arg-type]
-    #         **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
-    #         reconstruction_software=software,
-    #         desc=inputs,
-    #     ),
-    #     iterfield=["desc", "in_file"],
-    #     name="ds_parcellation_node",
-    # )
-    # workflow.connect(
-    #     [
-    #         (
-    #             inputnode,
-    #             listify_inputs_node,
-    #             [(p, f"in{i+1}") for i, p in enumerate(inputs)],
-    #         ),
-    #         (listify_inputs_node, parcellate_node, [("out", "in_file")]),
-    #         (
-    #             inputnode,
-    #             parcellate_node,
-    #             [("atlas_nifti", "atlas_nifti")],
-    #         ),
-    #         (
-    #             parcellate_node,
-    #             ds_parcellation_node,
-    #             [("out_file", "in_file"), ("atlas_name", "atlas")],
-    #         ),
-    #         (
-    #             inputnode,
-    #             ds_parcellation_node,
-    #             [
-    #                 ("acq_label", "acquisition"),
-    #                 ("source_file", "source_file"),
-    #                 ("base_directory", "base_directory"),
-    #             ],
-    #         ),
-    #     ]
-    # )
 
     return workflow

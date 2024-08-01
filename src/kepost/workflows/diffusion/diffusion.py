@@ -2,6 +2,9 @@ from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 
 from kepost import config
+from kepost.workflows.diffusion.procedures.connectomes.connectomes import (
+    init_connectome_wf,
+)
 from kepost.workflows.diffusion.procedures.coregister_atlas import (
     init_coregistration_wf,
 )
@@ -351,62 +354,39 @@ def init_diffusion_wf(
             ),
         ]
     )
+    connectome_wf = init_connectome_wf()
+    workflow.connect(
+        [
+            (
+                inputnode,
+                connectome_wf,
+                [
+                    ("base_directory", "inputnode.base_directory"),
+                ],
+            ),
+            (
+                coregister_wf,
+                connectome_wf,
+                [
+                    (
+                        "outputnode.whole_brain_parcellation",
+                        "inputnode.atlas_nifti",
+                    )
+                ],
+            ),
+            (
+                tractography_wf,
+                connectome_wf,
+                [
+                    (
+                        "outputnode.sifted_tck",
+                        "inputnode.in_tracts",
+                    ),
+                ],
+            ),
+        ]
+    )
     return workflow
-    #     if register_atlas:
-    #         connectome_wf = init_connectome_wf()
-    #         workflow.connect(
-    #             [
-    #                 (
-    #                     inputnode,
-    #                     connectome_wf,
-    #                     [
-    #                         ("base_directory", "inputnode.base_directory"),
-    #                         ("atlas_name", "inputnode.atlas_name"),
-    #                     ],
-    #                 ),
-    #                 (
-    #                     coregister_wf,
-    #                     connectome_wf,
-    #                     [
-    #                         (
-    #                             "outputnode.whole_brain_parcellation",
-    #                             "inputnode.in_parc",
-    #                         )
-    #                     ],
-    #                 ),
-    #             ]
-    #         )
-    #         if config.workflow.do_sift_filtering:
-    #             workflow.connect(
-    #                 [
-    #                     (
-    #                         tractography_wf,
-    #                         connectome_wf,
-    #                         [
-    #                             (
-    #                                 "outputnode.sift_tracts",
-    #                                 "inputnode.in_tracts",
-    #                             ),
-    #                         ],
-    #                     ),
-    #                 ]
-    #             )
-    #         else:
-    #             workflow.connect(
-    #                 [
-    #                     (
-    #                         tractography_wf,
-    #                         connectome_wf,
-    #                         [
-    #                             (
-    #                                 "outputnode.unfiltered_tracts",
-    #                                 "inputnode.in_tracts",
-    #                             ),
-    #                         ],
-    #                     ),
-    #                 ]
-    #             )
-    # return workflow
 
 
 def _get_wf_name(filename):
