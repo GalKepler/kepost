@@ -1,15 +1,20 @@
+import sys
 from copy import deepcopy
 from pathlib import Path
 
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.interfaces.bids import BIDSInfo, DerivativesDataSink
 from packaging.version import Version
 
 from kepost import config
 from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
-from kepost.interfaces.bids.utils import collect_data
+from kepost.interfaces.bids import BIDSDataGrabber, collect_data
+from kepost.interfaces.reports import AboutSummary, SubjectSummary
 from kepost.workflows.anatomical import init_anatomical_wf
 from kepost.workflows.diffusion.diffusion import init_diffusion_wf
+
+DerivativesDataSink.out_path_base = ""
 
 
 def init_kepost_wf():
@@ -73,6 +78,13 @@ def init_single_subject_wf(subject_id: str, name: str):
     subject_data, sessions_data = collect_data(
         layout=config.execution.layout, participant_label=subject_id
     )
+    combined_data = subject_data.copy()
+    for session in sessions_data.keys():
+        for value in sessions_data[session].keys():
+            if value in combined_data:
+                combined_data[value].append(sessions_data[session][value])
+            else:
+                combined_data[value] = [sessions_data[session][value]]
 
     inputnode = pe.Node(
         niu.IdentityInterface(
@@ -85,6 +97,7 @@ def init_single_subject_wf(subject_id: str, name: str):
                 "gm_probabilistic_segmentation",
                 "atlases",
                 "subject_id",
+                "subjects_dir",
             ]
         ),
         name="inputnode_subject",
@@ -104,7 +117,78 @@ def init_single_subject_wf(subject_id: str, name: str):
         "csf_probabilistic_segmentation"
     ]
     inputnode.inputs.subject_id = subject_id
+    inputnode.inputs.subjects_dir = config.execution.fs_subjects_dir
 
+    bidssrc = pe.Node(
+        BIDSDataGrabber(
+            subject_data=combined_data,
+            subject_id=subject_id,
+        ),
+        name="bidssrc",
+    )
+    bids_info = pe.Node(
+        BIDSInfo(bids_dir=config.execution.keprep_dir, bids_validate=False),
+        name="bids_info",
+    )
+    summary = pe.Node(
+        SubjectSummary(),
+        name="summary",
+        run_without_submitting=True,
+    )
+
+    about = pe.Node(
+        AboutSummary(version=config.environment.version, command=" ".join(sys.argv)),
+        name="about",
+        run_without_submitting=True,
+    )
+
+    ds_report_summary = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(kepost_dir),  # type: ignore[attr-defined] # noqa: E501
+            desc="summary",
+            datatype="figures",
+            dismiss_entities=["session", "space"],
+        ),
+        name="ds_report_summary",
+        run_without_submitting=True,
+    )
+
+    ds_report_about = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(kepost_dir),  # type: ignore[attr-defined] # noqa: E501
+            desc="about",
+            datatype="figures",
+            dismiss_entities=["session", "space"],
+        ),
+        name="ds_report_about",
+        run_without_submitting=True,
+    )
+    workflow.connect(
+        [
+            (bidssrc, bids_info, [("t1w_preproc", "in_file")]),
+            (inputnode, summary, [("subjects_dir", "subjects_dir")]),
+            (bids_info, summary, [("subject", "subject_id")]),
+            (
+                bidssrc,
+                summary,
+                [("t1w_preproc", "t1w"), ("dwi_nifti", "dwi")],
+            ),
+            (
+                bidssrc,
+                ds_report_summary,
+                [
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (summary, ds_report_summary, [("out_report", "in_file")]),
+            (
+                bidssrc,
+                ds_report_about,
+                [("dwi_nifti", "source_file")],
+            ),
+            (about, ds_report_about, [("out_report", "in_file")]),
+        ]
+    )
     # Anatomical postprocessing
     anatomical_wf = init_anatomical_wf()
     workflow.connect(

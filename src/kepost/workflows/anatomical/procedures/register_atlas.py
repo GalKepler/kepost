@@ -41,6 +41,7 @@ def init_registration_wf(
         ),
         name="apply_transforms",
     )
+
     workflow.connect(
         [
             (

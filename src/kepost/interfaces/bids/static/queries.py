@@ -98,24 +98,6 @@ QUERIES = {
             "extension": ".b",
         },
     },
-    "streamlines_unsifted": {
-        "scope": "session",
-        "entities": {
-            "desc": "unsifted",
-            "datatype": "dwi",
-            "suffix": "streamlines",
-            "extension": ".tck",
-        },
-    },
-    "streamlines_sifted": {
-        "scope": "session",
-        "entities": {
-            "desc": "sifted",
-            "datatype": "dwi",
-            "suffix": "streamlines",
-            "extension": ".tck",
-        },
-    },
     "t1w_to_dwi_transform": {
         "scope": "session",
         "entities": {

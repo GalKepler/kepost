@@ -33,6 +33,8 @@ def collect_data(
     """
     Uses pybids to retrieve the input data for a given participant
     """
+    if isinstance(participant_label, list):
+        participant_label = participant_label[0]
     try:
         subj_data = {
             dtype: sorted(
