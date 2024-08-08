@@ -1,3 +1,5 @@
+import os
+
 from nipype.interfaces.base import File
 from nipype.interfaces.mixins import reporting
 from niworkflows.viz.utils import (
@@ -92,7 +94,7 @@ class AtlasRegRPTInputSpec(reporting.ReportCapableInputSpec):
     background_file = File(mandatory=True, exists=True, desc="Background file")
     atlas_file = File(mandatory=True, exists=True, desc="Parcellation atlas file")
     out_report = File(
-        "report",
+        "report.svg",
         usedefault=True,
         hash_files=False,
         desc="filename for the visual report",
@@ -116,7 +118,7 @@ class AtlasRegRPT(reporting.ReportCapableInterface):
         return runtime
 
     def _generate_report(self):
-
+        self.inputs.out_report = f"{os.getcwd()}/{self.inputs.out_report}"
         compose_view(
             plot_atlas(
                 image_nii=self.inputs.background_file,

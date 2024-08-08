@@ -2,6 +2,8 @@ from nipype.interfaces import utility as niu
 from nipype.interfaces.ants import ApplyTransforms
 from nipype.pipeline import engine as pe
 
+from kepost.interfaces.reports.viz import AtlasRegRPT
+
 
 def init_registration_wf(
     name: str = "atlas_registration",
@@ -28,9 +30,7 @@ def init_registration_wf(
     )
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
-            fields=[
-                "whole_brain_parcellation",
-            ]
+            fields=["whole_brain_parcellation", "registration_report"]
         ),
         name="outputnode",
     )
@@ -41,6 +41,7 @@ def init_registration_wf(
         ),
         name="apply_transforms",
     )
+    atlas_reg = pe.Node(interface=AtlasRegRPT(), name="atlas_registration_report")
 
     workflow.connect(
         [
@@ -60,6 +61,9 @@ def init_registration_wf(
                     ("output_image", "whole_brain_parcellation"),
                 ],
             ),
+            (inputnode, atlas_reg, [("t1w_preproc", "background_file")]),
+            (apply_transforms, atlas_reg, [("output_image", "atlas_file")]),
+            (atlas_reg, outputnode, [("out_report", "registration_report")]),
         ]
     )
     return workflow

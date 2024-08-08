@@ -210,7 +210,7 @@ def init_single_subject_wf(subject_id: str, name: str):
             ),
         ]
     )
-
+    return workflow
     # Diffusion postprocessing
     diffusion_workflows = []
     # num_sessions = len(sessions_data)
