@@ -7,6 +7,7 @@ from nipype.pipeline import engine as pe
 
 from kepost import config
 from kepost.atlases.utils import get_atlas_properties
+from kepost.interfaces.reports.viz import AtlasRegRPT
 from kepost.workflows.anatomical.procedures import (
     init_derivatives_wf,
     init_five_tissue_type_wf,
@@ -118,6 +119,7 @@ def init_anatomical_wf(
         ]
     )
     gm_cropping_wf = init_gm_cropping_wf()
+    atlas_reg = pe.Node(interface=AtlasRegRPT(), name="atlas_registration_report")
     workflow.connect(
         [
             (
@@ -151,6 +153,12 @@ def init_anatomical_wf(
                     ),
                 ],
             ),
+            (
+                gm_cropping_wf,
+                atlas_reg,
+                [("outputnode.gm_cropped_parcellation", "overlay_file")],
+            ),
+            (inputnode, atlas_reg, [("t1w_preproc", "background_file")]),
         ]
     )
 
@@ -196,7 +204,7 @@ def init_anatomical_wf(
                     (
                         "outputnode.whole_brain_parcellation",
                         "inputnode.whole_brain_parcellation",
-                    ),
+                    )
                 ],
             ),
             (
@@ -208,6 +216,11 @@ def init_anatomical_wf(
                         "inputnode.gm_cropped_parcellation",
                     ),
                 ],
+            ),
+            (
+                atlas_reg,
+                derivatives_wf,
+                [("out_report", "inputnode.registration_report")],
             ),
         ]
     )

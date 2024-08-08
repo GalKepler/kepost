@@ -1,6 +1,6 @@
 import os
 
-from nipype.interfaces.base import File
+from nipype.interfaces.base import File, Str, isdefined, traits
 from nipype.interfaces.mixins import reporting
 from niworkflows.viz.utils import (
     _3d_in_file,
@@ -13,7 +13,7 @@ from niworkflows.viz.utils import (
 )
 
 
-def plot_atlas(
+def plot_overlay(
     image_nii,
     atlas,
     out_file,
@@ -21,7 +21,7 @@ def plot_atlas(
     masked=False,
     colors=None,
     compress="auto",
-    **plot_params,
+    plot_params=None,
 ):
     """
     Generate a static mosaic with ROIs represented by their delimiting contour.
@@ -58,7 +58,7 @@ def plot_atlas(
     for d in plot_params.pop("dimensions", ("z", "x", "y")):
         plot_params["display_mode"] = d
         plot_params["cut_coords"] = cuts[d]
-        svg = _plot_atlas(image_nii, atlas=atlas, compress=compress, **plot_params)
+        svg = _plot_overlay(image_nii, atlas=atlas, compress=compress, **plot_params)
         # Find and replace the figure_1 id.
         svg = svg.replace("figure_1", "segmentation-%s-%s" % (d, uuid4()), 1)
         out_files.append(fromstring(svg))
@@ -66,7 +66,7 @@ def plot_atlas(
     return out_files
 
 
-def _plot_atlas(image, atlas, compress="auto", **plot_params):
+def _plot_overlay(image, atlas, compress="auto", **plot_params):
     from nilearn.plotting import plot_anat
 
     plot_params = plot_params or {}
@@ -75,12 +75,14 @@ def _plot_atlas(image, atlas, compress="auto", **plot_params):
     colors = plot_params.pop("colors", None) or []
     colors = [[c] if not isinstance(c, list) else c for c in colors]
 
-    display = plot_anat(image, **plot_params)
+    display = plot_anat(
+        image,
+        **{k: v for k, v in plot_params.items() if k not in ["threshold", "cmap"]},
+    )
 
     # remove plot_anat -specific parameters
     plot_params.pop("display_mode")
     plot_params.pop("cut_coords")
-    plot_params["cmap"] = "hsv"
     plot_params["alpha"] = 0.7
     # plot_params["colors"] = colors[0]
     display.add_overlay(atlas, **plot_params)
@@ -92,7 +94,15 @@ def _plot_atlas(image, atlas, compress="auto", **plot_params):
 
 class AtlasRegRPTInputSpec(reporting.ReportCapableInputSpec):
     background_file = File(mandatory=True, exists=True, desc="Background file")
-    atlas_file = File(mandatory=True, exists=True, desc="Parcellation atlas file")
+    overlay_file = File(mandatory=True, exists=True, desc="Parcellation atlas file")
+    colormap = Str(
+        default_value="hsv",
+        usedefault=True,
+        desc="Colormap to use for overlaying the image",
+    )
+    threshold = traits.Float(
+        mandatory=False, desc="Threshold to use for overlaying the image"
+    )
     out_report = File(
         "report.svg",
         usedefault=True,
@@ -119,13 +129,17 @@ class AtlasRegRPT(reporting.ReportCapableInterface):
 
     def _generate_report(self):
         self.inputs.out_report = f"{os.getcwd()}/{self.inputs.out_report}"
+        plot_params = {"cmap": self.inputs.colormap}
+        if isdefined(self.inputs.threshold):
+            plot_params["threshold"] = self.inputs.threshold
         compose_view(
-            plot_atlas(
+            plot_overlay(
                 image_nii=self.inputs.background_file,
-                atlas=self.inputs.atlas_file,
+                atlas=self.inputs.overlay_file,
                 out_file=self.inputs.out_report,
                 masked=False,
                 compress=False,
+                plot_params=plot_params,
             ),
             fg_svgs=None,
             out_file=self.inputs.out_report,

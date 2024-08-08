@@ -1,5 +1,6 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import get_entity
@@ -44,6 +45,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 "atlas_name",
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
+                "registration_report",
             ]
         ),
         name="inputnode",
@@ -69,6 +71,13 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             **gm_cropped_entities,
         ),
         name="ds_gm_cropped",
+    )
+
+    ds_registration = pe.Node(
+        interface=RPTDerivativesDataSink(
+            datatype="figures", suffix="dseg", space="T1w", dismiss_entities=["ceagent"]
+        ),
+        name="ds_registration_report",
     )
 
     workflow.connect(
@@ -112,6 +121,16 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                     ("atlas_name", "atlas"),
                 ],
             ),
+            (
+                inputnode,
+                ds_registration,
+                [
+                    ("base_directory", "base_directory"),
+                    ("t1w_preproc", "source_file"),
+                    ("registration_report", "in_file"),
+                ],
+            ),
+            (get_atlas_name_node, ds_registration, [("atlas_name", "desc")]),
         ]
     )
     return workflow
