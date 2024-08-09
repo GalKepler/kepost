@@ -9,6 +9,9 @@ import numpy as np
 from nipype import logging
 from nipype.interfaces.base import (
     BaseInterfaceInputSpec,
+    DynamicTraitedSpec,
+    File,
+    InputMultiObject,
     OutputMultiObject,
     SimpleInterface,
     Str,
@@ -17,7 +20,6 @@ from nipype.interfaces.base import (
     traits,
 )
 from nipype.interfaces.io import add_traits
-from niworkflows.interfaces.bids import DerivativesDataSink as _DDSink
 from niworkflows.utils.bids import relative_to_root
 from niworkflows.utils.images import set_consumables, unsafe_write_nifti_header_and_data
 from niworkflows.utils.misc import _copy_any
@@ -25,8 +27,6 @@ from niworkflows.utils.misc import splitext as _splitext
 
 # from pkg_resources import resource_filename as _pkgres  # type: ignore[import-untyped]
 from templateflow.api import templates as _get_template_list
-
-from kepost.interfaces.bids.static import KEPOST_DDS_CONFIGURATIONS
 
 
 def resource_filename(package, resource):
@@ -71,13 +71,198 @@ DEFAULT_DTYPES = defaultdict(
 )
 
 
-class DerivativesDataSink(_DDSink):
+class _DerivativesDataSinkInputSpec(DynamicTraitedSpec, BaseInterfaceInputSpec):
+    base_directory = traits.Directory(
+        desc="Path to the base directory for storing data."
+    )
+    check_hdr = traits.Bool(True, usedefault=True, desc="fix headers of NIfTI outputs")
+    compress = InputMultiObject(
+        traits.Either(None, traits.Bool),
+        usedefault=True,
+        desc="whether ``in_file`` should be compressed (True), uncompressed (False) "
+        "or left unmodified (None, default).",
+    )
+    data_dtype = Str(
+        desc="NumPy datatype to coerce NIfTI data to, or `source` to"
+        "match the input file dtype"
+    )
+    dismiss_entities = InputMultiObject(
+        traits.Either(None, Str),
+        usedefault=True,
+        desc="a list entities that will not be propagated from the source file",
+    )
+    in_file = InputMultiObject(
+        File(exists=True), mandatory=True, desc="the object to be saved"
+    )
+    meta_dict = traits.DictStrAny(desc="an input dictionary containing metadata")
+    save_meta = traits.Bool(True, usedefault=True, desc="save JSON sidecar")
+    source_file = InputMultiObject(
+        File(exists=False),
+        mandatory=True,
+        desc="the source file(s) to extract entities from",
+    )
+
+
+class _DerivativesDataSinkOutputSpec(TraitedSpec):
+    out_file = OutputMultiObject(File(exists=True, desc="written file path"))
+    out_meta = OutputMultiObject(File(exists=False, desc="written JSON sidecar path"))
+    compression = OutputMultiObject(
+        traits.Either(None, traits.Bool),
+        desc="whether ``in_file`` should be compressed (True), uncompressed (False) "
+        "or left unmodified (None).",
+    )
+    fixed_hdr = traits.List(traits.Bool, desc="whether derivative header was fixed")
+
+
+class DerivativesDataSink(SimpleInterface):
+    """
+    Store derivative files.
+    Saves the ``in_file`` into a BIDS-Derivatives folder provided
+    by ``base_directory``, given the input reference ``source_file``.
+    >>> import tempfile
+    >>> tmpdir = Path(tempfile.mkdtemp())
+    >>> tmpfile = tmpdir / 'a_temp_file.nii.gz'
+    >>> tmpfile.open('w').close()  # "touch" the file
+    >>> t1w_source = bids_collect_data(
+    ...     str(datadir / 'ds114'), '01', bids_validate=False)[0]['t1w'][0]
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False)
+    >>> dsink.inputs.in_file = str(tmpfile)
+    >>> dsink.inputs.source_file = t1w_source
+    >>> dsink.inputs.desc = 'denoised'
+    >>> dsink.inputs.compress = False
+    >>> res = dsink.run()
+    >>> res.outputs.out_file  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-01/ses-retest/anat/sub-01_ses-retest_desc-denoised_T1w.nii'
+    >>> tmpfile = tmpdir / 'a_temp_file.nii'
+    >>> tmpfile.open('w').close()  # "touch" the file
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False,
+    ...                             allowed_entities=("custom",))
+    >>> dsink.inputs.in_file = str(tmpfile)
+    >>> dsink.inputs.source_file = t1w_source
+    >>> dsink.inputs.custom = 'noise'
+    >>> res = dsink.run()
+    >>> res.outputs.out_file  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-01/ses-retest/anat/sub-01_ses-retest_custom-noise_T1w.nii'
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False,
+    ...                             allowed_entities=("custom",))
+    >>> dsink.inputs.in_file = [str(tmpfile), str(tmpfile)]
+    >>> dsink.inputs.source_file = t1w_source
+    >>> dsink.inputs.custom = [1, 2]
+    >>> dsink.inputs.compress = True
+    >>> res = dsink.run()
+    >>> res.outputs.out_file  # doctest: +ELLIPSIS
+    ['.../niworkflows/sub-01/ses-retest/anat/sub-01_ses-retest_custom-1_T1w.nii.gz',
+     '.../niworkflows/sub-01/ses-retest/anat/sub-01_ses-retest_custom-2_T1w.nii.gz']
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False,
+    ...                             allowed_entities=("custom1", "custom2"))
+    >>> dsink.inputs.in_file = [str(tmpfile)] * 2
+    >>> dsink.inputs.source_file = t1w_source
+    >>> dsink.inputs.custom1 = [1, 2]
+    >>> dsink.inputs.custom2 = "b"
+    >>> res = dsink.run()
+    >>> res.outputs.out_file  # doctest: +ELLIPSIS
+    ['.../niworkflows/sub-01/ses-retest/anat/sub-01_ses-retest_custom1-1_custom2-b_T1w.nii',
+     '.../niworkflows/sub-01/ses-retest/anat/sub-01_ses-retest_custom1-2_custom2-b_T1w.nii']
+    When multiple source files are passed, only common entities are passed down.
+    For example, if two T1w images from different sessions are used to generate
+    a single image, the session entity is removed automatically.
+    >>> bids_dir = tmpdir / 'bidsroot'
+    >>> multi_source = [
+    ...     bids_dir / 'sub-02/ses-A/anat/sub-02_ses-A_T1w.nii.gz',
+    ...     bids_dir / 'sub-02/ses-B/anat/sub-02_ses-B_T1w.nii.gz']
+    >>> for source_file in multi_source:
+    ...     source_file.parent.mkdir(parents=True, exist_ok=True)
+    ...     _ = source_file.write_text("")
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False)
+    >>> dsink.inputs.in_file = str(tmpfile)
+    >>> dsink.inputs.source_file = list(map(str, multi_source))
+    >>> dsink.inputs.desc = 'preproc'
+    >>> res = dsink.run()
+    >>> res.outputs.out_file  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-02/anat/sub-02_desc-preproc_T1w.nii'
+    If, on the other hand, only one is used, the session is preserved:
+    >>> dsink.inputs.source_file = str(multi_source[0])
+    >>> res = dsink.run()
+    >>> res.outputs.out_file  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-02/ses-A/anat/sub-02_ses-A_desc-preproc_T1w.nii'
+    >>> bids_dir = tmpdir / 'bidsroot' / 'sub-02' / 'ses-noanat' / 'func'
+    >>> bids_dir.mkdir(parents=True, exist_ok=True)
+    >>> tricky_source = bids_dir / 'sub-02_ses-noanat_task-rest_run-01_bold.nii.gz'
+    >>> tricky_source.open('w').close()
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False)
+    >>> dsink.inputs.in_file = str(tmpfile)
+    >>> dsink.inputs.source_file = str(tricky_source)
+    >>> dsink.inputs.desc = 'preproc'
+    >>> res = dsink.run()
+    >>> res.outputs.out_file  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-02/ses-noanat/func/sub-02_ses-noanat_task-rest_run-1_\
+desc-preproc_bold.nii'
+    >>> bids_dir = tmpdir / 'bidsroot' / 'sub-02' / 'ses-noanat' / 'func'
+    >>> bids_dir.mkdir(parents=True, exist_ok=True)
+    >>> tricky_source = bids_dir / 'sub-02_ses-noanat_task-rest_run-1_bold.nii.gz'
+    >>> tricky_source.open('w').close()
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False)
+    >>> dsink.inputs.in_file = str(tmpfile)
+    >>> dsink.inputs.source_file = str(tricky_source)
+    >>> dsink.inputs.desc = 'preproc'
+    >>> dsink.inputs.RepetitionTime = 0.75
+    >>> res = dsink.run()
+    >>> res.outputs.out_meta  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-02/ses-noanat/func/sub-02_ses-noanat_task-rest_run-1_\
+desc-preproc_bold.json'
+    >>> Path(res.outputs.out_meta).read_text().splitlines()[1]
+    '  "RepetitionTime": 0.75'
+    >>> bids_dir = tmpdir / 'bidsroot' / 'sub-02' / 'ses-noanat' / 'func'
+    >>> bids_dir.mkdir(parents=True, exist_ok=True)
+    >>> tricky_source = bids_dir / 'sub-02_ses-noanat_task-rest_run-01_bold.nii.gz'
+    >>> tricky_source.open('w').close()
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False,
+    ...                             SkullStripped=True)
+    >>> dsink.inputs.in_file = str(tmpfile)
+    >>> dsink.inputs.source_file = str(tricky_source)
+    >>> dsink.inputs.desc = 'preproc'
+    >>> dsink.inputs.space = 'MNI152NLin6Asym'
+    >>> dsink.inputs.resolution = '01'
+    >>> dsink.inputs.RepetitionTime = 0.75
+    >>> res = dsink.run()
+    >>> res.outputs.out_meta  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-02/ses-noanat/func/sub-02_ses-noanat_task-rest_run-1_\
+space-MNI152NLin6Asym_res-01_desc-preproc_bold.json'
+    >>> lines = Path(res.outputs.out_meta).read_text().splitlines()
+    >>> lines[1]
+    '  "RepetitionTime": 0.75,'
+    >>> lines[2]
+    '  "SkullStripped": true'
+    >>> bids_dir = tmpdir / 'bidsroot' / 'sub-02' / 'ses-noanat' / 'func'
+    >>> bids_dir.mkdir(parents=True, exist_ok=True)
+    >>> tricky_source = bids_dir / 'sub-02_ses-noanat_task-rest_run-01_bold.nii.gz'
+    >>> tricky_source.open('w').close()
+    >>> dsink = DerivativesDataSink(base_directory=str(tmpdir), check_hdr=False,
+    ...                             SkullStripped=True)
+    >>> dsink.inputs.in_file = str(tmpfile)
+    >>> dsink.inputs.source_file = str(tricky_source)
+    >>> dsink.inputs.desc = 'preproc'
+    >>> dsink.inputs.resolution = 'native'
+    >>> dsink.inputs.space = 'MNI152NLin6Asym'
+    >>> dsink.inputs.RepetitionTime = 0.75
+    >>> dsink.inputs.meta_dict = {'RepetitionTime': 1.75, 'SkullStripped': False, 'Z': 'val'}
+    >>> res = dsink.run()
+    >>> res.outputs.out_meta  # doctest: +ELLIPSIS
+    '.../niworkflows/sub-02/ses-noanat/func/sub-02_ses-noanat_task-rest_run-1_\
+space-MNI152NLin6Asym_desc-preproc_bold.json'
+    >>> lines = Path(res.outputs.out_meta).read_text().splitlines()
+    >>> lines[1]
+    '  "RepetitionTime": 0.75,'
+    >>> lines[2]
+    '  "SkullStripped": true,'
+    >>> lines[3]
+    '  "Z": "val"'
+    """
+
+    input_spec = _DerivativesDataSinkInputSpec
+    output_spec = _DerivativesDataSinkOutputSpec
     out_path_base = ""
     _always_run = True
-    _file_patterns = tuple(
-        list(_DDSink._file_patterns)
-        + KEPOST_DDS_CONFIGURATIONS["default_path_patterns"]
-    )
     _allowed_entities = set(BIDS_DERIV_ENTITIES)
 
     def __init__(self, allowed_entities=None, out_path_base=None, **inputs):

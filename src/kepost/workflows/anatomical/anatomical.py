@@ -7,7 +7,7 @@ from nipype.pipeline import engine as pe
 
 from kepost import config
 from kepost.atlases.utils import get_atlas_properties
-from kepost.interfaces.reports.viz import AtlasRegRPT
+from kepost.interfaces.reports.viz import OverlayRPT
 from kepost.workflows.anatomical.procedures import (
     init_derivatives_wf,
     init_five_tissue_type_wf,
@@ -119,7 +119,7 @@ def init_anatomical_wf(
         ]
     )
     gm_cropping_wf = init_gm_cropping_wf()
-    atlas_reg = pe.Node(interface=AtlasRegRPT(), name="atlas_registration_report")
+    atlas_reg = pe.Node(interface=OverlayRPT(), name="atlas_registration_report")
     workflow.connect(
         [
             (

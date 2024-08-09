@@ -1,7 +1,10 @@
+from neuromaps import datasets
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 from kepost import config
+from kepost.interfaces.reports.viz import OverlayRPT
 from kepost.workflows.diffusion.procedures import (
     init_connectome_wf,
     init_coregistration_wf,
@@ -171,6 +174,52 @@ def init_diffusion_wf(
             ),
         ]
     )
+    fa_report = pe.Node(
+        interface=OverlayRPT(
+            background_file=datasets.fetch_atlas(atlas="mni", density="1mm").get(
+                "2009cAsym_T1w"
+            ),
+            threshold=0.3,
+            colormap="hot",
+            out_report="report.svg",
+        ),
+        name="fa_report",
+    )
+    ds_fa_report = pe.Node(
+        interface=RPTDerivativesDataSink(
+            datatype="figures",
+            desc="fa",
+            suffix="epiref",
+            space="MN112NLin2009cAsym",
+            dismiss_entities=["ceagent"],
+        ),
+        name="ds_fa_report",
+    )
+    workflow.connect(
+        [
+            (
+                tensor_estimation_wf,
+                fa_report,
+                [("mrtrix3_tensor_wf.select_norm_fa.out", "overlay_file")],
+            ),
+            (
+                inputnode,
+                ds_fa_report,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                fa_report,
+                ds_fa_report,
+                [
+                    ("out_report", "in_file"),
+                ],
+            ),
+        ]
+    )
+    return workflow
     qc_wf = init_qc_wf()
     workflow.connect(
         [

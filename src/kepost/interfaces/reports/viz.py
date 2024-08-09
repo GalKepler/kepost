@@ -92,7 +92,7 @@ def _plot_overlay(image, atlas, compress="auto", **plot_params):
     return svg
 
 
-class AtlasRegRPTInputSpec(reporting.ReportCapableInputSpec):
+class OverlayRPTInputSpec(reporting.ReportCapableInputSpec):
     background_file = File(mandatory=True, exists=True, desc="Background file")
     overlay_file = File(mandatory=True, exists=True, desc="Parcellation atlas file")
     colormap = Str(
@@ -111,17 +111,17 @@ class AtlasRegRPTInputSpec(reporting.ReportCapableInputSpec):
     )
 
 
-class AtlasRegRPTOutputsSpec(reporting.ReportCapableOutputSpec):
+class OverlayRPTOutputsSpec(reporting.ReportCapableOutputSpec):
     out_report = File(
         desc="filename for the visual report",
     )
 
 
-class AtlasRegRPT(reporting.ReportCapableInterface):
+class OverlayRPT(reporting.ReportCapableInterface):
     """An abstract mixin to segmentation nipype interfaces."""
 
-    input_spec = AtlasRegRPTInputSpec
-    output_spec = AtlasRegRPTOutputsSpec
+    input_spec = OverlayRPTInputSpec
+    output_spec = OverlayRPTOutputsSpec
 
     def _run_interface(self, runtime):
         self._generate_report()

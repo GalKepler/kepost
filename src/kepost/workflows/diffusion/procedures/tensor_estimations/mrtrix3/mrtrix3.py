@@ -47,6 +47,7 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
                 "dwi_to_t1w_transform",
                 "t1w_reference",
                 "max_bval",
+                "wm_mask",
             ]
         ),
         name="inputnode",
@@ -88,6 +89,9 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
         name="ds_tensor_wf",
     )
     ds_tensor_wf.inputs.desc = TENSOR_PARAMETERS
+
+    fa_index = TENSOR_PARAMETERS.index("fa")
+    select_fa_node = pe.Node(niu.Select(index=fa_index), name="select_norm_fa")
 
     coregister_tensor_wf = pe.MapNode(
         fsl.ApplyXFM(
@@ -134,6 +138,7 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
         name="ds_tensor_mni_wf",
     )
     ds_tensor_mni_wf.inputs.desc = TENSOR_PARAMETERS
+
     workflow.connect(
         [
             (
@@ -223,6 +228,7 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
                     ("native_to_mni_transform", "transforms"),
                 ],
             ),
+            (normalize_tensor_wf, select_fa_node, [("output_image", "inlist")]),
             (
                 inputnode,
                 ds_tensor_mni_wf,
