@@ -424,6 +424,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             extension=".nii.gz",
             desc="FOD",
             reconstruction="mrtrix3",
+            suffix="dwiref",
         ),
         name="ds_csf_fod",
         run_without_submitting=True,
