@@ -1,6 +1,7 @@
 from nipype.interfaces import utility as niu
 from nipype.interfaces.ants import ApplyTransforms
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 
 def init_registration_wf(
@@ -14,7 +15,7 @@ def init_registration_wf(
     name : str, optional
         The name of the workflow, by default "registration"
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

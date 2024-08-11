@@ -1,5 +1,6 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.workflows.diffusion.procedures.utils.derivatives import (
@@ -47,11 +48,11 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
 
 def init_parcellations_wf(
     inputs: list, software: str, name: str = "parcellations_wf"
-) -> pe.Workflow:
+) -> Workflow:
     """
     Workflow to parcellate the brain
     """
-    workflow = pe.Workflow(name=f"{software}_{name}")
+    workflow = Workflow(name=f"{software}_{name}")
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[

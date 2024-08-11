@@ -4,6 +4,7 @@ from pathlib import Path
 
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 from niworkflows.interfaces.bids import BIDSInfo, DerivativesDataSink
 from packaging.version import Version
 
@@ -42,7 +43,7 @@ def init_kepost_wf():
     config.workflow.atlases = atlases
 
     ver = Version(config.environment.version)
-    kepost_wf = pe.Workflow(name=f"kepost_{ver.major}_{ver.minor}_wf")
+    kepost_wf = Workflow(name=f"kepost_{ver.major}_{ver.minor}_wf")
     kepost_wf.base_dir = config.execution.work_dir
     for subject_id in config.execution.participant_label:
         name = f"single_subject_{subject_id}_wf"
@@ -72,7 +73,7 @@ def init_single_subject_wf(subject_id: str, name: str):
     """
     Initialize the single subject workflow
     """
-    workflow = pe.Workflow(name=name)  # noqa: F841
+    workflow = Workflow(name=name)  # noqa: F841
     kepost_dir = config.execution.output_dir
     keprep_dir = config.execution.keprep_dir  # noqa: F841
     subject_data, sessions_data = collect_data(
@@ -131,7 +132,7 @@ def init_single_subject_wf(subject_id: str, name: str):
         name="bids_info",
     )
     summary = pe.Node(
-        SubjectSummary(),
+        SubjectSummary(atlases=config.workflow.atlases),
         name="summary",
         run_without_submitting=True,
     )

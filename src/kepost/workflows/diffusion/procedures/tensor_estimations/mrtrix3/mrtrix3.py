@@ -2,6 +2,7 @@ from neuromaps import datasets
 from nipype.interfaces import ants, fsl, mrtrix3
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
@@ -21,7 +22,7 @@ TENSOR_PARAMETERS = [
 ]
 
 
-def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
+def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> Workflow:
     """
     Initialize the tensor estimation workflow.
 
@@ -32,10 +33,10 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> pe.Workflow:
 
     Returns
     -------
-    pe.Workflow
+    Workflow
             The tensor estimation workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

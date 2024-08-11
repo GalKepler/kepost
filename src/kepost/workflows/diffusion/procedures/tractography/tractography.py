@@ -1,6 +1,7 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
@@ -50,7 +51,7 @@ def estimate_tractography_parameters(
     return stepscale, lenscale_min, lenscale_max
 
 
-def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
+def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
     """
     Build the SDC and motion correction workflow.
 
@@ -61,10 +62,10 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         the workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
 
     inputnode = pe.Node(
         niu.IdentityInterface(

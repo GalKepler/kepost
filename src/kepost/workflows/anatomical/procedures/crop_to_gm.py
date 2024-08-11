@@ -1,6 +1,7 @@
 from nipype.interfaces import utility as niu
 from nipype.interfaces.fsl import ApplyMask, Threshold
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 
 def init_gm_cropping_wf(
@@ -19,7 +20,7 @@ def init_gm_cropping_wf(
     workflow : nipype.pipeline.engine.Workflow
         The gm cropping workflow.
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

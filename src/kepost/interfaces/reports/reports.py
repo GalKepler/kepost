@@ -44,6 +44,7 @@ SUBJECT_TEMPLATE = """\
 \t\t<li>Preprocessed structural images: {n_t1s:d} T1-weighted {t2w}</li>
 \t\t<li>Preprocessed Diffusion Weighted Images: {n_dwi:d}</li>
 \t\t<li>FreeSurfer reconstruction: {freesurfer_status}</li>
+\t\t<li>Parcellation Atlases: {atlases}</li>
 \t</ul>
 """
 
@@ -96,6 +97,7 @@ class SubjectSummaryInputSpec(BaseInterfaceInputSpec):
         traits.Either(File(exists=True), traits.List(File(exists=True))),
         desc="DWI files",
     )
+    atlases = traits.List(desc="Parcellation atlases")
 
 
 class SubjectSummaryOutputSpec(SummaryOutputSpec):
@@ -141,6 +143,7 @@ class SubjectSummary(SummaryInterface):
             t2w=t2w_seg,
             n_dwi=len(dwi_files),
             freesurfer_status=freesurfer_status,
+            atlases=", ".join(self.inputs.atlases),
         )
 
 

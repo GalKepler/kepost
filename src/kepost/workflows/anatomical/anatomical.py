@@ -4,6 +4,7 @@ Module for the anatomical postprocessing workflow.
 
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.atlases.utils import get_atlas_properties
@@ -24,7 +25,7 @@ def init_anatomical_wf(
     Initialize the anatomical postprocessing workflow.
     """
 
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

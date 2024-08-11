@@ -2825,6 +2825,39 @@ reference = "HEAD"
 resolved_reference = "4d1352ade7171fd5f55eff62cee4c99a4f9cfed1"
 
 [[package]]
+name = "nireports"
+version = "23.2.1"
+description = "NiReports - The Visual Report System (VRS) of NiPreps"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "nireports-23.2.1-py3-none-any.whl", hash = "sha256:2e0b3b1c4605dc01d4c51fb4ec17f1c23687c5abb75fbcdfdf1ec0dd76d81b55"},
+    {file = "nireports-23.2.1.tar.gz", hash = "sha256:08f066bbf4d88f52497936a83d4560f138ec9e43314301be291da8c56e141b77"},
+]
+
+[package.dependencies]
+importlib-resources = {version = ">=5.12", markers = "python_version < \"3.12\""}
+matplotlib = ">=3.4.2"
+nibabel = ">=3.0.1"
+nilearn = ">=0.5.2"
+nipype = "*"
+numpy = "*"
+pandas = "*"
+pybids = "*"
+pyyaml = "*"
+seaborn = "*"
+svgutils = ">=0.3.4"
+templateflow = "*"
+
+[package.extras]
+all = ["black (>=22.3.0,<22.4.0)", "coverage", "flake8-pyproject", "furo (>=2021.10.09,<2021.11.0)", "isort (>=5.10.1,<5.11.0)", "matplotlib", "pre-commit", "pydot (>=1.2.3)", "pydotplus", "pytest", "pytest-cov", "pytest-env", "pytest-xdist", "sphinx", "sphinx (>=4.0,<5.0)", "sphinxcontrib-apidoc", "sphinxcontrib-napoleon"]
+dev = ["black (>=22.3.0,<22.4.0)", "flake8-pyproject", "isort (>=5.10.1,<5.11.0)", "pre-commit"]
+doc = ["furo (>=2021.10.09,<2021.11.0)", "pydot (>=1.2.3)", "pydotplus", "sphinx (>=4.0,<5.0)", "sphinxcontrib-apidoc", "sphinxcontrib-napoleon"]
+docs = ["furo (>=2021.10.09,<2021.11.0)", "pydot (>=1.2.3)", "pydotplus", "sphinx (>=4.0,<5.0)", "sphinxcontrib-apidoc", "sphinxcontrib-napoleon"]
+test = ["coverage", "matplotlib", "pytest", "pytest-cov", "pytest-env", "pytest-xdist", "sphinx"]
+tests = ["coverage", "matplotlib", "pytest", "pytest-cov", "pytest-env", "pytest-xdist", "sphinx"]
+
+[[package]]
 name = "nitransforms"
 version = "23.0.1"
 description = "NiTransforms -- Neuroimaging spatial transforms in Python."
@@ -5263,4 +5296,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b58f391d9d99207a596cbadfdf5be246a21c5481ac94765a56cf52e1094c60ad"
+content-hash = "963b25191da480784cf6c9a42f913b74d9e433664afb70d8a8be12f818491bce"

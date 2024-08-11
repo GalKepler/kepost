@@ -1,5 +1,6 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.interfaces import mrtrix3 as mrt
 from kepost.interfaces.bids import DerivativesDataSink
@@ -7,7 +8,7 @@ from kepost.interfaces.bids.utils import get_entity
 from kepost.workflows.diffusion.procedures.connectomes.utils import COMBINATIONS
 
 
-def init_connectome_wf(name: str = "connectome_wf") -> pe.Workflow:
+def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
     """
     Workflow to generate connectomes using MRtrix3.
 
@@ -18,10 +19,10 @@ def init_connectome_wf(name: str = "connectome_wf") -> pe.Workflow:
 
     Returns
     -------
-    workflow : pe.Workflow
+    workflow : Workflow
         Workflow object.
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[

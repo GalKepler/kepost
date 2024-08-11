@@ -1,6 +1,7 @@
 from nipype.interfaces import fsl
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.workflows.diffusion.procedures.utils import DIFFUSION_WF_OUTPUT_ENTITIES
@@ -9,7 +10,7 @@ from kepost.workflows.diffusion.procedures.utils import DIFFUSION_WF_OUTPUT_ENTI
 def init_coregistration_wf(
     name: str = "atlas_coregistration_wf",
     workflow_entities: dict = DIFFUSION_WF_OUTPUT_ENTITIES,
-) -> pe.Workflow:
+) -> Workflow:
     """
     Initialize the coregistration workflow.
 
@@ -20,10 +21,10 @@ def init_coregistration_wf(
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         The coregistration workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

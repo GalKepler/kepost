@@ -2,6 +2,7 @@ from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 from nipype.interfaces.base import isdefined
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
@@ -43,7 +44,7 @@ def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> tuple[list, 
 
 def init_tensor_estimation_wf(
     name: str = "tensor_estimation_wf",
-) -> pe.Workflow:
+) -> Workflow:
     """
     Initialize the tensor estimation workflow.
 
@@ -54,10 +55,10 @@ def init_tensor_estimation_wf(
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         The tensor estimation workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

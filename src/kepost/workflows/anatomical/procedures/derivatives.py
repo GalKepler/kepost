@@ -1,5 +1,6 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 from kepost.interfaces.bids import DerivativesDataSink
@@ -22,7 +23,7 @@ gm_cropped_entities = {
 }
 
 
-def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
+def init_derivatives_wf(name: str = "derivatives_wf") -> Workflow:
     """
     Initialize the derivatives workflow.
 
@@ -33,10 +34,10 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         The derivatives workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

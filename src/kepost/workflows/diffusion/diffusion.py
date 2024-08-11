@@ -1,6 +1,7 @@
 from neuromaps import datasets
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 from kepost import config
@@ -24,7 +25,7 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 im
 
 def init_diffusion_wf(
     dwi_data: dict,
-) -> pe.Workflow:
+) -> Workflow:
     """
     Initialize the diffusion postprocessing workflow.
 
@@ -37,11 +38,11 @@ def init_diffusion_wf(
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         The diffusion postprocessing workflow
     """
     name = _get_wf_name(dwi_data["dwi_nifti"])
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

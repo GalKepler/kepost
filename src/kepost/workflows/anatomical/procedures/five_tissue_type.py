@@ -1,6 +1,7 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
@@ -40,7 +41,7 @@ def locate_fs_subject_dir(subject_id: str, fs_subjects_dir: str) -> str:
     )
 
 
-def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> pe.Workflow:
+def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
     """
     Initialize the post-anatomical processing
 
@@ -51,10 +52,10 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> pe.Workflow:
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         the workflow
     """
-    wf = pe.Workflow(name=name)
+    wf = Workflow(name=name)
 
     inputnode = pe.Node(
         niu.IdentityInterface(
