@@ -437,8 +437,10 @@ class workflow(_Config):
     """Number of streamlines to generate in the tractography."""
     n_tracts = 20000
     """Number of streamlines to keep after filtering."""
-    tracking_algorithm = "SD_Stream"
-    """Algorithm to perform tractography."""
+    det_tracking_algorithm = "SD_Stream"
+    """Algorithm to perform deterministic tractography."""
+    prob_tracking_algorithm = "iFOD2"
+    """Algorithm to perform probabilistic tractography."""
     tracking_max_angle = 45
     """Maximum angle between steps in the tractography."""
     tracking_lenscale_min = 30

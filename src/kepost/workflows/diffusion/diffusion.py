@@ -219,7 +219,7 @@ def init_diffusion_wf(
             ),
         ]
     )
-    return workflow
+    # return workflow
     qc_wf = init_qc_wf()
     workflow.connect(
         [
@@ -383,6 +383,7 @@ def init_diffusion_wf(
             ),
         ]
     )
+
     connectome_wf = init_connectome_wf()
     workflow.connect(
         [

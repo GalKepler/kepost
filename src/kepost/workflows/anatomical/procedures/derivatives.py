@@ -46,6 +46,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 "whole_brain_parcellation",
                 "gm_cropped_parcellation",
                 "registration_report",
+                "n_voxels_report",
             ]
         ),
         name="inputnode",
@@ -78,6 +79,15 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
             datatype="figures", suffix="dseg", space="T1w", dismiss_entities=["ceagent"]
         ),
         name="ds_registration_report",
+    )
+    ds_n_voxels = pe.Node(
+        interface=RPTDerivativesDataSink(
+            datatype="figures",
+            suffix="dseg",
+            space="cropped",
+            dismiss_entities=["ceagent"],
+        ),
+        name="ds_n_voxels_report",
     )
 
     workflow.connect(
@@ -131,6 +141,16 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> pe.Workflow:
                 ],
             ),
             (get_atlas_name_node, ds_registration, [("atlas_name", "desc")]),
+            (
+                inputnode,
+                ds_n_voxels,
+                [
+                    ("base_directory", "base_directory"),
+                    ("t1w_preproc", "source_file"),
+                    ("n_voxels_report", "in_file"),
+                ],
+            ),
+            (get_atlas_name_node, ds_n_voxels, [("atlas_name", "desc")]),
         ]
     )
     return workflow

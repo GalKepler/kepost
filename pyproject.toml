@@ -43,6 +43,7 @@ neuromaps = "^0.0.5"
 dipy = "^1.9.0"
 cvxpy = "^1.5.2"
 fury = "^0.10.0"
+mne-connectivity = "^0.7.0"
 [tool.poetry.dev-dependencies]
 coverage = "^7.5.4"  # testing
 mypy = "^1.10.0"  # linting

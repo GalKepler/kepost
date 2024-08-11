@@ -4,7 +4,7 @@ from nipype.interfaces import utility as niu
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
-from kepost.interfaces.mrtrix3 import TckSift, TckSift2
+from kepost.interfaces.mrtrix3 import TckMap, TckSift, TckSift2
 from kepost.workflows.diffusion.procedures.coregisterations import init_5tt_coreg_wf
 
 
@@ -95,6 +95,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
                 "unsifted_tck",
                 "sifted_tck",
                 "sift2_weights",
+                "tdi_map",
             ]
         ),
         name="outputnode",
@@ -139,9 +140,9 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
     dwi2fod_node = pe.Node(
         mrt.ConstrainedSphericalDeconvolution(
             algorithm=config.workflow.fod_algorithm,
-            wm_odf="wm_fod.mif",
-            gm_odf="gm_fod.mif",
-            csf_odf="csf_fod.mif",
+            wm_odf="wm_fod.nii.gz",
+            gm_odf="gm_fod.nii.gz",
+            csf_odf="csf_fod.nii.gz",
             predicted_signal="predicted_signal.mif",
             nthreads=config.nipype.omp_nthreads,
         ),
@@ -213,7 +214,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
 
     tractography = pe.Node(
         mrt.Tractography(
-            algorithm=config.workflow.tracking_algorithm,
+            algorithm=config.workflow.det_tracking_algorithm,
             angle=config.workflow.tracking_max_angle,
             select=config.workflow.n_raw_tracts,
             out_file="tracks.tck",
@@ -328,6 +329,44 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
             ),
         ]
     )
+
+    tckmap_node = pe.Node(
+        TckMap(
+            nthreads=config.nipype.omp_nthreads,
+            out_file="fod_amp.nii.gz",
+            contrast="fod_amp",
+            precise=True,
+            dec=True,
+        ),
+        name="tckmap",
+    )
+    workflow.connect(
+        [
+            (
+                inputnode,
+                tckmap_node,
+                [("dwi_reference", "template")],
+            ),
+            (
+                tractography,
+                tckmap_node,
+                [("out_file", "in_file")],
+            ),
+            (
+                dwi2fod_node,
+                tckmap_node,
+                [("wm_odf", "scalar_image")],
+            ),
+            (
+                tckmap_node,
+                outputnode,
+                [
+                    ("out_file", "tdi_map"),
+                ],
+            ),
+        ]
+    )
+
     ds_tracts = pe.Node(
         DerivativesDataSink(
             suffix="tracts",
@@ -356,6 +395,36 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
             reconstruction="mrtrix3",
         ),
         name="ds_sift2_txt",
+        run_without_submitting=True,
+    )
+    ds_wm_fod = pe.Node(
+        DerivativesDataSink(
+            label="wm",
+            extension=".nii.gz",
+            desc="FOD",
+            reconstruction="mrtrix3",
+        ),
+        name="ds_wm_fod",
+        run_without_submitting=True,
+    )
+    ds_gm_fod = pe.Node(
+        DerivativesDataSink(
+            label="gm",
+            extension=".nii.gz",
+            desc="FOD",
+            reconstruction="mrtrix3",
+        ),
+        name="ds_gm_fod",
+        run_without_submitting=True,
+    )
+    ds_csf_fod = pe.Node(
+        DerivativesDataSink(
+            label="csf",
+            extension=".nii.gz",
+            desc="FOD",
+            reconstruction="mrtrix3",
+        ),
+        name="ds_csf_fod",
         run_without_submitting=True,
     )
     workflow.connect(
@@ -424,6 +493,51 @@ def init_tractography_wf(name: str = "tractography_wf") -> pe.Workflow:
                 outputnode,
                 [
                     ("out_file", "sift2_weights"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_wm_fod,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                dwi2fod_node,
+                ds_wm_fod,
+                [
+                    ("wm_odf", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_gm_fod,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                dwi2fod_node,
+                ds_gm_fod,
+                [
+                    ("gm_odf", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                ds_csf_fod,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                dwi2fod_node,
+                ds_csf_fod,
+                [
+                    ("csf_odf", "in_file"),
                 ],
             ),
         ]

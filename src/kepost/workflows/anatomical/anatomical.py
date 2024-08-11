@@ -8,6 +8,7 @@ from nipype.pipeline import engine as pe
 from kepost import config
 from kepost.atlases.utils import get_atlas_properties
 from kepost.interfaces.reports.viz import OverlayRPT
+from kepost.interfaces.utils.vis import plot_n_voxels_in_atlas
 from kepost.workflows.anatomical.procedures import (
     init_derivatives_wf,
     init_five_tissue_type_wf,
@@ -120,6 +121,15 @@ def init_anatomical_wf(
     )
     gm_cropping_wf = init_gm_cropping_wf()
     atlas_reg = pe.Node(interface=OverlayRPT(), name="atlas_registration_report")
+    n_voxels_report = pe.Node(
+        niu.Function(
+            input_names=["wholebrain", "gm_cropped"],
+            output_names=["out_report"],
+            function=plot_n_voxels_in_atlas,
+        ),
+        name="n_voxels_in_atlas",
+    )
+
     workflow.connect(
         [
             (
@@ -159,6 +169,26 @@ def init_anatomical_wf(
                 [("outputnode.gm_cropped_parcellation", "overlay_file")],
             ),
             (inputnode, atlas_reg, [("t1w_preproc", "background_file")]),
+            (
+                registration_wf,
+                n_voxels_report,
+                [
+                    (
+                        "outputnode.whole_brain_parcellation",
+                        "wholebrain",
+                    ),
+                ],
+            ),
+            (
+                gm_cropping_wf,
+                n_voxels_report,
+                [
+                    (
+                        "outputnode.gm_cropped_parcellation",
+                        "gm_cropped",
+                    ),
+                ],
+            ),
         ]
     )
 
@@ -221,6 +251,11 @@ def init_anatomical_wf(
                 atlas_reg,
                 derivatives_wf,
                 [("out_report", "inputnode.registration_report")],
+            ),
+            (
+                n_voxels_report,
+                derivatives_wf,
+                [("out_report", "inputnode.n_voxels_report")],
             ),
         ]
     )
