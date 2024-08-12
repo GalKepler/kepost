@@ -77,10 +77,10 @@ def init_dipy_tensor_wf(
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
             reconstruction_software="dipy",
         ),
-        iterfield=["in_file", "desc"],
+        iterfield=["in_file", "measure"],
         name="ds_tensor_wf",
     )
-    ds_tensor_wf.inputs.desc = TENSOR_PARAMETERS
+    ds_tensor_wf.inputs.measure = TENSOR_PARAMETERS
 
     if config.workflow.dipy_reconstruction_method.lower() in ["rt", "restore"]:
         estimate_sigma_node = pe.Node(
@@ -123,10 +123,10 @@ def init_dipy_tensor_wf(
         interface=DerivativesDataSink(
             **coreg_tensor_ds_entities, reconstruction_software="dipy"
         ),
-        iterfield=["in_file", "desc"],
+        iterfield=["in_file", "measure"],
         name="ds_coreg_tensor_wf",
     )
-    ds_coreg_tensor_wf.inputs.desc = TENSOR_PARAMETERS
+    ds_coreg_tensor_wf.inputs.measure = TENSOR_PARAMETERS
 
     normalize_tensor_wf = pe.MapNode(
         ants.ApplyTransforms(
@@ -143,10 +143,10 @@ def init_dipy_tensor_wf(
             reconstruction_software="dipy",
             space="MNI152NLin2009cAsym",
         ),
-        iterfield=["in_file", "desc"],
+        iterfield=["in_file", "measure"],
         name="ds_tensor_mni_wf",
     )
-    ds_tensor_mni_wf.inputs.desc = TENSOR_PARAMETERS
+    ds_tensor_mni_wf.inputs.measure = TENSOR_PARAMETERS
 
     workflow.connect(
         [
