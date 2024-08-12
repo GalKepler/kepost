@@ -36,8 +36,11 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
         den = entities["den"]
         # atlas_name_part = [i for i in Path(atlas_nifti).parts if "_atlas_name_" in i]
         # atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
+        atlas_key = f"{atlas_name}_{den}_{desc.replace('networks','')}"
         atlas_name = f"{atlas_name}_desc-{desc}_den-{den}"
-    _, description, region_col, index_col = get_atlas_properties(atlas_name)
+    else:
+        atlas_key = atlas_name
+    _, description, region_col, index_col = get_atlas_properties(atlas_key)
     df = pd.read_csv(description, index_col=index_col).copy()
     for measure_name, measure_func in AVAILABLE_MEASURES.items():
         df[measure_name] = parcellate(
