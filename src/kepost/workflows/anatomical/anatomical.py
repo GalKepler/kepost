@@ -3,6 +3,7 @@ Module for the anatomical postprocessing workflow.
 """
 
 from nipype.interfaces import utility as niu
+from nipype.interfaces.ants.base import Info as ANTsInfo
 from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
@@ -10,6 +11,9 @@ from kepost import config
 from kepost.atlases.utils import get_atlas_properties
 from kepost.interfaces.reports.viz import OverlayRPT
 from kepost.interfaces.utils.vis import plot_n_voxels_in_atlas
+from kepost.workflows.anatomical.descriptions.anatomical import (
+    ANATOMICAL_BASE_WORKFLOW_DESCRIPTION,
+)
 from kepost.workflows.anatomical.procedures import (
     init_derivatives_wf,
     init_five_tissue_type_wf,
@@ -25,7 +29,28 @@ def init_anatomical_wf(
     Initialize the anatomical postprocessing workflow.
     """
 
+    atlases_unique = config.workflow.atlases.copy()
+    for atlas in atlases_unique:
+        if "schaefer2018" in atlas:
+            atlases_unique.remove(atlas)
+            atlases_unique.append("schaefer2018")
+    atlases_unique = list(set(atlases_unique))
+    atlas_ref = [
+        f"`{atlas}` [@{atlas}]"
+        for atlas in atlases_unique
+        if "schaefer2018" not in atlas
+    ]
+    schaefer_addition = [
+        f"`{atlas}`" for atlas in config.workflow.atlases if "schaefer2018" in atlas
+    ]
+    if schaefer_addition:
+        atlas_ref += schaefer_addition + ["[@schaefer2018]"]
+
     workflow = Workflow(name=name)
+    workflow.__desc__ = ANATOMICAL_BASE_WORKFLOW_DESCRIPTION.format(
+        ants_ver=ANTsInfo.version() or "(version unknown)",
+        atlases=", ".join(atlas_ref),
+    )
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

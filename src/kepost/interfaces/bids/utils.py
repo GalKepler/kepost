@@ -22,7 +22,7 @@ def get_entity(in_file: str, entity: str) -> str:
     from bids.layout import parse_file_entities
 
     entities = parse_file_entities(in_file)
-    return entities[entity]
+    return entities.get(entity)
 
 
 def collect_data(

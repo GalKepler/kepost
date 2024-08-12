@@ -10,6 +10,7 @@ def plot_n_voxels_in_atlas(wholebrain: str, gm_cropped: str):
         Path to the grey matter cropped parcellation.
     """
     import os
+    from pathlib import Path
 
     import matplotlib.pyplot as plt
     import nibabel as nib
@@ -20,6 +21,9 @@ def plot_n_voxels_in_atlas(wholebrain: str, gm_cropped: str):
     from kepost.atlases.utils import get_atlas_properties
 
     atlas_name = parse_file_entities(wholebrain)["atlas"]
+    if "schaefer2018" in atlas_name:
+        atlas_name_part = [i for i in Path(wholebrain).parts if "_atlas_name_" in i]
+        atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
     _, description, region_col, index_col = get_atlas_properties(atlas_name)
     df = pd.read_csv(description, index_col=index_col)
     wb = nib.load(wholebrain).get_fdata()

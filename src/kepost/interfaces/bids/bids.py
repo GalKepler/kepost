@@ -37,11 +37,12 @@ regz = re.compile(r"\.gz$")
 BIDS_DERIV_ENTITIES = []
 BIDS_DERIV_PATTERNS = []
 for pkg, relative_path in zip(
-    ["kepost", "bids", "bids"],
+    ["kepost", "bids", "niworkflows"],
     [
         "interfaces/bids/static/kepost.json",
         "layout/config/bids.json",
-        "layout/config/derivatives.json",
+        # "layout/config/derivatives.json",
+        "data/nipreps.json",
     ],
 ):
     _pybids_spec = loads(Path(resource_filename(pkg, relative_path)).read_text())

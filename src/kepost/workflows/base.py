@@ -2,10 +2,13 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 
+import dipy
+from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 from niworkflows.interfaces.bids import BIDSInfo, DerivativesDataSink
+from niworkflows.interfaces.nilearn import NILEARN_VERSION
 from packaging.version import Version
 
 from kepost import config
@@ -13,6 +16,7 @@ from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
 from kepost.interfaces.bids import BIDSDataGrabber, collect_data
 from kepost.interfaces.reports import AboutSummary, SubjectSummary
 from kepost.workflows.anatomical import init_anatomical_wf
+from kepost.workflows.descriptions import BASE_POSTDESC, BASE_WORKFLOW_DESCRIPTION
 from kepost.workflows.diffusion.diffusion import init_diffusion_wf
 
 DerivativesDataSink.out_path_base = ""
@@ -73,7 +77,17 @@ def init_single_subject_wf(subject_id: str, name: str):
     """
     Initialize the single subject workflow
     """
+
     workflow = Workflow(name=name)  # noqa: F841
+    workflow.__desc__ = BASE_WORKFLOW_DESCRIPTION.format(
+        kepost_ver=config.environment.version,
+        nipype_ver=config.environment.nipype_version,
+    )
+    workflow.__postdesc__ = BASE_POSTDESC.format(
+        nilearn_ver=NILEARN_VERSION,
+        mrtrix_ver=mrt.base.Info().version(),
+        dipy_ver=dipy.__version__,
+    )
     kepost_dir = config.execution.output_dir
     keprep_dir = config.execution.keprep_dir  # noqa: F841
     subject_data, sessions_data = collect_data(

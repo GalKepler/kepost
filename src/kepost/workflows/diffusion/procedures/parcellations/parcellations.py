@@ -20,6 +20,7 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
         The atlas name
     """
     import os
+    from pathlib import Path
 
     import pandas as pd
     from bids.layout import parse_file_entities
@@ -30,6 +31,9 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
     )
 
     atlas_name = parse_file_entities(atlas_nifti)["atlas"]
+    if "schaefer2018" in atlas_name:
+        atlas_name_part = [i for i in Path(atlas_nifti).parts if "_atlas_name_" in i]
+        atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
     _, description, region_col, index_col = get_atlas_properties(atlas_name)
     df = pd.read_csv(description, index_col=index_col).copy()
     for measure_name, measure_func in AVAILABLE_MEASURES.items():
