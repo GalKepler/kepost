@@ -2,9 +2,9 @@ from neuromaps import datasets
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
-from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 from kepost import config
+from kepost.interfaces.bids.bids import DerivativesDataSink
 from kepost.interfaces.reports.viz import OverlayRPT
 from kepost.workflows.diffusion.procedures import (
     init_connectome_wf,
@@ -21,6 +21,8 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.dipy.dipy import (
 from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 import (
     TENSOR_PARAMETERS as mrtrix3_parameters,
 )
+
+# from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 
 def init_diffusion_wf(
@@ -56,7 +58,6 @@ def init_diffusion_wf(
                 "dwi_mask",
                 "dwi_to_t1w_transform",
                 "t1w_to_dwi_transform",
-                "atlas_name",
                 "whole_brain_t1w_parcellation",
                 "gm_cropped_t1w_parcellation",
                 "dipy_fit_method",
@@ -187,7 +188,7 @@ def init_diffusion_wf(
         name="fa_report",
     )
     ds_fa_report = pe.Node(
-        interface=RPTDerivativesDataSink(
+        interface=DerivativesDataSink(
             datatype="figures",
             desc="fa",
             suffix="epiref",
@@ -393,6 +394,7 @@ def init_diffusion_wf(
                 connectome_wf,
                 [
                     ("base_directory", "inputnode.base_directory"),
+                    ("atlas_name", "inputnode.atlas_name"),
                 ],
             ),
             (

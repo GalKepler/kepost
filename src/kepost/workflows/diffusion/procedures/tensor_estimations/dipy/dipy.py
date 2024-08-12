@@ -76,7 +76,6 @@ def init_dipy_tensor_wf(
         interface=DerivativesDataSink(  # type: ignore[arg-type]
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
             reconstruction_software="dipy",
-            save_meta=False,
         ),
         iterfield=["in_file", "desc"],
         name="ds_tensor_wf",
@@ -122,9 +121,7 @@ def init_dipy_tensor_wf(
     coreg_tensor_ds_entities.update({"space": "T1w"})
     ds_coreg_tensor_wf = pe.MapNode(
         interface=DerivativesDataSink(
-            **coreg_tensor_ds_entities,
-            reconstruction_software="dipy",
-            save_meta=False,
+            **coreg_tensor_ds_entities, reconstruction_software="dipy"
         ),
         iterfield=["in_file", "desc"],
         name="ds_coreg_tensor_wf",
@@ -145,7 +142,6 @@ def init_dipy_tensor_wf(
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
             reconstruction_software="dipy",
             space="MNI152NLin2009cAsym",
-            save_meta=False,
         ),
         iterfield=["in_file", "desc"],
         name="ds_tensor_mni_wf",

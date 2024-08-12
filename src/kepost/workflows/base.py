@@ -7,19 +7,23 @@ from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
-from niworkflows.interfaces.bids import BIDSInfo, DerivativesDataSink
+from niworkflows.interfaces.bids import BIDSInfo
 from niworkflows.interfaces.nilearn import NILEARN_VERSION
 from packaging.version import Version
 
 from kepost import config
 from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
 from kepost.interfaces.bids import BIDSDataGrabber, collect_data
+from kepost.interfaces.bids.bids import DerivativesDataSink
 from kepost.interfaces.reports import AboutSummary, SubjectSummary
 from kepost.workflows.anatomical import init_anatomical_wf
 from kepost.workflows.descriptions import BASE_POSTDESC, BASE_WORKFLOW_DESCRIPTION
 from kepost.workflows.diffusion.diffusion import init_diffusion_wf
 
-DerivativesDataSink.out_path_base = ""
+# from niworkflows.interfaces.bids import BIDSInfo, DerivativesDataSink
+
+
+# DerivativesDataSink.out_path_base = ""
 
 
 def init_kepost_wf():

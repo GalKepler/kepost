@@ -1,10 +1,12 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
-from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import get_entity
+
+# from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
+
 
 wholebrain_entities = {
     "space": "T1w",
@@ -91,20 +93,21 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> Workflow:
         name="ds_wholebrain",
     )
     ds_gm_cropped = pe.Node(
-        interface=DerivativesDataSink(
-            **gm_cropped_entities,
-        ),
+        interface=DerivativesDataSink(**gm_cropped_entities),
         name="ds_gm_cropped",
     )
 
     ds_registration = pe.Node(
-        interface=RPTDerivativesDataSink(
-            datatype="figures", suffix="dseg", space="T1w", dismiss_entities=["ceagent"]
+        interface=DerivativesDataSink(
+            datatype="figures",
+            suffix="dseg",
+            space="T1w",
+            dismiss_entities=["ceagent"],
         ),
         name="ds_registration_report",
     )
     ds_n_voxels = pe.Node(
-        interface=RPTDerivativesDataSink(
+        interface=DerivativesDataSink(
             datatype="figures",
             suffix="dseg",
             space="cropped",

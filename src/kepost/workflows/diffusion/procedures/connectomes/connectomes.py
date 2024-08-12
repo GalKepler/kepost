@@ -52,17 +52,17 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
         niu.IdentityInterface(fields=fields + ["atlas_name"]),
         name="outputnode",
     )
-    get_atlas_name_node = pe.Node(
-        niu.Function(
-            input_names=["in_file", "entity"],
-            output_names=[
-                "atlas_name",
-            ],
-            function=get_entity,
-        ),
-        name="get_atlas_name",
-    )
-    get_atlas_name_node.inputs.entity = "atlas"
+    # get_atlas_name_node = pe.Node(
+    #     niu.Function(
+    #         input_names=["in_file", "entity"],
+    #         output_names=[
+    #             "atlas_name",
+    #         ],
+    #         function=get_entity,
+    #     ),
+    #     name="get_atlas_name",
+    # )
+    # get_atlas_name_node.inputs.entity = "atlas"
     get_reconstruction_software = pe.Node(
         niu.Function(
             function=get_entity,
@@ -74,18 +74,18 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
     get_reconstruction_software.inputs.entity = "reconstruction"
     workflow.connect(
         [
-            (
-                inputnode,
-                get_atlas_name_node,
-                [("atlas_nifti", "in_file")],
-            ),
+            # (
+            #     inputnode,
+            #     get_atlas_name_node,
+            #     [("atlas_nifti", "in_file")],
+            # ),
             (
                 inputnode,
                 get_reconstruction_software,
                 [("tracts_unsifted", "in_file")],
             ),
             (
-                get_atlas_name_node,
+                inputnode,
                 outputnode,
                 [("atlas_name", "atlas_name")],
             ),
@@ -154,7 +154,7 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
                     ],
                 ),
                 (
-                    get_atlas_name_node,
+                    inputnode,
                     ds_connectome,
                     [
                         ("atlas_name", "atlas"),
@@ -181,7 +181,7 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
                     ],
                 ),
                 (
-                    get_atlas_name_node,
+                    inputnode,
                     ds_assignments,
                     [
                         ("atlas_name", "atlas"),
