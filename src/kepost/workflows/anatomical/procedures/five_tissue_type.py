@@ -90,6 +90,7 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
         interface=DerivativesDataSink(
             **five_tissue_type_entities,
             reconstruction=algo_5tt,
+            dismiss_entities=["desc"],
         ),
         name="ds_five_tissue_type",
     )

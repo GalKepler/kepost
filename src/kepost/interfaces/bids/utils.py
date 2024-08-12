@@ -22,6 +22,9 @@ def get_entity(in_file: str, entity: str) -> str:
     from bids.layout import parse_file_entities
 
     entities = parse_file_entities(in_file)
+    if entity == "desc":
+        if entities.get("desc") and entities.get("desc") == "preproc":
+            return None
     return entities.get(entity)
 
 

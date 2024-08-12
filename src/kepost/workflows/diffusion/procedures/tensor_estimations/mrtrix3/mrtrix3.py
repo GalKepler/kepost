@@ -84,6 +84,7 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> Workflow:
         interface=DerivativesDataSink(
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),  # type: ignore[arg-type]
             reconstruction_software="mrtrix3",
+            dismiss_entities=["desc"],
         ),
         iterfield=["in_file", "measure"],
         name="ds_tensor_wf",
@@ -106,7 +107,9 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> Workflow:
     coreg_tensor_ds_entities.update({"space": "T1w"})
     ds_coreg_tensor_wf = pe.MapNode(
         interface=DerivativesDataSink(
-            **coreg_tensor_ds_entities, reconstruction_software="mrtrix3"
+            **coreg_tensor_ds_entities,
+            reconstruction_software="mrtrix3",
+            dismiss_entities=["desc"],
         ),
         iterfield=["in_file", "measure"],
         name="ds_coreg_tensor_wf",
@@ -128,7 +131,9 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> Workflow:
     mni_tensor_entities.update({"space": "MNI152NLin2009cAsym"})
     ds_tensor_mni_wf = pe.MapNode(
         interface=DerivativesDataSink(
-            **mni_tensor_entities, reconstruction_software="mrtrix3"
+            **mni_tensor_entities,
+            reconstruction_software="mrtrix3",
+            dismiss_entities=["desc"],
         ),
         iterfield=["in_file", "measure"],
         name="ds_tensor_mni_wf",

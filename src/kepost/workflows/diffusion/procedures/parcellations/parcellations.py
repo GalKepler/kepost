@@ -20,7 +20,6 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
         The atlas name
     """
     import os
-    from pathlib import Path
 
     import pandas as pd
     from bids.layout import parse_file_entities
@@ -30,10 +29,14 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
         AVAILABLE_MEASURES,
     )
 
-    atlas_name = parse_file_entities(atlas_nifti)["atlas"]
+    entities = parse_file_entities(atlas_nifti)
+    atlas_name = entities["atlas"]
     if "schaefer2018" in atlas_name:
-        atlas_name_part = [i for i in Path(atlas_nifti).parts if "_atlas_name_" in i]
-        atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
+        desc = entities["desc"]
+        den = entities["den"]
+        # atlas_name_part = [i for i in Path(atlas_nifti).parts if "_atlas_name_" in i]
+        # atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
+        atlas_name = f"{atlas_name}_desc-{desc}_den-{den}"
     _, description, region_col, index_col = get_atlas_properties(atlas_name)
     df = pd.read_csv(description, index_col=index_col).copy()
     for measure_name, measure_func in AVAILABLE_MEASURES.items():
@@ -86,7 +89,7 @@ def init_parcellations_wf(
                 **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
                 reconstruction_software=software,
                 dismiss_entities="direction",
-                desc=p,
+                measure=p,
             ),
             name=f"ds_parcellation_node_{i}",
         )
