@@ -36,6 +36,65 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
         ),
         name="inputnode",
     )
+    get_atlas_name_node = pe.Node(
+        niu.Function(
+            input_names=["in_file", "entity"],
+            output_names=[
+                "atlas_name",
+            ],
+            function=get_entity,
+        ),
+        name="get_atlas_name",
+    )
+    get_atlas_name_node.inputs.entity = "atlas"
+    get_atlas_den_node = pe.Node(
+        niu.Function(
+            input_names=["in_file", "entity"],
+            output_names=[
+                "atlas_den",
+            ],
+            function=get_entity,
+        ),
+        name="get_atlas_den",
+    )
+    get_atlas_den_node.inputs.entity = "den"
+    get_atlas_div_node = pe.Node(
+        niu.Function(
+            input_names=["in_file", "entity"],
+            output_names=[
+                "atlas_division",
+            ],
+            function=get_entity,
+        ),
+        name="get_atlas_div",
+    )
+    get_atlas_div_node.inputs.entity = "division"
+
+    workflow.connect(
+        [
+            (
+                inputnode,
+                get_atlas_name_node,
+                [
+                    ("atlas_nifti", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                get_atlas_den_node,
+                [
+                    ("atlas_nifti", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                get_atlas_div_node,
+                [
+                    ("atlas_nifti", "in_file"),
+                ],
+            ),
+        ]
+    )
 
     fields = []
     for combination in COMBINATIONS:
@@ -49,45 +108,28 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
             f"assignments_scale-{scale}_metric-{metric}_in-tracts-{in_tracts}"
         )
     outputnode = pe.Node(
-        niu.IdentityInterface(fields=fields + ["atlas_name"]),
+        niu.IdentityInterface(
+            fields=fields + ["atlas_name", "atlas_den", "atlas_division"]
+        ),
         name="outputnode",
     )
-    # get_atlas_name_node = pe.Node(
-    #     niu.Function(
-    #         input_names=["in_file", "entity"],
-    #         output_names=[
-    #             "atlas_name",
-    #         ],
-    #         function=get_entity,
-    #     ),
-    #     name="get_atlas_name",
-    # )
-    # get_atlas_name_node.inputs.entity = "atlas"
-    get_reconstruction_software = pe.Node(
-        niu.Function(
-            function=get_entity,
-            input_names=["in_file", "entity"],
-            output_names=["reconstruction_software"],
-        ),
-        name="get_reconstruction_software",
-    )
-    get_reconstruction_software.inputs.entity = "reconstruction"
+
     workflow.connect(
         [
-            # (
-            #     inputnode,
-            #     get_atlas_name_node,
-            #     [("atlas_nifti", "in_file")],
-            # ),
             (
-                inputnode,
-                get_reconstruction_software,
-                [("tracts_unsifted", "in_file")],
+                get_atlas_name_node,
+                outputnode,
+                [("atlas_name", "atlas")],
             ),
             (
-                inputnode,
+                get_atlas_den_node,
                 outputnode,
-                [("atlas_name", "atlas_name")],
+                [("atlas_den", "den")],
+            ),
+            (
+                get_atlas_div_node,
+                outputnode,
+                [("atlas_division", "division")],
             ),
         ]
     )
@@ -113,7 +155,9 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
                 measure=metric,
                 subtype="connectomes",
                 extension=".csv",
-                weight="SIFT2" if "unsifted" in in_tracts else "SIFT",  # type: ignore[operator]
+                dismiss_entities=["desc"],
+                reconstruction_software="mrtrix3",
+                filter="SIFT2" if "unsifted" in in_tracts else "SIFT",  # type: ignore[operator]
             ),
             name=f"ds_connectome_scale-{scale}_metric-{metric}_in-tracts-{in_tracts}",
             run_without_submitting=True,
@@ -125,7 +169,9 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
                 measure=metric,
                 subtype="connectomes",
                 extension=".csv",
-                weight="SIFT2" if "unsifted" in in_tracts else "SIFT",  # type: ignore[operator]
+                dismiss_entities=["desc"],
+                reconstruction_software="mrtrix3",
+                filter="SIFT2" if "unsifted" in in_tracts else "SIFT",  # type: ignore[operator]
             ),
             name=f"ds_assignments_scale-{scale}_metric-{metric}_in-tracts-{in_tracts}",
             run_without_submitting=True,
@@ -154,17 +200,24 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
                     ],
                 ),
                 (
-                    inputnode,
+                    get_atlas_name_node,
                     ds_connectome,
                     [
                         ("atlas_name", "atlas"),
                     ],
                 ),
                 (
-                    get_reconstruction_software,
+                    get_atlas_den_node,
                     ds_connectome,
                     [
-                        ("reconstruction_software", "reconstruction_software"),
+                        ("atlas_den", "den"),
+                    ],
+                ),
+                (
+                    get_atlas_div_node,
+                    ds_connectome,
+                    [
+                        ("atlas_division", "division"),
                     ],
                 ),
                 (
@@ -181,17 +234,24 @@ def init_connectome_wf(name: str = "connectome_wf") -> Workflow:
                     ],
                 ),
                 (
-                    inputnode,
+                    get_atlas_name_node,
                     ds_assignments,
                     [
                         ("atlas_name", "atlas"),
                     ],
                 ),
                 (
-                    get_reconstruction_software,
+                    get_atlas_den_node,
                     ds_assignments,
                     [
-                        ("reconstruction_software", "reconstruction_software"),
+                        ("atlas_den", "den"),
+                    ],
+                ),
+                (
+                    get_atlas_div_node,
+                    ds_assignments,
+                    [
+                        ("atlas_division", "division"),
                     ],
                 ),
                 (

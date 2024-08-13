@@ -4,6 +4,7 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "desc": "",
         "direction": "",
         "label": "WholeBrain",
+        "subtype": "atlases",
         "suffix": "dseg",
         "extension": ".nii.gz",
     },
@@ -12,6 +13,7 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
         "desc": "",
         "direction": "",
         "label": "GM",
+        "subtype": "atlases",
         "suffix": "dseg",
         "extension": ".nii.gz",
     },
@@ -26,6 +28,7 @@ DIFFUSION_WF_OUTPUT_ENTITIES = dict(
     dti_derived_parameters={
         "acquisition": "dt",
         "res": "dwi",
+        "subtype": "tensors",
         "suffix": "dwiref",
         "extension": ".nii.gz",
     },

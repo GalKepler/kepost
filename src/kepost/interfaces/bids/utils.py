@@ -19,12 +19,30 @@ def get_entity(in_file: str, entity: str) -> str:
     atlas_name : str
         Name of the atlas.
     """
-    from bids.layout import parse_file_entities
+    from importlib.resources import files
+    from json import loads
+    from pathlib import Path
 
-    entities = parse_file_entities(in_file)
-    if entity == "desc":
-        if entities.get("desc") and entities.get("desc") == "preproc":
-            return None
+    from bids.layout import Config, parse_file_entities
+
+    def resource_filename(package, resource):
+        return str(files(package).joinpath(resource))
+
+    _pybids_spec = loads(
+        Path(
+            resource_filename("kepost", "interfaces/bids/static/kepost.json")
+        ).read_text()
+    )
+    config = Config(**_pybids_spec)
+    entities = parse_file_entities(in_file, config=config)
+    # if entity == "desc":
+    #     if entities.get("desc") and entities.get("desc") in [
+    #         "preproc",
+    #         "unfiltered",
+    #         "SIFT",
+    #         "SIFT2",
+    #     ]:
+    #         return ""
     return entities.get(entity)
 
 

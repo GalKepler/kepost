@@ -4,6 +4,7 @@ from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.interfaces.bids import DerivativesDataSink
+from kepost.interfaces.bids.utils import get_entity
 from kepost.workflows.diffusion.procedures.utils import DIFFUSION_WF_OUTPUT_ENTITIES
 
 
@@ -49,6 +50,65 @@ def init_coregistration_wf(
             ]
         ),
         name="outputnode",
+    )
+    get_atlas_name_node = pe.Node(
+        niu.Function(
+            input_names=["in_file", "entity"],
+            output_names=[
+                "atlas_name",
+            ],
+            function=get_entity,
+        ),
+        name="get_atlas_name",
+    )
+    get_atlas_name_node.inputs.entity = "atlas"
+    get_atlas_den_node = pe.Node(
+        niu.Function(
+            input_names=["in_file", "entity"],
+            output_names=[
+                "atlas_den",
+            ],
+            function=get_entity,
+        ),
+        name="get_atlas_den",
+    )
+    get_atlas_den_node.inputs.entity = "den"
+    get_atlas_div_node = pe.Node(
+        niu.Function(
+            input_names=["in_file", "entity"],
+            output_names=[
+                "atlas_division",
+            ],
+            function=get_entity,
+        ),
+        name="get_atlas_div",
+    )
+    get_atlas_div_node.inputs.entity = "division"
+
+    workflow.connect(
+        [
+            (
+                inputnode,
+                get_atlas_name_node,
+                [
+                    ("whole_brain_parcellation", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                get_atlas_den_node,
+                [
+                    ("whole_brain_parcellation", "in_file"),
+                ],
+            ),
+            (
+                inputnode,
+                get_atlas_div_node,
+                [
+                    ("whole_brain_parcellation", "in_file"),
+                ],
+            ),
+        ]
     )
     # run apply transforms on both parcellations, naming them appropriately
     apply_transforms_wholebrain = pe.Node(
@@ -141,7 +201,27 @@ def init_coregistration_wf(
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_reference", "source_file"),
+                ],
+            ),
+            (
+                get_atlas_name_node,
+                ds_wholebrain,
+                [
                     ("atlas_name", "atlas"),
+                ],
+            ),
+            (
+                get_atlas_den_node,
+                ds_wholebrain,
+                [
+                    ("atlas_den", "den"),
+                ],
+            ),
+            (
+                get_atlas_div_node,
+                ds_wholebrain,
+                [
+                    ("atlas_division", "division"),
                 ],
             ),
             (
@@ -152,12 +232,32 @@ def init_coregistration_wf(
                 ],
             ),
             (
+                get_atlas_name_node,
+                ds_gm_cropped,
+                [
+                    ("atlas_name", "atlas"),
+                ],
+            ),
+            (
+                get_atlas_den_node,
+                ds_gm_cropped,
+                [
+                    ("atlas_den", "den"),
+                ],
+            ),
+            (
+                get_atlas_div_node,
+                ds_gm_cropped,
+                [
+                    ("atlas_division", "division"),
+                ],
+            ),
+            (
                 inputnode,
                 ds_gm_cropped,
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_reference", "source_file"),
-                    ("atlas_name", "atlas"),
                 ],
             ),
             (

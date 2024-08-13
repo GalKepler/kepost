@@ -20,24 +20,37 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
         The atlas name
     """
     import os
+    from importlib.resources import files
+    from json import loads
+    from pathlib import Path
 
     import pandas as pd
-    from bids.layout import parse_file_entities
+    from bids.layout import Config, parse_file_entities
 
     from kepost.atlases.utils import get_atlas_properties, parcellate
     from kepost.workflows.diffusion.procedures.parcellations.available_measures import (
         AVAILABLE_MEASURES,
     )
 
-    entities = parse_file_entities(atlas_nifti)
+    def resource_filename(package, resource):
+        return str(files(package).joinpath(resource))
+
+    _pybids_spec = loads(
+        Path(
+            resource_filename("kepost", "interfaces/bids/static/kepost.json")
+        ).read_text()
+    )
+    config = Config(**_pybids_spec)
+
+    entities = parse_file_entities(atlas_nifti, config=config)
     atlas_name = entities["atlas"]
     if "schaefer2018" in atlas_name:
-        desc = entities["desc"]
+        division = entities["division"]
         den = entities["den"]
         # atlas_name_part = [i for i in Path(atlas_nifti).parts if "_atlas_name_" in i]
         # atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
-        atlas_key = f"{atlas_name}_{den}_{desc.replace('networks','')}"
-        atlas_name = f"{atlas_name}_desc-{desc}_den-{den}"
+        atlas_key = f"{atlas_name}_{den}_{division.replace('networks','')}"
+        atlas_name = f"{atlas_name}_div-{division}_den-{den}"
     else:
         atlas_key = atlas_name
     _, description, region_col, index_col = get_atlas_properties(atlas_key)
