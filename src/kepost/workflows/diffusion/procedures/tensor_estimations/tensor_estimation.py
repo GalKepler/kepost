@@ -8,6 +8,10 @@ from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import gen_acq_label
 from kepost.interfaces.mrtrix3 import MRConvert
+from kepost.workflows.diffusion.descriptions.parcellations import (
+    PARCELLATIONS_DESCRIPTIONS,
+    SUMMARY_STATISTICS,
+)
 from kepost.workflows.diffusion.descriptions.tensor_estimation import (
     BVAL_1000_DESCRIPTION,
     TENSOR_ESTIMATION_DESCRIPTION,
@@ -89,7 +93,8 @@ def init_tensor_estimation_wf(
         )
     else:
         workflow.__desc__ = ""
-    workflow.__desc__ += TENSOR_ESTIMATION_DESCRIPTION
+    workflow.__desc__ += TENSOR_ESTIMATION_DESCRIPTION + PARCELLATIONS_DESCRIPTIONS
+    workflow.__postdesc__ = SUMMARY_STATISTICS
 
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
