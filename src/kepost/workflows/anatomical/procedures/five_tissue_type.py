@@ -5,6 +5,10 @@ from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
+from kepost.workflows.anatomical.descriptions.five_tissue_type import (
+    FIVE_TISSUE_FSL_DESCRIPTION,
+    FIVE_TISSUE_HSVS_DESCRIPTION,
+)
 
 five_tissue_type_entities = {
     "space": "T1w",
@@ -41,21 +45,21 @@ def locate_fs_subject_dir(subject_id: str, fs_subjects_dir: str) -> str:
     )
 
 
-def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
+def init_five_tissue_type_workflow(name: str = "five_tissue_type_workflow") -> Workflow:
     """
     Initialize the post-anatomical processing
 
     Parameters
     ----------
     name : str, optional
-        name of the workflow (default: "five_tissue_type_wf")
+        name of the workflow (default: "five_tissue_type_workflow")
 
     Returns
     -------
     Workflow
         the workflow
     """
-    wf = Workflow(name=name)
+    workflow = Workflow(name=name)
 
     inputnode = pe.Node(
         niu.IdentityInterface(
@@ -78,6 +82,11 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
 
     algo_5tt = config.workflow.five_tissue_type_algorithm
 
+    if algo_5tt == "hsvs":
+        workflow.__desc__ = FIVE_TISSUE_HSVS_DESCRIPTION
+    elif algo_5tt == "fsl":
+        workflow.__desc__ = FIVE_TISSUE_FSL_DESCRIPTION
+
     five_tissue_type = pe.Node(
         mrt.Generate5tt(
             algorithm=algo_5tt,
@@ -96,7 +105,7 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
     )
 
     if algo_5tt == "fsl":
-        wf.connect(
+        workflow.connect(
             [
                 (
                     inputnode,
@@ -116,7 +125,7 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
             ),
             name="fs_subject_dir",
         )
-        wf.connect(
+        workflow.connect(
             [
                 (
                     inputnode,
@@ -130,7 +139,7 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
             ]
         )
 
-    wf.connect(
+    workflow.connect(
         [
             (five_tissue_type, outputnode, [("out_file", "five_tissue_type")]),
             (
@@ -144,4 +153,4 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_wf") -> Workflow:
             (five_tissue_type, ds_five_tissue_type, [("out_file", "in_file")]),
         ]
     )
-    return wf
+    return workflow
