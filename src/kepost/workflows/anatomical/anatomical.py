@@ -4,6 +4,7 @@ Module for the anatomical postprocessing workflow.
 
 from nipype.interfaces import utility as niu
 from nipype.interfaces.ants.base import Info as ANTsInfo
+from nipype.interfaces.fsl import Info as FSLInfo
 from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
@@ -49,6 +50,7 @@ def init_anatomical_wf(
     workflow = Workflow(name=name)
     workflow.__desc__ = ANATOMICAL_BASE_WORKFLOW_DESCRIPTION.format(
         ants_ver=ANTsInfo.version() or "(version unknown)",
+        fsl_ver=FSLInfo.version() or "(version unknown)",
         atlases=", ".join(atlas_ref),
     )
     inputnode = pe.Node(

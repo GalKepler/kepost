@@ -6,6 +6,9 @@ from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 from kepost import config
 from kepost.interfaces.bids.bids import DerivativesDataSink
 from kepost.interfaces.reports.viz import OverlayRPT
+from kepost.workflows.diffusion.descriptions.diffusion import (
+    DIFFUSION_BASE_WORKFLOW_DESCRIPTION,
+)
 from kepost.workflows.diffusion.procedures import (
     init_connectome_wf,
     init_coregistration_wf,
@@ -45,6 +48,7 @@ def init_diffusion_wf(
     """
     name = _get_wf_name(dwi_data["dwi_nifti"])
     workflow = Workflow(name=name)
+    workflow.__desc__ = DIFFUSION_BASE_WORKFLOW_DESCRIPTION
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

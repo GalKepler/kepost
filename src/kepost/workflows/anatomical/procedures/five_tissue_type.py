@@ -45,7 +45,7 @@ def locate_fs_subject_dir(subject_id: str, fs_subjects_dir: str) -> str:
     )
 
 
-def init_five_tissue_type_workflow(name: str = "five_tissue_type_workflow") -> Workflow:
+def init_five_tissue_type_wf(name: str = "five_tissue_type_workflow") -> Workflow:
     """
     Initialize the post-anatomical processing
 

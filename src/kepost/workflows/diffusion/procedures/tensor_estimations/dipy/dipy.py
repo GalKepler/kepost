@@ -15,7 +15,7 @@ from kepost.workflows.diffusion.procedures.utils.derivatives import (
     DIFFUSION_WF_OUTPUT_ENTITIES,
 )
 
-TENSOR_PARAMETERS = ["fa", "ga", "md", "ad", "rd", "mode"]
+TENSOR_PARAMETERS = ["fa", "ga", "md", "ad", "rd"]
 
 
 def init_dipy_tensor_wf(

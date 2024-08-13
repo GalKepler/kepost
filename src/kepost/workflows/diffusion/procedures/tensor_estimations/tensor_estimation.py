@@ -8,6 +8,10 @@ from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import gen_acq_label
 from kepost.interfaces.mrtrix3 import MRConvert
+from kepost.workflows.diffusion.descriptions.tensor_estimation import (
+    BVAL_1000_DESCRIPTION,
+    TENSOR_ESTIMATION_DESCRIPTION,
+)
 from kepost.workflows.diffusion.procedures.tensor_estimations.dipy import (
     init_dipy_tensor_wf,
 )
@@ -79,6 +83,13 @@ def init_tensor_estimation_wf(
     )
     max_bval = config.workflow.tensor_max_bval
     max_bval = max_bval if isdefined(max_bval) else None  # type: ignore[assignment]
+    if max_bval is not None and max_bval <= 1000:
+        workflow.__desc__ = BVAL_1000_DESCRIPTION.format(
+            max_bval=max_bval,
+        )
+    else:
+        workflow.__desc__ = ""
+    workflow.__desc__ += TENSOR_ESTIMATION_DESCRIPTION
 
     outputnode = pe.Node(
         interface=niu.IdentityInterface(

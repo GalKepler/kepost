@@ -5,6 +5,9 @@ from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import get_entity
+from kepost.workflows.diffusion.descriptions.coregisterations import (
+    COREGISTERATIONS_WORKFLOW_DESCRIPTION,
+)
 from kepost.workflows.diffusion.procedures.utils import DIFFUSION_WF_OUTPUT_ENTITIES
 
 
@@ -26,6 +29,7 @@ def init_coregistration_wf(
         The coregistration workflow
     """
     workflow = Workflow(name=name)
+    workflow.__desc__ = COREGISTERATIONS_WORKFLOW_DESCRIPTION
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
