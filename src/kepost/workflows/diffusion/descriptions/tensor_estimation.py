@@ -23,7 +23,8 @@ TENSOR_DERIVED_METRICS = """
 * Axial Diffusivity (AD)
 * Radial Diffusivity (RD).
 
-For *MRtrix*, the three Westin shape metrics were also calculated:
+For *MRtrix*, the three Westin shape metrics [@westin_2002] were also calculated:
+
 * Linearity (CL)
 * Planarity (CP)
 * Sphericity (CS).
