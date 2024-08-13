@@ -14,6 +14,7 @@ from kepost.workflows.diffusion.descriptions.parcellations import (
 )
 from kepost.workflows.diffusion.descriptions.tensor_estimation import (
     BVAL_1000_DESCRIPTION,
+    TENSOR_DERIVED_METRICS,
     TENSOR_ESTIMATION_DESCRIPTION,
 )
 from kepost.workflows.diffusion.procedures.tensor_estimations.dipy import (
@@ -94,7 +95,7 @@ def init_tensor_estimation_wf(
     else:
         workflow.__desc__ = ""
     workflow.__desc__ += TENSOR_ESTIMATION_DESCRIPTION + PARCELLATIONS_DESCRIPTIONS
-    workflow.__postdesc__ = SUMMARY_STATISTICS
+    workflow.__postdesc__ = TENSOR_DERIVED_METRICS + SUMMARY_STATISTICS
 
     outputnode = pe.Node(
         interface=niu.IdentityInterface(
