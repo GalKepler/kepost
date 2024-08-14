@@ -9,6 +9,10 @@ from kepost.interfaces.reports.viz import OverlayRPT
 from kepost.workflows.diffusion.descriptions.diffusion import (
     DIFFUSION_BASE_WORKFLOW_DESCRIPTION,
 )
+from kepost.workflows.diffusion.descriptions.parcellations import SUMMARY_STATISTICS
+from kepost.workflows.diffusion.descriptions.tensor_estimation import (
+    TENSOR_DERIVED_METRICS,
+)
 from kepost.workflows.diffusion.procedures import (
     init_connectome_wf,
     init_coregistration_wf,
@@ -24,8 +28,6 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.dipy.dipy import (
 from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 import (
     TENSOR_PARAMETERS as mrtrix3_parameters,
 )
-
-# from niworkflows.interfaces.bids import DerivativesDataSink as RPTDerivativesDataSink
 
 
 def init_diffusion_wf(
@@ -49,6 +51,7 @@ def init_diffusion_wf(
     name = _get_wf_name(dwi_data["dwi_nifti"])
     workflow = Workflow(name=name)
     workflow.__desc__ = DIFFUSION_BASE_WORKFLOW_DESCRIPTION
+    workflow.__postdesc__ = TENSOR_DERIVED_METRICS + SUMMARY_STATISTICS
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[

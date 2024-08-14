@@ -6,6 +6,13 @@ from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.mrtrix3 import TckMap, TckSift, TckSift2
+from kepost.workflows.diffusion.descriptions.tractography import (
+    DET_TRACTOGRAPHY_DESCRIPTIONS,
+    FOD_ALGORITHMS,
+    PROB_TRACTOGRAPHY_DESCRIPTIONS,
+    RESPONSE_ALGORITHMS,
+    SIFT,
+)
 from kepost.workflows.diffusion.procedures.coregisterations import init_5tt_coreg_wf
 
 
@@ -67,6 +74,26 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
     """
     workflow = Workflow(name=name)
 
+    response_desc = RESPONSE_ALGORITHMS.get(config.workflow.response_algorithm)
+    fod_desc = FOD_ALGORITHMS.get(config.workflow.fod_algorithm)
+    det_tractography_desc = DET_TRACTOGRAPHY_DESCRIPTIONS.get(
+        config.workflow.det_tracking_algorithm.lower()
+    )
+    det_tractography_desc = det_tractography_desc.format(
+        tracking_max_angle=config.workflow.tracking_max_angle,
+        tracking_min_length=config.workflow.tracking_lenscale_min,
+        tracking_max_length=config.workflow.tracking_lenscale_max,
+        n_streamlines=config.workflow.n_raw_tracts,
+        step_size=config.workflow.tracking_stepscale,
+    )
+    prob_tractography_desc = PROB_TRACTOGRAPHY_DESCRIPTIONS.get(
+        config.workflow.prob_tracking_algorithm.lower()
+    )
+
+    desc = (
+        response_desc + fod_desc + det_tractography_desc + prob_tractography_desc + SIFT
+    )
+    workflow.__desc__ = desc
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
