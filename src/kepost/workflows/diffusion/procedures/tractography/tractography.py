@@ -79,7 +79,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
     det_tractography_desc = DET_TRACTOGRAPHY_DESCRIPTIONS.get(
         config.workflow.det_tracking_algorithm.lower()
     )
-    det_tractography_desc = det_tractography_desc.format(
+    det_tractography_desc = det_tractography_desc.format(  # type: ignore[union-attr]
         tracking_max_angle=config.workflow.tracking_max_angle,
         tracking_min_length=config.workflow.tracking_lenscale_min,
         tracking_max_length=config.workflow.tracking_lenscale_max,
@@ -91,7 +91,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
     )
 
     desc = (
-        response_desc + fod_desc + det_tractography_desc + prob_tractography_desc + SIFT
+        response_desc + fod_desc + det_tractography_desc + prob_tractography_desc + SIFT  # type: ignore[operator]
     )
     workflow.__desc__ = desc
     inputnode = pe.Node(

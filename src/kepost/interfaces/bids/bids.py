@@ -116,7 +116,7 @@ class DerivativesDataSink(_DDSink):
     _config_entities = frozenset(BIDS_DERIV_ENTITIES)
     _config_entities_dict = BIDS_DERIV_ENTITIES_DICT
     _standard_spaces = STANDARD_SPACES
-    _file_patterns = BIDS_DERIV_PATTERNS
+    _file_patterns = BIDS_DERIV_PATTERNS  # type: ignore[assignment]
     _default_dtypes = DEFAULT_DTYPES
 
 

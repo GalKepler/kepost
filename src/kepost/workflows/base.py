@@ -15,6 +15,7 @@ from kepost import config
 from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
 from kepost.interfaces.bids import BIDSDataGrabber, collect_data
 from kepost.interfaces.bids.bids import DerivativesDataSink
+from kepost.interfaces.bids.utils import write_bidsignore, write_derivative_description
 from kepost.interfaces.reports import AboutSummary, SubjectSummary
 from kepost.workflows.anatomical import init_anatomical_wf
 from kepost.workflows.descriptions import BASE_POSTDESC, BASE_WORKFLOW_DESCRIPTION
@@ -97,6 +98,7 @@ def init_single_subject_wf(subject_id: str, name: str):
     subject_data, sessions_data = collect_data(
         layout=config.execution.layout, participant_label=subject_id
     )
+
     combined_data = subject_data.copy()
     for session in sessions_data.keys():
         for value in sessions_data[session].keys():
@@ -104,6 +106,14 @@ def init_single_subject_wf(subject_id: str, name: str):
                 combined_data[value].append(sessions_data[session][value])
             else:
                 combined_data[value] = [sessions_data[session][value]]
+
+    write_derivative_description(
+        bids_dir=config.execution.keprep_dir,
+        deriv_dir=config.execution.output_dir,
+    )
+    write_bidsignore(
+        deriv_dir=config.execution.output_dir,
+    )
 
     inputnode = pe.Node(
         niu.IdentityInterface(

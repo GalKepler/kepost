@@ -36,7 +36,7 @@ def build_boilerplate(config_file: dict | str | Path, workflow: pe.Workflow):
         config.load(config_file)
     elif isinstance(config_file, dict):
         config.from_dict(config_file)
-    logs_path = config.execution.output_dir / "logs"  # type: ignore[attr-defined]
+    logs_path = config.execution.output_dir / "logs"  # type: ignore[attr-defined, operator]
     logs_path.mkdir(parents=True, exist_ok=True)
     boilerplate = workflow.visit_desc()
     citation_files = {
