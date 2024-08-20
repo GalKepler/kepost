@@ -1,7 +1,18 @@
+from neuromaps import datasets
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
+from kepost.interfaces.bids.bids import DerivativesDataSink
+from kepost.interfaces.reports.viz import OverlayRPT
+from kepost.workflows.diffusion.descriptions.diffusion import (
+    DIFFUSION_BASE_WORKFLOW_DESCRIPTION,
+)
+from kepost.workflows.diffusion.descriptions.parcellations import SUMMARY_STATISTICS
+from kepost.workflows.diffusion.descriptions.tensor_estimation import (
+    TENSOR_DERIVED_METRICS,
+)
 from kepost.workflows.diffusion.procedures import (
     init_connectome_wf,
     init_coregistration_wf,
@@ -21,7 +32,7 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3.mrtrix3 im
 
 def init_diffusion_wf(
     dwi_data: dict,
-) -> pe.Workflow:
+) -> Workflow:
     """
     Initialize the diffusion postprocessing workflow.
 
@@ -34,11 +45,13 @@ def init_diffusion_wf(
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         The diffusion postprocessing workflow
     """
     name = _get_wf_name(dwi_data["dwi_nifti"])
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
+    workflow.__desc__ = DIFFUSION_BASE_WORKFLOW_DESCRIPTION
+    workflow.__postdesc__ = TENSOR_DERIVED_METRICS + SUMMARY_STATISTICS
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
@@ -52,7 +65,6 @@ def init_diffusion_wf(
                 "dwi_mask",
                 "dwi_to_t1w_transform",
                 "t1w_to_dwi_transform",
-                "atlas_name",
                 "whole_brain_t1w_parcellation",
                 "gm_cropped_t1w_parcellation",
                 "dipy_fit_method",
@@ -171,6 +183,52 @@ def init_diffusion_wf(
             ),
         ]
     )
+    fa_report = pe.Node(
+        interface=OverlayRPT(
+            background_file=datasets.fetch_atlas(atlas="mni", density="1mm").get(
+                "2009cAsym_T1w"
+            ),
+            threshold=0.3,
+            colormap="hot",
+            out_report="report.svg",
+        ),
+        name="fa_report",
+    )
+    ds_fa_report = pe.Node(
+        interface=DerivativesDataSink(
+            datatype="figures",
+            desc="fa",
+            suffix="epiref",
+            space="MN112NLin2009cAsym",
+            dismiss_entities=["ceagent"],
+        ),
+        name="ds_fa_report",
+    )
+    workflow.connect(
+        [
+            (
+                tensor_estimation_wf,
+                fa_report,
+                [("mrtrix3_tensor_wf.select_norm_fa.out", "overlay_file")],
+            ),
+            (
+                inputnode,
+                ds_fa_report,
+                [
+                    ("base_directory", "base_directory"),
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                fa_report,
+                ds_fa_report,
+                [
+                    ("out_report", "in_file"),
+                ],
+            ),
+        ]
+    )
+    # return workflow
     qc_wf = init_qc_wf()
     workflow.connect(
         [
@@ -334,6 +392,7 @@ def init_diffusion_wf(
             ),
         ]
     )
+
     connectome_wf = init_connectome_wf()
     workflow.connect(
         [
@@ -342,6 +401,7 @@ def init_diffusion_wf(
                 connectome_wf,
                 [
                     ("base_directory", "inputnode.base_directory"),
+                    ("atlas_name", "inputnode.atlas_name"),
                 ],
             ),
             (

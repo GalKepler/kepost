@@ -1,5 +1,6 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.workflows.diffusion.procedures.quality_control.eddy_qc import init_eddyqc_wf
 from kepost.workflows.diffusion.procedures.quality_control.snr import init_snr_wf
@@ -9,7 +10,7 @@ def init_qc_wf(name: str = "qc_wf"):
     """
     Initialize the quality control workflow
     """
-    qc_wf = pe.Workflow(name=name)
+    qc_wf = Workflow(name=name)
 
     inputnode = pe.Node(
         niu.IdentityInterface(

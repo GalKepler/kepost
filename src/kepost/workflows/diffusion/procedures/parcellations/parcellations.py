@@ -1,5 +1,6 @@
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.workflows.diffusion.procedures.utils.derivatives import (
@@ -19,17 +20,40 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
         The atlas name
     """
     import os
+    from importlib.resources import files
+    from json import loads
+    from pathlib import Path
 
     import pandas as pd
-    from bids.layout import parse_file_entities
+    from bids.layout import Config, parse_file_entities
 
     from kepost.atlases.utils import get_atlas_properties, parcellate
     from kepost.workflows.diffusion.procedures.parcellations.available_measures import (
         AVAILABLE_MEASURES,
     )
 
-    atlas_name = parse_file_entities(atlas_nifti)["atlas"]
-    _, description, region_col, index_col = get_atlas_properties(atlas_name)
+    def resource_filename(package, resource):
+        return str(files(package).joinpath(resource))
+
+    _pybids_spec = loads(
+        Path(
+            resource_filename("kepost", "interfaces/bids/static/kepost.json")
+        ).read_text()
+    )
+    config = Config(**_pybids_spec)
+
+    entities = parse_file_entities(atlas_nifti, config=config)
+    atlas_name = entities["atlas"]
+    if "schaefer2018" in atlas_name:
+        division = entities["division"]
+        den = entities["den"]
+        # atlas_name_part = [i for i in Path(atlas_nifti).parts if "_atlas_name_" in i]
+        # atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
+        atlas_key = f"{atlas_name}_{den}_{division.replace('networks','')}"
+        atlas_name = f"{atlas_name}_div-{division}_den-{den}"
+    else:
+        atlas_key = atlas_name
+    _, description, region_col, index_col = get_atlas_properties(atlas_key)
     df = pd.read_csv(description, index_col=index_col).copy()
     for measure_name, measure_func in AVAILABLE_MEASURES.items():
         df[measure_name] = parcellate(
@@ -47,11 +71,11 @@ def parcellate_all_measures(in_file: str, atlas_nifti: str):
 
 def init_parcellations_wf(
     inputs: list, software: str, name: str = "parcellations_wf"
-) -> pe.Workflow:
+) -> Workflow:
     """
     Workflow to parcellate the brain
     """
-    workflow = pe.Workflow(name=f"{software}_{name}")
+    workflow = Workflow(name=f"{software}_{name}")
     inputnode = pe.Node(
         niu.IdentityInterface(
             fields=[
@@ -81,7 +105,7 @@ def init_parcellations_wf(
                 **DIFFUSION_WF_OUTPUT_ENTITIES.get("parcellations"),
                 reconstruction_software=software,
                 dismiss_entities="direction",
-                desc=p,
+                measure=p,
             ),
             name=f"ds_parcellation_node_{i}",
         )

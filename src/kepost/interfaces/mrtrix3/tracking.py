@@ -351,3 +351,101 @@ class DWIPreprocInputSpec(MRTrix3BaseInputSpec):
         argstr="-export_grad_fsl %s, %s",
         desc="export gradient files in FSL format",
     )
+
+
+#################
+class TckMapInputSpec(MRTrix3BaseInputSpec):
+    in_file = File(
+        exists=True,
+        argstr="%s",
+        mandatory=True,
+        position=-2,
+        desc="input tractogram",
+    )
+    out_file = File(
+        "out.mif",
+        argstr="%s",
+        mandatory=False,
+        position=-1,
+        usedefault=True,
+        desc="output track-weighted image",
+    )
+    contrast = traits.Enum(
+        "tdi",
+        "length",
+        "invlength",
+        "scalar_map",
+        "scalar_map_count",
+        "fod_amp",
+        "curvature",
+        "vector_file",
+        argstr="-contrast %s",
+        desc="type of image contrast to generate",
+    )
+    template = File(
+        exists=True,
+        argstr="-template %s",
+        desc="template image for the output",
+    )
+    vox = traits.Either(
+        traits.Float,
+        traits.Tuple(traits.Float, traits.Float, traits.Float),
+        argstr="-vox %s",
+        desc="voxel dimensions of the output image",
+    )
+    dec = traits.Bool(
+        argstr="-dec",
+        desc="perform track mapping in directionally-encoded colour (DEC) space",
+    )
+    scalar_image = File(
+        exists=True,
+        argstr="-image %s",
+        desc="input scalar image",
+    )
+    vector_file = File(
+        exists=True,
+        argstr="-vector_file %s",
+        desc="input vector file",
+    )
+    precise = traits.Bool(
+        argstr="-precise",
+        desc="use a more precise streamline mapping strategy, that accurately quantifies the length through each voxel",
+    )
+    upsample = traits.Int(
+        argstr="-upsample %d",
+        desc="upsample the output image by this factor",
+    )
+    force = traits.Bool(
+        argstr="-force",
+        desc="force overwrite of output files",
+    )
+
+
+class TckMapOutputSpec(TraitedSpec):
+    out_file = File(exists=True, desc="output track-weighted image")
+
+
+class TckMap(MRTrix3Base):  # pylint: disable=abstract-method
+    """
+    Generate a track-weighted image using the provided tractogram
+
+    Example
+    -------
+    >>> import nipype.interfaces.mrtrix3 as mrt
+    >>> tckmap = mrt.TckMap()
+    >>> tckmap.inputs.in_file = 'tracks.tck'
+    >>> tckmap.inputs.contrast = 'tdi'
+    >>> tckmap.inputs.template = 'template.mif'
+    >>> tckmap.cmdline
+    'tckmap -contrast tdi -template template.mif tracks.tck out.mif'
+    >>> tckmap.run()  # doctest: +SKIP
+    """
+
+    _cmd = "tckmap"
+    input_spec = TckMapInputSpec
+    output_spec = TckMapOutputSpec
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs["out_file"] = op.abspath(self.inputs.out_file)
+        return outputs

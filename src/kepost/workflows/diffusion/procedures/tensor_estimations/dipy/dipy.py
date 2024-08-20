@@ -2,6 +2,7 @@ from neuromaps import datasets
 from nipype.interfaces import ants, fsl
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
@@ -14,12 +15,12 @@ from kepost.workflows.diffusion.procedures.utils.derivatives import (
     DIFFUSION_WF_OUTPUT_ENTITIES,
 )
 
-TENSOR_PARAMETERS = ["fa", "ga", "md", "ad", "rd", "mode"]
+TENSOR_PARAMETERS = ["fa", "ga", "md", "ad", "rd"]
 
 
 def init_dipy_tensor_wf(
     name: str = "dipy_tensor_wf",
-) -> pe.Workflow:
+) -> Workflow:
     """
     Initialize the tensor estimation workflow.
 
@@ -30,10 +31,10 @@ def init_dipy_tensor_wf(
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         The tensor estimation workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
@@ -75,12 +76,12 @@ def init_dipy_tensor_wf(
         interface=DerivativesDataSink(  # type: ignore[arg-type]
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
             reconstruction_software="dipy",
-            save_meta=False,
+            dismiss_entities=["desc"],
         ),
-        iterfield=["in_file", "desc"],
+        iterfield=["in_file", "measure"],
         name="ds_tensor_wf",
     )
-    ds_tensor_wf.inputs.desc = TENSOR_PARAMETERS
+    ds_tensor_wf.inputs.measure = TENSOR_PARAMETERS
 
     if config.workflow.dipy_reconstruction_method.lower() in ["rt", "restore"]:
         estimate_sigma_node = pe.Node(
@@ -123,12 +124,12 @@ def init_dipy_tensor_wf(
         interface=DerivativesDataSink(
             **coreg_tensor_ds_entities,
             reconstruction_software="dipy",
-            save_meta=False,
+            dismiss_entities=["desc"],
         ),
-        iterfield=["in_file", "desc"],
+        iterfield=["in_file", "measure"],
         name="ds_coreg_tensor_wf",
     )
-    ds_coreg_tensor_wf.inputs.desc = TENSOR_PARAMETERS
+    ds_coreg_tensor_wf.inputs.measure = TENSOR_PARAMETERS
 
     normalize_tensor_wf = pe.MapNode(
         ants.ApplyTransforms(
@@ -144,12 +145,12 @@ def init_dipy_tensor_wf(
             **DIFFUSION_WF_OUTPUT_ENTITIES.get("dti_derived_parameters"),
             reconstruction_software="dipy",
             space="MNI152NLin2009cAsym",
-            save_meta=False,
+            dismiss_entities=["desc"],
         ),
-        iterfield=["in_file", "desc"],
+        iterfield=["in_file", "measure"],
         name="ds_tensor_mni_wf",
     )
-    ds_tensor_mni_wf.inputs.desc = TENSOR_PARAMETERS
+    ds_tensor_mni_wf.inputs.measure = TENSOR_PARAMETERS
 
     workflow.connect(
         [

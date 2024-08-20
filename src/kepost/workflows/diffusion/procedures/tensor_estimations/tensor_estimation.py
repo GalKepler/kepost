@@ -2,11 +2,19 @@ from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 from nipype.interfaces.base import isdefined
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.interfaces.bids.utils import gen_acq_label
 from kepost.interfaces.mrtrix3 import MRConvert
+from kepost.workflows.diffusion.descriptions.parcellations import (
+    PARCELLATIONS_DESCRIPTIONS,
+)
+from kepost.workflows.diffusion.descriptions.tensor_estimation import (
+    BVAL_1000_DESCRIPTION,
+    TENSOR_ESTIMATION_DESCRIPTION,
+)
 from kepost.workflows.diffusion.procedures.tensor_estimations.dipy import (
     init_dipy_tensor_wf,
 )
@@ -43,7 +51,7 @@ def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> tuple[list, 
 
 def init_tensor_estimation_wf(
     name: str = "tensor_estimation_wf",
-) -> pe.Workflow:
+) -> Workflow:
     """
     Initialize the tensor estimation workflow.
 
@@ -54,10 +62,10 @@ def init_tensor_estimation_wf(
 
     Returns
     -------
-    pe.Workflow
+    Workflow
         The tensor estimation workflow
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
             fields=[
@@ -78,6 +86,13 @@ def init_tensor_estimation_wf(
     )
     max_bval = config.workflow.tensor_max_bval
     max_bval = max_bval if isdefined(max_bval) else None  # type: ignore[assignment]
+    if max_bval is not None and max_bval <= 1000:
+        workflow.__desc__ = BVAL_1000_DESCRIPTION.format(
+            max_bval=max_bval,
+        )
+    else:
+        workflow.__desc__ = ""
+    workflow.__desc__ += TENSOR_ESTIMATION_DESCRIPTION + PARCELLATIONS_DESCRIPTIONS
 
     outputnode = pe.Node(
         interface=niu.IdentityInterface(

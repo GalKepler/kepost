@@ -1,5 +1,6 @@
 import nipype.pipeline.engine as pe
 from nipype.interfaces import utility as niu
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost.interfaces.bids import DerivativesDataSink
 from kepost.workflows.diffusion.procedures.quality_control.utils import (
@@ -96,11 +97,11 @@ def tissue_snr_to_csv(
     return out_file
 
 
-def init_snr_wf(name: str = "snr_wf") -> pe.Workflow:
+def init_snr_wf(name: str = "snr_wf") -> Workflow:
     """
     Workflow to perform tractography using MRtrix3.
     """
-    workflow = pe.Workflow(name=name)
+    workflow = Workflow(name=name)
 
     inputnode = pe.Node(
         niu.IdentityInterface(

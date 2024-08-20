@@ -1,15 +1,30 @@
+import sys
 from copy import deepcopy
 from pathlib import Path
 
+import dipy
+from nipype.interfaces import mrtrix3 as mrt
 from nipype.interfaces import utility as niu
 from nipype.pipeline import engine as pe
+from niworkflows.engine.workflows import LiterateWorkflow as Workflow
+from niworkflows.interfaces.bids import BIDSInfo
+from niworkflows.interfaces.nilearn import NILEARN_VERSION
 from packaging.version import Version
 
 from kepost import config
 from kepost.atlases.available_atlases.available_atlases import AVAILABLE_ATLASES
-from kepost.interfaces.bids.utils import collect_data
+from kepost.interfaces.bids import BIDSDataGrabber, collect_data
+from kepost.interfaces.bids.bids import DerivativesDataSink
+from kepost.interfaces.bids.utils import write_bidsignore, write_derivative_description
+from kepost.interfaces.reports import AboutSummary, SubjectSummary
 from kepost.workflows.anatomical import init_anatomical_wf
+from kepost.workflows.descriptions import BASE_POSTDESC, BASE_WORKFLOW_DESCRIPTION
 from kepost.workflows.diffusion.diffusion import init_diffusion_wf
+
+# from niworkflows.interfaces.bids import BIDSInfo, DerivativesDataSink
+
+
+# DerivativesDataSink.out_path_base = ""
 
 
 def init_kepost_wf():
@@ -37,7 +52,7 @@ def init_kepost_wf():
     config.workflow.atlases = atlases
 
     ver = Version(config.environment.version)
-    kepost_wf = pe.Workflow(name=f"kepost_{ver.major}_{ver.minor}_wf")
+    kepost_wf = Workflow(name=f"kepost_{ver.major}_{ver.minor}_wf")
     kepost_wf.base_dir = config.execution.work_dir
     for subject_id in config.execution.participant_label:
         name = f"single_subject_{subject_id}_wf"
@@ -67,11 +82,37 @@ def init_single_subject_wf(subject_id: str, name: str):
     """
     Initialize the single subject workflow
     """
-    workflow = pe.Workflow(name=name)  # noqa: F841
+
+    workflow = Workflow(name=name)  # noqa: F841
+    workflow.__desc__ = BASE_WORKFLOW_DESCRIPTION.format(
+        kepost_ver=config.environment.version,
+        nipype_ver=config.environment.nipype_version,
+    )
+    workflow.__postdesc__ = BASE_POSTDESC.format(
+        nilearn_ver=NILEARN_VERSION,
+        mrtrix_ver=mrt.base.Info().version(),
+        dipy_ver=dipy.__version__,
+    )
     kepost_dir = config.execution.output_dir
     keprep_dir = config.execution.keprep_dir  # noqa: F841
     subject_data, sessions_data = collect_data(
         layout=config.execution.layout, participant_label=subject_id
+    )
+
+    combined_data = subject_data.copy()
+    for session in sessions_data.keys():
+        for value in sessions_data[session].keys():
+            if value in combined_data:
+                combined_data[value].append(sessions_data[session][value])
+            else:
+                combined_data[value] = [sessions_data[session][value]]
+
+    write_derivative_description(
+        bids_dir=config.execution.keprep_dir,
+        deriv_dir=config.execution.output_dir,
+    )
+    write_bidsignore(
+        deriv_dir=config.execution.output_dir,
     )
 
     inputnode = pe.Node(
@@ -85,6 +126,7 @@ def init_single_subject_wf(subject_id: str, name: str):
                 "gm_probabilistic_segmentation",
                 "atlases",
                 "subject_id",
+                "subjects_dir",
             ]
         ),
         name="inputnode_subject",
@@ -104,7 +146,78 @@ def init_single_subject_wf(subject_id: str, name: str):
         "csf_probabilistic_segmentation"
     ]
     inputnode.inputs.subject_id = subject_id
+    inputnode.inputs.subjects_dir = config.execution.fs_subjects_dir
 
+    bidssrc = pe.Node(
+        BIDSDataGrabber(
+            subject_data=combined_data,
+            subject_id=subject_id,
+        ),
+        name="bidssrc",
+    )
+    bids_info = pe.Node(
+        BIDSInfo(bids_dir=config.execution.keprep_dir, bids_validate=False),
+        name="bids_info",
+    )
+    summary = pe.Node(
+        SubjectSummary(atlases=config.workflow.atlases),
+        name="summary",
+        run_without_submitting=True,
+    )
+
+    about = pe.Node(
+        AboutSummary(version=config.environment.version, command=" ".join(sys.argv)),
+        name="about",
+        run_without_submitting=True,
+    )
+
+    ds_report_summary = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(kepost_dir),  # type: ignore[attr-defined] # noqa: E501
+            desc="summary",
+            datatype="figures",
+            dismiss_entities=["session", "space"],
+        ),
+        name="ds_report_summary",
+        run_without_submitting=True,
+    )
+
+    ds_report_about = pe.Node(
+        DerivativesDataSink(
+            base_directory=str(kepost_dir),  # type: ignore[attr-defined] # noqa: E501
+            desc="about",
+            datatype="figures",
+            dismiss_entities=["session", "space"],
+        ),
+        name="ds_report_about",
+        run_without_submitting=True,
+    )
+    workflow.connect(
+        [
+            (bidssrc, bids_info, [("t1w_preproc", "in_file")]),
+            (inputnode, summary, [("subjects_dir", "subjects_dir")]),
+            (bids_info, summary, [("subject", "subject_id")]),
+            (
+                bidssrc,
+                summary,
+                [("t1w_preproc", "t1w"), ("dwi_nifti", "dwi")],
+            ),
+            (
+                bidssrc,
+                ds_report_summary,
+                [
+                    ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (summary, ds_report_summary, [("out_report", "in_file")]),
+            (
+                bidssrc,
+                ds_report_about,
+                [("dwi_nifti", "source_file")],
+            ),
+            (about, ds_report_about, [("out_report", "in_file")]),
+        ]
+    )
     # Anatomical postprocessing
     anatomical_wf = init_anatomical_wf()
     workflow.connect(
@@ -126,7 +239,6 @@ def init_single_subject_wf(subject_id: str, name: str):
             ),
         ]
     )
-
     # Diffusion postprocessing
     diffusion_workflows = []
     # num_sessions = len(sessions_data)
