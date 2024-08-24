@@ -14,7 +14,6 @@ from kepost.workflows.diffusion.descriptions.tensor_estimation import (
     TENSOR_DERIVED_METRICS,
 )
 from kepost.workflows.diffusion.procedures import (
-    init_connectome_wf,
     init_coregistration_wf,
     init_parcellations_wf,
     init_qc_wf,
@@ -388,45 +387,6 @@ def init_diffusion_wf(
                         "inputnode.t1w_to_dwi_transform",
                     ),
                     ("five_tissue_type", "inputnode.five_tissue_type"),
-                ],
-            ),
-        ]
-    )
-
-    connectome_wf = init_connectome_wf()
-    workflow.connect(
-        [
-            (
-                inputnode,
-                connectome_wf,
-                [
-                    ("base_directory", "inputnode.base_directory"),
-                    ("atlas_name", "inputnode.atlas_name"),
-                ],
-            ),
-            (
-                coregister_wf,
-                connectome_wf,
-                [
-                    (
-                        "outputnode.whole_brain_parcellation",
-                        "inputnode.atlas_nifti",
-                    )
-                ],
-            ),
-            (
-                tractography_wf,
-                connectome_wf,
-                [
-                    (
-                        "outputnode.unsifted_tck",
-                        "inputnode.tracts_unsifted",
-                    ),
-                    (
-                        "outputnode.sifted_tck",
-                        "inputnode.tracts_sifted",
-                    ),
-                    ("outputnode.sift2_weights", "inputnode.tck_weights"),
                 ],
             ),
         ]
