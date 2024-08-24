@@ -84,4 +84,5 @@ def test_mrtrix3_inputnode_fields(mrtrix3_wf):
         "dwi_to_t1w_transform",
         "t1w_reference",
         "max_bval",
+        "wm_mask",
     ]
