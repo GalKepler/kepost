@@ -58,6 +58,23 @@ def estimate_tractography_parameters(
     return stepscale, lenscale_min, lenscale_max
 
 
+def format_algorithm(algorithm: str) -> str:
+    """
+    Format the algorithm name.
+
+    Parameters
+    ----------
+    algorithm : str
+        the algorithm name
+
+    Returns
+    -------
+    str
+        the formatted algorithm name
+    """
+    return algorithm.replace("_", "")
+
+
 def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
     """
     Build the SDC and motion correction workflow.
@@ -240,9 +257,20 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
         ]
     )
 
+    tractography_algorithm = pe.Node(
+        niu.IdentityInterface(fields=["algorithm"]),
+        name="tractography_algorithm",
+    )
+    tractography_algorithm.iterables = (
+        "algorithm",
+        [
+            config.workflow.det_tracking_algorithm,
+            config.workflow.prob_tracking_algorithm,
+        ],
+    )
+
     tractography = pe.Node(
         mrt.Tractography(
-            algorithm=config.workflow.det_tracking_algorithm,
             angle=config.workflow.tracking_max_angle,
             select=config.workflow.n_raw_tracts,
             out_file="tracks.tck",
@@ -298,6 +326,34 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
+                dwi2fod_node,
+                tcksift_node,
+                [
+                    ("wm_odf", "in_fod"),
+                ],
+            ),
+            (coreg_5tt_wf, tcksift_node, [("outputnode.5tt_coreg", "act_file")]),
+            (
+                dwi2fod_node,
+                tcksift2_node,
+                [
+                    ("wm_odf", "in_fod"),
+                ],
+            ),
+            (coreg_5tt_wf, tcksift2_node, [("outputnode.5tt_coreg", "act_file")]),
+        ]
+    )
+
+    workflow.connect(
+        [
+            (
+                tractography_algorithm,
+                tractography,
+                [
+                    ("algorithm", "algorithm"),
+                ],
+            ),
+            (
                 estimate_tracts_parameters_node,
                 tractography,
                 [
@@ -326,28 +382,12 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
-                dwi2fod_node,
-                tcksift_node,
-                [
-                    ("wm_odf", "in_fod"),
-                ],
-            ),
-            (coreg_5tt_wf, tcksift_node, [("outputnode.5tt_coreg", "act_file")]),
-            (
                 tractography,
                 tcksift_node,
                 [
                     ("out_file", "in_file"),
                 ],
             ),
-            (
-                dwi2fod_node,
-                tcksift2_node,
-                [
-                    ("wm_odf", "in_fod"),
-                ],
-            ),
-            (coreg_5tt_wf, tcksift2_node, [("outputnode.5tt_coreg", "act_file")]),
             (
                 tractography,
                 tcksift2_node,
@@ -395,12 +435,20 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
         ]
     )
 
+    format_algorithm_node = pe.Node(
+        niu.Function(
+            input_names=["algorithm"],
+            output_names=["algorithm"],
+            function=format_algorithm,
+        ),
+        name="format_algorithm",
+    )
+
     ds_tracts = pe.Node(
         DerivativesDataSink(
             suffix="tracts",
             extension=".tck",
             desc="unfiltered",
-            reconstruction="mrtrix3",
         ),
         name="ds_unfiltered_tracts",
         run_without_submitting=True,
@@ -410,7 +458,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="tracts",
             extension=".tck",
             desc="SIFT",
-            reconstruction="mrtrix3",
         ),
         name="ds_sifted_tracts",
         run_without_submitting=True,
@@ -420,7 +467,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="weights",
             extension=".txt",
             desc="SIFT2",
-            reconstruction="mrtrix3",
         ),
         name="ds_sift2_txt",
         run_without_submitting=True,
@@ -430,7 +476,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             label="wm",
             extension=".nii.gz",
             desc="FOD",
-            reconstruction="mrtrix3",
             suffix="dwiref",
         ),
         name="ds_wm_fod",
@@ -441,7 +486,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             label="gm",
             extension=".nii.gz",
             desc="FOD",
-            reconstruction="mrtrix3",
             suffix="dwiref",
         ),
         name="ds_gm_fod",
@@ -452,7 +496,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             label="csf",
             extension=".nii.gz",
             desc="FOD",
-            reconstruction="mrtrix3",
             suffix="dwiref",
         ),
         name="ds_csf_fod",
@@ -466,6 +509,20 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                tractography_algorithm,
+                format_algorithm_node,
+                [
+                    ("algorithm", "algorithm"),
+                ],
+            ),
+            (
+                format_algorithm_node,
+                ds_tracts,
+                [
+                    ("algorithm", "reconstruction"),
                 ],
             ),
             (
@@ -484,6 +541,13 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
+                format_algorithm_node,
+                ds_sifted_tracts,
+                [
+                    ("algorithm", "reconstruction"),
+                ],
+            ),
+            (
                 tcksift_node,
                 ds_sifted_tracts,
                 [
@@ -496,6 +560,13 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_nifti", "source_file"),
+                ],
+            ),
+            (
+                format_algorithm_node,
+                ds_sift2_txt,
+                [
+                    ("algorithm", "reconstruction"),
                 ],
             ),
             (
