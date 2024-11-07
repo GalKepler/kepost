@@ -92,6 +92,23 @@ def iqrmean(data: np.ndarray) -> float:
     return np.nanmean(data[(data >= q25) & (data <= q75)])
 
 
+def n_voxels(data: np.ndarray) -> int:
+    """
+    Number of voxels
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Input data.
+
+    Returns
+    -------
+    int
+        Number of voxels
+    """
+    return np.nansum(~np.isnan(data))
+
+
 AVAILABLE_MEASURES = {
     "zfmean": zfmean,
     "madmedian": madmedian,
@@ -99,4 +116,6 @@ AVAILABLE_MEASURES = {
     "iqrmean": iqrmean,
     "nanmean": np.nanmean,
     "nanmedian": np.nanmedian,
+    "nanstd": np.nanstd,
+    "n_voxels": n_voxels,
 }

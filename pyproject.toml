@@ -1,7 +1,7 @@
 
 [tool.poetry]
 name = "kepost"
-version = "0.2.1"
+version = "0.2.2"
 description = "Post-processing for dMRI derivatives of the Strauss Neuroplasticity Brain Bank (SNBB)"
 readme = "README.rst"
 authors = ["Gal Kepler <galkepler@gmail.com>"]
@@ -26,6 +26,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = "^3.10"
 nipype = {git = "https://github.com/nipy/nipype.git"}
+# nipype = "^1.8.6"
 templateflow = "^23.0.0"
 psutil = "^5.9.5"
 niworkflows = "^1.8.1"
