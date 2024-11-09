@@ -32,7 +32,7 @@ def generate_schaefer_dict() -> dict:
             }
             schaefer_dict[f"schaefer2018tian2020_{n_regions}_{n_networks}"] = {
                 "nifti": parent
-                / f"schaefer2018tian20208/MNI152/space-MNI152_atlas-schaefer2018_res-1mm_den-{n_regions}_div-{n_networks}networks_dseg.nii.gz",
+                / f"schaefer2018tian2020/MNI152/space-MNI152_atlas-schaefer2018_res-1mm_den-{n_regions}_div-{n_networks}networks_dseg.nii.gz",
                 "description_file": parent
                 / f"schaefer2018tian2020/MNI152/space-MNI152_atlas-schaefer2018_res-1mm_den-{n_regions}_div-{n_networks}networks_dseg.csv",
                 "region_col": "index",
