@@ -26,8 +26,8 @@ def plot_n_voxels_in_atlas(wholebrain: str, gm_cropped: str):
         atlas_name = atlas_name_part[0].replace("_atlas_name_", "")
     _, description, region_col, index_col = get_atlas_properties(atlas_name)
     df = pd.read_csv(description, index_col=index_col)
-    wb = nib.load(wholebrain).get_fdata()  # type: ignore[attr-defined]
-    gm = nib.load(gm_cropped).get_fdata()  # type: ignore[attr-defined]
+    wb = nib.load(wholebrain).get_fdata().astype(int)  # type: ignore[attr-defined]
+    gm = nib.load(gm_cropped).get_fdata().astype(int)  # type: ignore[attr-defined]
     for column, data in zip(["Uncropped", "GM-cropped"], [wb, gm]):
         for i, row in df.iterrows():
             roi = row[region_col]
