@@ -179,20 +179,6 @@ def init_coregistration_wf(
                 ],
             ),
             (
-                apply_transforms_wholebrain,
-                outputnode,
-                [
-                    ("out_file", "whole_brain_parcellation"),
-                ],
-            ),
-            (
-                apply_transforms_gm_cropped,
-                outputnode,
-                [
-                    ("out_file", "gm_cropped_parcellation"),
-                ],
-            ),
-            (
                 apply_transforms_t1w,
                 outputnode,
                 [
@@ -229,10 +215,17 @@ def init_coregistration_wf(
                 ],
             ),
             (
-                outputnode,
+                apply_transforms_wholebrain,
                 ds_wholebrain,
                 [
-                    ("whole_brain_parcellation", "in_file"),
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                ds_wholebrain,
+                outputnode,
+                [
+                    ("out_file", "whole_brain_parcellation"),
                 ],
             ),
             (
@@ -257,18 +250,25 @@ def init_coregistration_wf(
                 ],
             ),
             (
+                apply_transforms_gm_cropped,
+                ds_gm_cropped,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                ds_gm_cropped,
+                outputnode,
+                [
+                    ("out_file", "gm_cropped_parcellation"),
+                ],
+            ),
+            (
                 inputnode,
                 ds_gm_cropped,
                 [
                     ("base_directory", "base_directory"),
                     ("dwi_reference", "source_file"),
-                ],
-            ),
-            (
-                outputnode,
-                ds_gm_cropped,
-                [
-                    ("gm_cropped_parcellation", "in_file"),
                 ],
             ),
             (
