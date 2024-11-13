@@ -1,155 +1,263 @@
 ,index,name,base_name,Label Name,network,component,hemisphere
-0,1.0,7Networks_LH_Vis_1,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-1,2.0,7Networks_LH_Vis_2,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-2,3.0,7Networks_LH_Vis_3,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-3,4.0,7Networks_LH_Vis_4,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-4,5.0,7Networks_LH_Vis_5,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-5,6.0,7Networks_LH_Vis_6,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-6,7.0,7Networks_LH_Vis_7,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-7,8.0,7Networks_LH_Vis_8,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-8,9.0,7Networks_LH_Vis_9,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
-9,10.0,7Networks_LH_SomMot_1,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
-10,11.0,7Networks_LH_SomMot_2,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
-11,12.0,7Networks_LH_SomMot_3,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
-12,13.0,7Networks_LH_SomMot_4,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
-13,14.0,7Networks_LH_SomMot_5,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
-14,15.0,7Networks_LH_SomMot_6,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
-15,16.0,7Networks_LH_DorsAttn_Post_1,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
-16,17.0,7Networks_LH_DorsAttn_Post_2,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
-17,18.0,7Networks_LH_DorsAttn_Post_3,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
-18,19.0,7Networks_LH_DorsAttn_Post_4,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
-19,20.0,7Networks_LH_DorsAttn_Post_5,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
-20,21.0,7Networks_LH_DorsAttn_Post_6,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
-21,22.0,7Networks_LH_DorsAttn_PrCv_1,7networks_lh_dorsattn_prcv,7Networks_LH_DorsAttn_PrCv,dorsal attention,precentral ventral,L
-22,23.0,7Networks_LH_DorsAttn_FEF_1,7networks_lh_dorsattn_fef,7Networks_LH_DorsAttn_FEF,dorsal attention,frontal eye fields,L
-23,24.0,7Networks_LH_SalVentAttn_ParOper_1,7networks_lh_salventattn_paroper,7Networks_LH_SalVentAttn_ParOper,salience / ventral attention,parietal operculum,L
-24,25.0,7Networks_LH_SalVentAttn_FrOperIns_1,7networks_lh_salventattn_froperins,7Networks_LH_SalVentAttn_FrOperIns,salience / ventral attention,frontal operculum insula,L
-25,26.0,7Networks_LH_SalVentAttn_FrOperIns_2,7networks_lh_salventattn_froperins,7Networks_LH_SalVentAttn_FrOperIns,salience / ventral attention,frontal operculum insula,L
-26,27.0,7Networks_LH_SalVentAttn_PFCl_1,7networks_lh_salventattn_pfcl,7Networks_LH_SalVentAttn_PFCl,salience / ventral attention,lateral prefrontal cortex,L
-27,28.0,7Networks_LH_SalVentAttn_Med_1,7networks_lh_salventattn_med,7Networks_LH_SalVentAttn_Med,salience / ventral attention,medial,L
-28,29.0,7Networks_LH_SalVentAttn_Med_2,7networks_lh_salventattn_med,7Networks_LH_SalVentAttn_Med,salience / ventral attention,medial,L
-29,30.0,7Networks_LH_SalVentAttn_Med_3,7networks_lh_salventattn_med,7Networks_LH_SalVentAttn_Med,salience / ventral attention,medial,L
-30,31.0,7Networks_LH_Limbic_OFC_1,7networks_lh_limbic_ofc,7Networks_LH_Limbic_OFC,limbic,orbital frontal cortex,L
-31,32.0,7Networks_LH_Limbic_TempPole_1,7networks_lh_limbic_temppole,7Networks_LH_Limbic_TempPole,limbic,temporal pole,L
-32,33.0,7Networks_LH_Limbic_TempPole_2,7networks_lh_limbic_temppole,7Networks_LH_Limbic_TempPole,limbic,temporal pole,L
-33,34.0,7Networks_LH_Cont_Par_1,7networks_lh_cont_par,7Networks_LH_Cont_Par,control,parietal ,L
-34,35.0,7Networks_LH_Cont_PFCl_1,7networks_lh_cont_pfcl,7Networks_LH_Cont_PFCl,control,lateral prefrontal cortex,L
-35,36.0,7Networks_LH_Cont_pCun_1,7networks_lh_cont_pcun,7Networks_LH_Cont_pCun,control,precuneus,L
-36,37.0,7Networks_LH_Cont_Cing_1,7networks_lh_cont_cing,7Networks_LH_Cont_Cing,control,cingulate,L
-37,38.0,7Networks_LH_Default_Temp_1,7networks_lh_default_temp,7Networks_LH_Default_Temp,default,temporal,L
-38,39.0,7Networks_LH_Default_Temp_2,7networks_lh_default_temp,7Networks_LH_Default_Temp,default,temporal,L
-39,40.0,7Networks_LH_Default_Par_1,7networks_lh_default_par,7Networks_LH_Default_Par,default,parietal,L
-40,41.0,7Networks_LH_Default_Par_2,7networks_lh_default_par,7Networks_LH_Default_Par,default,parietal,L
-41,42.0,7Networks_LH_Default_PFC_1,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
-42,43.0,7Networks_LH_Default_PFC_2,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
-43,44.0,7Networks_LH_Default_PFC_3,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
-44,45.0,7Networks_LH_Default_PFC_4,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
-45,46.0,7Networks_LH_Default_PFC_5,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
-46,47.0,7Networks_LH_Default_PFC_6,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
-47,48.0,7Networks_LH_Default_PFC_7,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
-48,49.0,7Networks_LH_Default_pCunPCC_1,7networks_lh_default_pcunpcc,7Networks_LH_Default_pCunPCC,default,precuneus posterior cingulate cortex,L
-49,50.0,7Networks_LH_Default_pCunPCC_2,7networks_lh_default_pcunpcc,7Networks_LH_Default_pCunPCC,default,precuneus posterior cingulate cortex,L
-50,51.0,7Networks_RH_Vis_1,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-51,52.0,7Networks_RH_Vis_2,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-52,53.0,7Networks_RH_Vis_3,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-53,54.0,7Networks_RH_Vis_4,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-54,55.0,7Networks_RH_Vis_5,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-55,56.0,7Networks_RH_Vis_6,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-56,57.0,7Networks_RH_Vis_7,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-57,58.0,7Networks_RH_Vis_8,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
-58,59.0,7Networks_RH_SomMot_1,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-59,60.0,7Networks_RH_SomMot_2,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-60,61.0,7Networks_RH_SomMot_3,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-61,62.0,7Networks_RH_SomMot_4,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-62,63.0,7Networks_RH_SomMot_5,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-63,64.0,7Networks_RH_SomMot_6,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-64,65.0,7Networks_RH_SomMot_7,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-65,66.0,7Networks_RH_SomMot_8,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
-66,67.0,7Networks_RH_DorsAttn_Post_1,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
-67,68.0,7Networks_RH_DorsAttn_Post_2,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
-68,69.0,7Networks_RH_DorsAttn_Post_3,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
-69,70.0,7Networks_RH_DorsAttn_Post_4,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
-70,71.0,7Networks_RH_DorsAttn_Post_5,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
-71,72.0,7Networks_RH_DorsAttn_PrCv_1,7networks_rh_dorsattn_prcv,7Networks_RH_DorsAttn_PrCv,dorsal attention,precentral ventral,R
-72,73.0,7Networks_RH_DorsAttn_FEF_1,7networks_rh_dorsattn_fef,7Networks_RH_DorsAttn_FEF,dorsal attention,frontal eye fields,R
-73,74.0,7Networks_RH_SalVentAttn_TempOccPar_1,7networks_rh_salventattn_tempoccpar,7Networks_RH_SalVentAttn_TempOccPar,salience / ventral attention,temporal occipital parietal,R
-74,75.0,7Networks_RH_SalVentAttn_TempOccPar_2,7networks_rh_salventattn_tempoccpar,7Networks_RH_SalVentAttn_TempOccPar,salience / ventral attention,temporal occipital parietal,R
-75,76.0,7Networks_RH_SalVentAttn_FrOperIns_1,7networks_rh_salventattn_froperins,7Networks_RH_SalVentAttn_FrOperIns,salience / ventral attention,frontal operculum insula,R
-76,77.0,7Networks_RH_SalVentAttn_Med_1,7networks_rh_salventattn_med,7Networks_RH_SalVentAttn_Med,salience / ventral attention,medial,R
-77,78.0,7Networks_RH_SalVentAttn_Med_2,7networks_rh_salventattn_med,7Networks_RH_SalVentAttn_Med,salience / ventral attention,medial,R
-78,79.0,7Networks_RH_Limbic_OFC_1,7networks_rh_limbic_ofc,7Networks_RH_Limbic_OFC,limbic,orbital frontal cortex,R
-79,80.0,7Networks_RH_Limbic_TempPole_1,7networks_rh_limbic_temppole,7Networks_RH_Limbic_TempPole,limbic,temporal pole,R
-80,81.0,7Networks_RH_Cont_Par_1,7networks_rh_cont_par,7Networks_RH_Cont_Par,control,parietal,R
-81,82.0,7Networks_RH_Cont_Par_2,7networks_rh_cont_par,7Networks_RH_Cont_Par,control,parietal,R
-82,83.0,7Networks_RH_Cont_PFCl_1,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
-83,84.0,7Networks_RH_Cont_PFCl_2,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
-84,85.0,7Networks_RH_Cont_PFCl_3,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
-85,86.0,7Networks_RH_Cont_PFCl_4,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
-86,87.0,7Networks_RH_Cont_Cing_1,7networks_rh_cont_cing,7Networks_RH_Cont_Cing,control,cingulate,R
-87,88.0,7Networks_RH_Cont_PFCmp_1,7networks_rh_cont_pfcmp,7Networks_RH_Cont_PFCmp,control,medial posterior prefrontal cortex,R
-88,89.0,7Networks_RH_Cont_pCun_1,7networks_rh_cont_pcun,7Networks_RH_Cont_pCun,control,precuneus,R
-89,90.0,7Networks_RH_Default_Par_1,7networks_rh_default_par,7Networks_RH_Default_Par,default,parietal,R
-90,91.0,7Networks_RH_Default_Temp_1,7networks_rh_default_temp,7Networks_RH_Default_Temp,default,temporal,R
-91,92.0,7Networks_RH_Default_Temp_2,7networks_rh_default_temp,7Networks_RH_Default_Temp,default,temporal,R
-92,93.0,7Networks_RH_Default_Temp_3,7networks_rh_default_temp,7Networks_RH_Default_Temp,default,temporal,R
-93,94.0,7Networks_RH_Default_PFCv_1,7networks_rh_default_pfcv,7Networks_RH_Default_PFCv,default,ventral prefrontal cortex,R
-94,95.0,7Networks_RH_Default_PFCv_2,7networks_rh_default_pfcv,7Networks_RH_Default_PFCv,default,ventral prefrontal cortex,R
-95,96.0,7Networks_RH_Default_PFCdPFCm_1,7networks_rh_default_pfcdpfcm,7Networks_RH_Default_PFCdPFCm,default,dorsal prefrontal cortex medial prefrontal cortex,R
-96,97.0,7Networks_RH_Default_PFCdPFCm_2,7networks_rh_default_pfcdpfcm,7Networks_RH_Default_PFCdPFCm,default,dorsal prefrontal cortex medial prefrontal cortex,R
-97,98.0,7Networks_RH_Default_PFCdPFCm_3,7networks_rh_default_pfcdpfcm,7Networks_RH_Default_PFCdPFCm,default,dorsal prefrontal cortex medial prefrontal cortex,R
-98,99.0,7Networks_RH_Default_pCunPCC_1,7networks_rh_default_pcunpcc,7Networks_RH_Default_pCunPCC,default,precuneus posterior cingulate cortex,R
-99,100.0,7Networks_RH_Default_pCunPCC_2,7networks_rh_default_pcunpcc,7Networks_RH_Default_pCunPCC,default,precuneus posterior cingulate cortex,R
-0,101.0,HIP-head-m1-rh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,R
-1,102.0,HIP-head-m2-rh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,R
-2,103.0,THA-VAip-rh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,R
-3,104.0,THA-VAia-rh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,R
-4,105.0,HIP-head-l-rh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,R
-5,106.0,HIP-body-rh,HIP-body,Hippocampus body,subcortex,Hippocampus body,R
-6,107.0,HIP-tail-rh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,R
-7,108.0,THA-VPm-rh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,R
-8,109.0,THA-VPl-rh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,R
-9,110.0,THA-VAs-rh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,R
-10,111.0,THA-DAm-rh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,R
-11,112.0,THA-DAl-rh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,R
-12,113.0,PUT-VA-rh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,R
-13,114.0,PUT-DA-rh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,R
-14,115.0,PUT-VP-rh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,R
-15,116.0,PUT-DP-rh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,R
-16,117.0,CAU-VA-rh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,R
-17,118.0,CAU-DA-rh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,R
-18,119.0,CAU-body-rh,CAU-body,Caudate body,subcortex,Caudate body,R
-19,120.0,CAU-tail-rh,CAU-tail,Caudate tail,subcortex,Caudate tail,R
-20,121.0,lAMY-rh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,R
-21,122.0,mAMY-rh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,R
-22,123.0,THA-DP-rh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,R
-23,124.0,NAc-shell-rh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,R
-24,125.0,NAc-core-rh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,R
-25,126.0,pGP-rh,pGP,"Pallidum, posterior part",subcortex,Pallidum,R
-26,127.0,aGP-rh,aGP,"Pallidum, anterior part",subcortex,Pallidum,R
-27,128.0,HIP-head-m1-lh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,L
-28,129.0,HIP-head-m2-lh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,L
-29,130.0,THA-VAip-lh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,L
-30,131.0,THA-VAia-lh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,L
-31,132.0,HIP-head-l-lh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,L
-32,133.0,HIP-body-lh,HIP-body,Hippocampus body,subcortex,Hippocampus body,L
-33,134.0,HIP-tail-lh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,L
-34,135.0,THA-VPm-lh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,L
-35,136.0,THA-VPl-lh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,L
-36,137.0,THA-VAs-lh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,L
-37,138.0,THA-DAm-lh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,L
-38,139.0,THA-DAl-lh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,L
-39,140.0,PUT-VA-lh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,L
-40,141.0,PUT-DA-lh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,L
-41,142.0,PUT-VP-lh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,L
-42,143.0,PUT-DP-lh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,L
-43,144.0,CAU-VA-lh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,L
-44,145.0,CAU-DA-lh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,L
-45,146.0,CAU-body-lh,CAU-body,Caudate body,subcortex,Caudate body,L
-46,147.0,CAU-tail-lh,CAU-tail,Caudate tail,subcortex,Caudate tail,L
-47,148.0,lAMY-lh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,L
-48,149.0,mAMY-lh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,L
-49,150.0,THA-DP-lh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,L
-50,151.0,NAc-shell-lh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,L
-51,152.0,NAc-core-lh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,L
-52,153.0,pGP-lh,pGP,"Pallidum, posterior part",subcortex,Pallidum,L
-53,154.0,aGP-lh,aGP,"Pallidum, anterior part",subcortex,Pallidum,L
+0,1,7Networks_LH_Vis_1,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+1,2,7Networks_LH_Vis_2,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+2,3,7Networks_LH_Vis_3,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+3,4,7Networks_LH_Vis_4,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+4,5,7Networks_LH_Vis_5,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+5,6,7Networks_LH_Vis_6,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+6,7,7Networks_LH_Vis_7,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+7,8,7Networks_LH_Vis_8,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+8,9,7Networks_LH_Vis_9,7networks_lh_vis,7Networks_LH_Vis,visual,visual,L
+9,10,7Networks_LH_SomMot_1,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
+10,11,7Networks_LH_SomMot_2,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
+11,12,7Networks_LH_SomMot_3,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
+12,13,7Networks_LH_SomMot_4,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
+13,14,7Networks_LH_SomMot_5,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
+14,15,7Networks_LH_SomMot_6,7networks_lh_sommot,7Networks_LH_SomMot,somatomotor,somatomotor,L
+15,16,7Networks_LH_DorsAttn_Post_1,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
+16,17,7Networks_LH_DorsAttn_Post_2,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
+17,18,7Networks_LH_DorsAttn_Post_3,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
+18,19,7Networks_LH_DorsAttn_Post_4,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
+19,20,7Networks_LH_DorsAttn_Post_5,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
+20,21,7Networks_LH_DorsAttn_Post_6,7networks_lh_dorsattn_post,7Networks_LH_DorsAttn_Post,dorsal attention,posterior,L
+21,22,7Networks_LH_DorsAttn_PrCv_1,7networks_lh_dorsattn_prcv,7Networks_LH_DorsAttn_PrCv,dorsal attention,precentral ventral,L
+22,23,7Networks_LH_DorsAttn_FEF_1,7networks_lh_dorsattn_fef,7Networks_LH_DorsAttn_FEF,dorsal attention,frontal eye fields,L
+23,24,7Networks_LH_SalVentAttn_ParOper_1,7networks_lh_salventattn_paroper,7Networks_LH_SalVentAttn_ParOper,salience / ventral attention,parietal operculum,L
+24,25,7Networks_LH_SalVentAttn_FrOperIns_1,7networks_lh_salventattn_froperins,7Networks_LH_SalVentAttn_FrOperIns,salience / ventral attention,frontal operculum insula,L
+25,26,7Networks_LH_SalVentAttn_FrOperIns_2,7networks_lh_salventattn_froperins,7Networks_LH_SalVentAttn_FrOperIns,salience / ventral attention,frontal operculum insula,L
+26,27,7Networks_LH_SalVentAttn_PFCl_1,7networks_lh_salventattn_pfcl,7Networks_LH_SalVentAttn_PFCl,salience / ventral attention,lateral prefrontal cortex,L
+27,28,7Networks_LH_SalVentAttn_Med_1,7networks_lh_salventattn_med,7Networks_LH_SalVentAttn_Med,salience / ventral attention,medial,L
+28,29,7Networks_LH_SalVentAttn_Med_2,7networks_lh_salventattn_med,7Networks_LH_SalVentAttn_Med,salience / ventral attention,medial,L
+29,30,7Networks_LH_SalVentAttn_Med_3,7networks_lh_salventattn_med,7Networks_LH_SalVentAttn_Med,salience / ventral attention,medial,L
+30,31,7Networks_LH_Limbic_OFC_1,7networks_lh_limbic_ofc,7Networks_LH_Limbic_OFC,limbic,orbital frontal cortex,L
+31,32,7Networks_LH_Limbic_TempPole_1,7networks_lh_limbic_temppole,7Networks_LH_Limbic_TempPole,limbic,temporal pole,L
+32,33,7Networks_LH_Limbic_TempPole_2,7networks_lh_limbic_temppole,7Networks_LH_Limbic_TempPole,limbic,temporal pole,L
+33,34,7Networks_LH_Cont_Par_1,7networks_lh_cont_par,7Networks_LH_Cont_Par,control,parietal ,L
+34,35,7Networks_LH_Cont_PFCl_1,7networks_lh_cont_pfcl,7Networks_LH_Cont_PFCl,control,lateral prefrontal cortex,L
+35,36,7Networks_LH_Cont_pCun_1,7networks_lh_cont_pcun,7Networks_LH_Cont_pCun,control,precuneus,L
+36,37,7Networks_LH_Cont_Cing_1,7networks_lh_cont_cing,7Networks_LH_Cont_Cing,control,cingulate,L
+37,38,7Networks_LH_Default_Temp_1,7networks_lh_default_temp,7Networks_LH_Default_Temp,default,temporal,L
+38,39,7Networks_LH_Default_Temp_2,7networks_lh_default_temp,7Networks_LH_Default_Temp,default,temporal,L
+39,40,7Networks_LH_Default_Par_1,7networks_lh_default_par,7Networks_LH_Default_Par,default,parietal,L
+40,41,7Networks_LH_Default_Par_2,7networks_lh_default_par,7Networks_LH_Default_Par,default,parietal,L
+41,42,7Networks_LH_Default_PFC_1,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
+42,43,7Networks_LH_Default_PFC_2,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
+43,44,7Networks_LH_Default_PFC_3,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
+44,45,7Networks_LH_Default_PFC_4,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
+45,46,7Networks_LH_Default_PFC_5,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
+46,47,7Networks_LH_Default_PFC_6,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
+47,48,7Networks_LH_Default_PFC_7,7networks_lh_default_pfc,7Networks_LH_Default_PFC,default,prefrontal cortex,L
+48,49,7Networks_LH_Default_pCunPCC_1,7networks_lh_default_pcunpcc,7Networks_LH_Default_pCunPCC,default,precuneus posterior cingulate cortex,L
+49,50,7Networks_LH_Default_pCunPCC_2,7networks_lh_default_pcunpcc,7Networks_LH_Default_pCunPCC,default,precuneus posterior cingulate cortex,L
+50,51,7Networks_RH_Vis_1,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+51,52,7Networks_RH_Vis_2,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+52,53,7Networks_RH_Vis_3,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+53,54,7Networks_RH_Vis_4,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+54,55,7Networks_RH_Vis_5,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+55,56,7Networks_RH_Vis_6,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+56,57,7Networks_RH_Vis_7,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+57,58,7Networks_RH_Vis_8,7networks_rh_vis,7Networks_RH_Vis,visual,visual,R
+58,59,7Networks_RH_SomMot_1,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+59,60,7Networks_RH_SomMot_2,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+60,61,7Networks_RH_SomMot_3,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+61,62,7Networks_RH_SomMot_4,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+62,63,7Networks_RH_SomMot_5,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+63,64,7Networks_RH_SomMot_6,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+64,65,7Networks_RH_SomMot_7,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+65,66,7Networks_RH_SomMot_8,7networks_rh_sommot,7Networks_RH_SomMot,somatomotor,somatomotor,R
+66,67,7Networks_RH_DorsAttn_Post_1,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
+67,68,7Networks_RH_DorsAttn_Post_2,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
+68,69,7Networks_RH_DorsAttn_Post_3,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
+69,70,7Networks_RH_DorsAttn_Post_4,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
+70,71,7Networks_RH_DorsAttn_Post_5,7networks_rh_dorsattn_post,7Networks_RH_DorsAttn_Post,dorsal attention,posterior,R
+71,72,7Networks_RH_DorsAttn_PrCv_1,7networks_rh_dorsattn_prcv,7Networks_RH_DorsAttn_PrCv,dorsal attention,precentral ventral,R
+72,73,7Networks_RH_DorsAttn_FEF_1,7networks_rh_dorsattn_fef,7Networks_RH_DorsAttn_FEF,dorsal attention,frontal eye fields,R
+73,74,7Networks_RH_SalVentAttn_TempOccPar_1,7networks_rh_salventattn_tempoccpar,7Networks_RH_SalVentAttn_TempOccPar,salience / ventral attention,temporal occipital parietal,R
+74,75,7Networks_RH_SalVentAttn_TempOccPar_2,7networks_rh_salventattn_tempoccpar,7Networks_RH_SalVentAttn_TempOccPar,salience / ventral attention,temporal occipital parietal,R
+75,76,7Networks_RH_SalVentAttn_FrOperIns_1,7networks_rh_salventattn_froperins,7Networks_RH_SalVentAttn_FrOperIns,salience / ventral attention,frontal operculum insula,R
+76,77,7Networks_RH_SalVentAttn_Med_1,7networks_rh_salventattn_med,7Networks_RH_SalVentAttn_Med,salience / ventral attention,medial,R
+77,78,7Networks_RH_SalVentAttn_Med_2,7networks_rh_salventattn_med,7Networks_RH_SalVentAttn_Med,salience / ventral attention,medial,R
+78,79,7Networks_RH_Limbic_OFC_1,7networks_rh_limbic_ofc,7Networks_RH_Limbic_OFC,limbic,orbital frontal cortex,R
+79,80,7Networks_RH_Limbic_TempPole_1,7networks_rh_limbic_temppole,7Networks_RH_Limbic_TempPole,limbic,temporal pole,R
+80,81,7Networks_RH_Cont_Par_1,7networks_rh_cont_par,7Networks_RH_Cont_Par,control,parietal,R
+81,82,7Networks_RH_Cont_Par_2,7networks_rh_cont_par,7Networks_RH_Cont_Par,control,parietal,R
+82,83,7Networks_RH_Cont_PFCl_1,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
+83,84,7Networks_RH_Cont_PFCl_2,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
+84,85,7Networks_RH_Cont_PFCl_3,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
+85,86,7Networks_RH_Cont_PFCl_4,7networks_rh_cont_pfcl,7Networks_RH_Cont_PFCl,control,lateral prefrontal cortex,R
+86,87,7Networks_RH_Cont_Cing_1,7networks_rh_cont_cing,7Networks_RH_Cont_Cing,control,cingulate,R
+87,88,7Networks_RH_Cont_PFCmp_1,7networks_rh_cont_pfcmp,7Networks_RH_Cont_PFCmp,control,medial posterior prefrontal cortex,R
+88,89,7Networks_RH_Cont_pCun_1,7networks_rh_cont_pcun,7Networks_RH_Cont_pCun,control,precuneus,R
+89,90,7Networks_RH_Default_Par_1,7networks_rh_default_par,7Networks_RH_Default_Par,default,parietal,R
+90,91,7Networks_RH_Default_Temp_1,7networks_rh_default_temp,7Networks_RH_Default_Temp,default,temporal,R
+91,92,7Networks_RH_Default_Temp_2,7networks_rh_default_temp,7Networks_RH_Default_Temp,default,temporal,R
+92,93,7Networks_RH_Default_Temp_3,7networks_rh_default_temp,7Networks_RH_Default_Temp,default,temporal,R
+93,94,7Networks_RH_Default_PFCv_1,7networks_rh_default_pfcv,7Networks_RH_Default_PFCv,default,ventral prefrontal cortex,R
+94,95,7Networks_RH_Default_PFCv_2,7networks_rh_default_pfcv,7Networks_RH_Default_PFCv,default,ventral prefrontal cortex,R
+95,96,7Networks_RH_Default_PFCdPFCm_1,7networks_rh_default_pfcdpfcm,7Networks_RH_Default_PFCdPFCm,default,dorsal prefrontal cortex medial prefrontal cortex,R
+96,97,7Networks_RH_Default_PFCdPFCm_2,7networks_rh_default_pfcdpfcm,7Networks_RH_Default_PFCdPFCm,default,dorsal prefrontal cortex medial prefrontal cortex,R
+97,98,7Networks_RH_Default_PFCdPFCm_3,7networks_rh_default_pfcdpfcm,7Networks_RH_Default_PFCdPFCm,default,dorsal prefrontal cortex medial prefrontal cortex,R
+98,99,7Networks_RH_Default_pCunPCC_1,7networks_rh_default_pcunpcc,7Networks_RH_Default_pCunPCC,default,precuneus posterior cingulate cortex,R
+99,100,7Networks_RH_Default_pCunPCC_2,7networks_rh_default_pcunpcc,7Networks_RH_Default_pCunPCC,default,precuneus posterior cingulate cortex,R
+100,101,HIP-head-m1-rh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,R
+101,102,HIP-head-m2-rh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,R
+102,103,THA-VAip-rh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,R
+103,104,THA-VAia-rh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,R
+104,105,HIP-head-l-rh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,R
+105,106,HIP-body-rh,HIP-body,Hippocampus body,subcortex,Hippocampus body,R
+106,107,HIP-tail-rh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,R
+107,108,THA-VPm-rh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,R
+108,109,THA-VPl-rh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,R
+109,110,THA-VAs-rh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,R
+110,111,THA-DAm-rh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,R
+111,112,THA-DAl-rh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,R
+112,113,PUT-VA-rh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,R
+113,114,PUT-DA-rh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,R
+114,115,PUT-VP-rh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,R
+115,116,PUT-DP-rh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,R
+116,117,CAU-VA-rh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,R
+117,118,CAU-DA-rh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,R
+118,119,CAU-body-rh,CAU-body,Caudate body,subcortex,Caudate body,R
+119,120,CAU-tail-rh,CAU-tail,Caudate tail,subcortex,Caudate tail,R
+120,121,lAMY-rh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,R
+121,122,mAMY-rh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,R
+122,123,THA-DP-rh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,R
+123,124,NAc-shell-rh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,R
+124,125,NAc-core-rh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,R
+125,126,pGP-rh,pGP,"Pallidum, posterior part",subcortex,Pallidum,R
+126,127,aGP-rh,aGP,"Pallidum, anterior part",subcortex,Pallidum,R
+127,128,HIP-head-m1-lh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,L
+128,129,HIP-head-m2-lh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,L
+129,130,THA-VAip-lh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,L
+130,131,THA-VAia-lh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,L
+131,132,HIP-head-l-lh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,L
+132,133,HIP-body-lh,HIP-body,Hippocampus body,subcortex,Hippocampus body,L
+133,134,HIP-tail-lh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,L
+134,135,THA-VPm-lh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,L
+135,136,THA-VPl-lh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,L
+136,137,THA-VAs-lh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,L
+137,138,THA-DAm-lh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,L
+138,139,THA-DAl-lh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,L
+139,140,PUT-VA-lh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,L
+140,141,PUT-DA-lh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,L
+141,142,PUT-VP-lh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,L
+142,143,PUT-DP-lh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,L
+143,144,CAU-VA-lh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,L
+144,145,CAU-DA-lh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,L
+145,146,CAU-body-lh,CAU-body,Caudate body,subcortex,Caudate body,L
+146,147,CAU-tail-lh,CAU-tail,Caudate tail,subcortex,Caudate tail,L
+147,148,lAMY-lh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,L
+148,149,mAMY-lh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,L
+149,150,THA-DP-lh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,L
+150,151,NAc-shell-lh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,L
+151,152,NAc-core-lh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,L
+152,153,pGP-lh,pGP,"Pallidum, posterior part",subcortex,Pallidum,L
+153,154,aGP-lh,aGP,"Pallidum, anterior part",subcortex,Pallidum,L
+154,101,HIP-head-m1-rh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,R
+155,102,HIP-head-m2-rh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,R
+156,103,THA-VAip-rh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,R
+157,104,THA-VAia-rh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,R
+158,105,HIP-head-l-rh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,R
+159,106,HIP-body-rh,HIP-body,Hippocampus body,subcortex,Hippocampus body,R
+160,107,HIP-tail-rh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,R
+161,108,THA-VPm-rh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,R
+162,109,THA-VPl-rh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,R
+163,110,THA-VAs-rh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,R
+164,111,THA-DAm-rh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,R
+165,112,THA-DAl-rh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,R
+166,113,PUT-VA-rh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,R
+167,114,PUT-DA-rh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,R
+168,115,PUT-VP-rh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,R
+169,116,PUT-DP-rh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,R
+170,117,CAU-VA-rh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,R
+171,118,CAU-DA-rh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,R
+172,119,CAU-body-rh,CAU-body,Caudate body,subcortex,Caudate body,R
+173,120,CAU-tail-rh,CAU-tail,Caudate tail,subcortex,Caudate tail,R
+174,121,lAMY-rh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,R
+175,122,mAMY-rh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,R
+176,123,THA-DP-rh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,R
+177,124,NAc-shell-rh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,R
+178,125,NAc-core-rh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,R
+179,126,pGP-rh,pGP,"Pallidum, posterior part",subcortex,Pallidum,R
+180,127,aGP-rh,aGP,"Pallidum, anterior part",subcortex,Pallidum,R
+181,128,HIP-head-m1-lh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,L
+182,129,HIP-head-m2-lh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,L
+183,130,THA-VAip-lh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,L
+184,131,THA-VAia-lh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,L
+185,132,HIP-head-l-lh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,L
+186,133,HIP-body-lh,HIP-body,Hippocampus body,subcortex,Hippocampus body,L
+187,134,HIP-tail-lh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,L
+188,135,THA-VPm-lh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,L
+189,136,THA-VPl-lh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,L
+190,137,THA-VAs-lh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,L
+191,138,THA-DAm-lh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,L
+192,139,THA-DAl-lh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,L
+193,140,PUT-VA-lh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,L
+194,141,PUT-DA-lh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,L
+195,142,PUT-VP-lh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,L
+196,143,PUT-DP-lh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,L
+197,144,CAU-VA-lh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,L
+198,145,CAU-DA-lh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,L
+199,146,CAU-body-lh,CAU-body,Caudate body,subcortex,Caudate body,L
+200,147,CAU-tail-lh,CAU-tail,Caudate tail,subcortex,Caudate tail,L
+201,148,lAMY-lh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,L
+202,149,mAMY-lh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,L
+203,150,THA-DP-lh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,L
+204,151,NAc-shell-lh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,L
+205,152,NAc-core-lh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,L
+206,153,pGP-lh,pGP,"Pallidum, posterior part",subcortex,Pallidum,L
+207,154,aGP-lh,aGP,"Pallidum, anterior part",subcortex,Pallidum,L
+208,101,HIP-head-m1-rh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,R
+209,102,HIP-head-m2-rh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,R
+210,103,THA-VAip-rh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,R
+211,104,THA-VAia-rh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,R
+212,105,HIP-head-l-rh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,R
+213,106,HIP-body-rh,HIP-body,Hippocampus body,subcortex,Hippocampus body,R
+214,107,HIP-tail-rh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,R
+215,108,THA-VPm-rh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,R
+216,109,THA-VPl-rh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,R
+217,110,THA-VAs-rh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,R
+218,111,THA-DAm-rh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,R
+219,112,THA-DAl-rh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,R
+220,113,PUT-VA-rh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,R
+221,114,PUT-DA-rh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,R
+222,115,PUT-VP-rh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,R
+223,116,PUT-DP-rh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,R
+224,117,CAU-VA-rh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,R
+225,118,CAU-DA-rh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,R
+226,119,CAU-body-rh,CAU-body,Caudate body,subcortex,Caudate body,R
+227,120,CAU-tail-rh,CAU-tail,Caudate tail,subcortex,Caudate tail,R
+228,121,lAMY-rh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,R
+229,122,mAMY-rh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,R
+230,123,THA-DP-rh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,R
+231,124,NAc-shell-rh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,R
+232,125,NAc-core-rh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,R
+233,126,pGP-rh,pGP,"Pallidum, posterior part",subcortex,Pallidum,R
+234,127,aGP-rh,aGP,"Pallidum, anterior part",subcortex,Pallidum,R
+235,128,HIP-head-m1-lh,HIP-head-m1,"Hippocampus head, medial division",subcortex,Hippocampus head,L
+236,129,HIP-head-m2-lh,HIP-head-m2,"Hippocampus head, medial division",subcortex,Hippocampus head,L
+237,130,THA-VAip-lh,THA-VAip,"Thalamus, inferior ventro-anterior part, posterior division",subcortex,Thalamus,L
+238,131,THA-VAia-lh,THA-VAia,"Thalamus, inferior ventro-anterior part, anterior division",subcortex,Thalamus,L
+239,132,HIP-head-l-lh,HIP-head-l,"Hippocampus head, lateral division",subcortex,Hippocampus head,L
+240,133,HIP-body-lh,HIP-body,Hippocampus body,subcortex,Hippocampus body,L
+241,134,HIP-tail-lh,HIP-tail,Hippocampus tail,subcortex,Hippocampus tail,L
+242,135,THA-VPm-lh,THA-VPm,"Thalamus, medial ventro-posterior part",subcortex,Thalamus,L
+243,136,THA-VPl-lh,THA-VPl,"Thalamus, lateral ventro-posterior part",subcortex,Thalamus,L
+244,137,THA-VAs-lh,THA-VAs,"Thalamus, superior ventro-anterior part",subcortex,Thalamus,L
+245,138,THA-DAm-lh,THA-DAm,"Thalamus, medial dorso-anterior part",subcortex,Thalamus,L
+246,139,THA-DAl-lh,THA-DAl,"Thalamus, lateral dorso-anterior part",subcortex,Thalamus,L
+247,140,PUT-VA-lh,PUT-VA,"Putamen, ventro-anterior part",subcortex,Putamen,L
+248,141,PUT-DA-lh,PUT-DA,"Putamen, dorso-anterior part",subcortex,Putamen,L
+249,142,PUT-VP-lh,PUT-VP,"Putamen, ventro-posterior part",subcortex,Putamen,L
+250,143,PUT-DP-lh,PUT-DP,"Putamen, dorso-posterior part",subcortex,Putamen,L
+251,144,CAU-VA-lh,CAU-VA,"Caudate, ventro-anterior part",subcortex,Caudate,L
+252,145,CAU-DA-lh,CAU-DA,"Caudate, dorso-anterior part",subcortex,Caudate,L
+253,146,CAU-body-lh,CAU-body,Caudate body,subcortex,Caudate body,L
+254,147,CAU-tail-lh,CAU-tail,Caudate tail,subcortex,Caudate tail,L
+255,148,lAMY-lh,lAMY,"Amygdala, lateral nucleus",subcortex,Amygdala,L
+256,149,mAMY-lh,mAMY,"Amygdala, medial nucleus",subcortex,Amygdala,L
+257,150,THA-DP-lh,THA-DP,"Thalamus, dorso-posterior part",subcortex,Thalamus,L
+258,151,NAc-shell-lh,NAc-shell,"Nucleus Accumbens, shell",subcortex,Nucleus Accumbens,L
+259,152,NAc-core-lh,NAc-core,"Nucleus Accumbens, core",subcortex,Nucleus Accumbens,L
+260,153,pGP-lh,pGP,"Pallidum, posterior part",subcortex,Pallidum,L
+261,154,aGP-lh,aGP,"Pallidum, anterior part",subcortex,Pallidum,L
