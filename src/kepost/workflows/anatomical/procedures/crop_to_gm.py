@@ -1,4 +1,5 @@
 from nipype.interfaces import utility as niu
+from nipype.interfaces.ants import ApplyTransforms
 from nipype.interfaces.fsl import ApplyMask, Threshold
 from nipype.pipeline import engine as pe
 from niworkflows.engine.workflows import LiterateWorkflow as Workflow
@@ -39,6 +40,14 @@ def init_gm_cropping_wf(
         ),
         name="outputnode",
     )
+    resample_gm = pe.Node(
+        interface=ApplyTransforms(
+            interpolation="NearestNeighbor",
+            dimension=3,
+            transforms="identity",
+        ),
+        name="resample_gm",
+    )
     threshold = pe.Node(
         interface=Threshold(
             direction="below",
@@ -53,10 +62,24 @@ def init_gm_cropping_wf(
         [
             (
                 inputnode,
+                resample_gm,
+                [
+                    ("gm_probabilistic_segmentation", "input_image"),
+                    ("whole_brain_parcellation", "reference_image"),
+                ],
+            ),
+            (
+                inputnode,
                 threshold,
                 [
-                    ("gm_probabilistic_segmentation", "in_file"),
                     ("probseg_threshold", "thresh"),
+                ],
+            ),
+            (
+                resample_gm,
+                threshold,
+                [
+                    ("output_image", "in_file"),
                 ],
             ),
             (
