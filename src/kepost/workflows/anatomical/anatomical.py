@@ -21,6 +21,7 @@ from kepost.workflows.anatomical.procedures import (
     init_gm_cropping_wf,
     init_registration_wf,
 )
+from kepost.workflows.anatomical.procedures.generate_gm import init_gm_from_5tt_wf
 
 
 def init_anatomical_wf(
@@ -161,17 +162,6 @@ def init_anatomical_wf(
     workflow.connect(
         [
             (
-                inputnode,
-                gm_cropping_wf,
-                [
-                    (
-                        "gm_probabilistic_segmentation",
-                        "inputnode.gm_probabilistic_segmentation",
-                    ),
-                    ("probseg_threshold", "inputnode.probseg_threshold"),
-                ],
-            ),
-            (
                 registration_wf,
                 gm_cropping_wf,
                 [
@@ -236,6 +226,33 @@ def init_anatomical_wf(
                 five_tissue_type,
                 outputnode,
                 [("outputnode.five_tissue_type", "five_tissue_type")],
+            ),
+        ]
+    )
+
+    gm_from_five_tissue = init_gm_from_5tt_wf()
+    workflow.connect(
+        [
+            (
+                five_tissue_type,
+                gm_from_five_tissue,
+                [
+                    ("outputnode.five_tissue_type", "inputnode.five_tissue_type"),
+                ],
+            ),
+            (
+                inputnode,
+                gm_cropping_wf,
+                [
+                    ("probseg_threshold", "inputnode.probseg_threshold"),
+                ],
+            ),
+            (
+                gm_from_five_tissue,
+                gm_cropping_wf,
+                [
+                    ("outputnode.gm_mask", "inputnode.gm_probabilistic_segmentation"),
+                ],
             ),
         ]
     )
