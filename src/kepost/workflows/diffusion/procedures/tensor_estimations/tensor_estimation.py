@@ -23,25 +23,6 @@ from kepost.workflows.diffusion.procedures.tensor_estimations.mrtrix3 import (
 )
 
 
-def round_to_num(x, base=50):
-    """
-    Round to the nearest number
-
-    Parameters
-    ----------
-    x : int
-        The number to round
-    base : int, optional
-        The base to round to, by default 50
-
-    Returns
-    -------
-    int
-        The rounded number
-    """
-    return base * round(x / base)
-
-
 def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> tuple[list, int]:
     """
     Detect the shells from the bvals file
@@ -59,6 +40,24 @@ def detect_shells(bvals: str, max_bval: int, bval_tol: int = 50) -> tuple[list, 
         The shells
     """
     import numpy as np
+
+    def round_to_num(x, base=50):
+        """
+        Round to the nearest number
+
+        Parameters
+        ----------
+        x : int
+            The number to round
+        base : int, optional
+            The base to round to, by default 50
+
+        Returns
+        -------
+        int
+            The rounded number
+        """
+        return base * round(x / base)
 
     bvals = np.loadtxt(bvals)  # type: ignore[assignment]
     bvals = np.unique(bvals)  # type: ignore[assignment]
