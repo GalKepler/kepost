@@ -27,10 +27,12 @@ def add_gm_from_probseg(in_file: str, probseg: str, threshold: float = 0.0001):
     import os
 
     import nibabel as nib
+    from nilearn.image import resample_to_img
 
     in_image = nib.load(in_file)
-    in_data = in_image.get_fdata().astype(int)
     probseg_image = nib.load(probseg)
+    probseg_image = resample_to_img(probseg_image, in_image, interpolation="nearest")
+    in_data = in_image.get_fdata().astype(int)
     probseg_data = probseg_image.get_fdata() > threshold
     in_data[probseg_data] = 1
     out_image = nib.Nifti1Image(in_data, in_image.affine, in_image.header)
