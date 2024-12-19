@@ -6,6 +6,39 @@ from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 from kepost.interfaces.mrtrix3 import MRConvert
 
 
+def add_gm_from_probseg(in_file: str, probseg: str, threshold: float = 0.0001):
+    """
+    Add the gm from the probabilistic segmentation.
+
+    Parameters
+    ----------
+    in_file : str
+        The input file.
+    probseg : str
+        The probabilistic segmentation.
+    threshold : float, optional
+        The threshold, by default 0.0001
+
+    Returns
+    -------
+    out_file : str
+        The output file.
+    """
+    import os
+
+    import nibabel as nib
+
+    in_image = nib.load(in_file)
+    in_data = in_image.get_fdata().astype(int)
+    probseg_image = nib.load(probseg)
+    probseg_data = probseg_image.get_fdata() > threshold
+    in_data[probseg_data] = 1
+    out_image = nib.Nifti1Image(in_data, in_image.affine, in_image.header)
+    out_file = os.path.abspath("gm_mask.nii.gz")
+    nib.save(out_image, out_file)
+    return out_file
+
+
 def init_gm_from_5tt_wf(name: str = "gm_from_5tt"):
     """
     Initialize the gm from 5tt workflow.
@@ -23,9 +56,7 @@ def init_gm_from_5tt_wf(name: str = "gm_from_5tt"):
     workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
-            fields=[
-                "five_tissue_type",
-            ]
+            fields=["five_tissue_type", "gm_probabilistic_segmentation"]
         ),
         name="inputnode",
     )
@@ -75,6 +106,15 @@ def init_gm_from_5tt_wf(name: str = "gm_from_5tt"):
             op_string="-add",
         ),
         name="fslmaths_cortical_subcortical_pathological",
+    )
+    # add the gm from the probabilistic segmentation
+    add_gm = pe.Node(
+        niu.Function(
+            input_names=["in_file", "probseg", "threshold"],
+            output_names=["out_file"],
+            function=add_gm_from_probseg,
+        ),
+        name="add_gm_from_probseg",
     )
     workflow.connect(
         [
@@ -136,6 +176,13 @@ def init_gm_from_5tt_wf(name: str = "gm_from_5tt"):
             ),
             (
                 fslmaths_cortical_subcortical_pathological,
+                add_gm,
+                [
+                    ("out_file", "in_file"),
+                ],
+            ),
+            (
+                add_gm,
                 outputnode,
                 [
                     ("out_file", "gm_mask"),
