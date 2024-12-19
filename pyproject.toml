@@ -1,7 +1,7 @@
 
 [tool.poetry]
 name = "kepost"
-version = "0.2.17"
+version = "0.2.18"
 description = "Post-processing for dMRI derivatives of the Strauss Neuroplasticity Brain Bank (SNBB)"
 readme = "README.rst"
 authors = ["Gal Kepler <galkepler@gmail.com>"]
