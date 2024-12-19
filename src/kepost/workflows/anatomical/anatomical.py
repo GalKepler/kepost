@@ -234,6 +234,17 @@ def init_anatomical_wf(
     workflow.connect(
         [
             (
+                inputnode,
+                gm_from_five_tissue,
+                [
+                    (
+                        "gm_probabilistic_segmentation",
+                        "inputnode.gm_probabilistic_segmentation",
+                    ),
+                    ("probseg_threshold", "inputnode.probseg_threshold"),
+                ],
+            ),
+            (
                 five_tissue_type,
                 gm_from_five_tissue,
                 [

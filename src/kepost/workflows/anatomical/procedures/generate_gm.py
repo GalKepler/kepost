@@ -56,7 +56,11 @@ def init_gm_from_5tt_wf(name: str = "gm_from_5tt"):
     workflow = Workflow(name=name)
     inputnode = pe.Node(
         interface=niu.IdentityInterface(
-            fields=["five_tissue_type", "gm_probabilistic_segmentation"]
+            fields=[
+                "five_tissue_type",
+                "gm_probabilistic_segmentation",
+                "probseg_threshold",
+            ]
         ),
         name="inputnode",
     )
@@ -172,6 +176,14 @@ def init_gm_from_5tt_wf(name: str = "gm_from_5tt"):
                 fslmaths_cortical_subcortical_pathological,
                 [
                     ("out_file", "in_file2"),
+                ],
+            ),
+            (
+                inputnode,
+                add_gm,
+                [
+                    ("gm_probabilistic_segmentation", "probseg"),
+                    ("probseg_threshold", "threshold"),
                 ],
             ),
             (
