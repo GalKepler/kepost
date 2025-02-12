@@ -174,7 +174,6 @@ def init_tensor_estimation_wf(
         ),
         iterfield=["in_file"],
         name="ds_dwi_gradients",
-        run_without_submitting=True,
     )
 
     workflow.connect(

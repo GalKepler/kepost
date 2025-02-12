@@ -162,13 +162,11 @@ def init_single_subject_wf(subject_id: str, name: str):
     summary = pe.Node(
         SubjectSummary(atlases=config.workflow.atlases),
         name="summary",
-        run_without_submitting=True,
     )
 
     about = pe.Node(
         AboutSummary(version=config.environment.version, command=" ".join(sys.argv)),
         name="about",
-        run_without_submitting=True,
     )
 
     ds_report_summary = pe.Node(
@@ -179,7 +177,6 @@ def init_single_subject_wf(subject_id: str, name: str):
             dismiss_entities=["session", "space"],
         ),
         name="ds_report_summary",
-        run_without_submitting=True,
     )
 
     ds_report_about = pe.Node(
@@ -190,7 +187,6 @@ def init_single_subject_wf(subject_id: str, name: str):
             dismiss_entities=["session", "space"],
         ),
         name="ds_report_about",
-        run_without_submitting=True,
     )
     workflow.connect(
         [

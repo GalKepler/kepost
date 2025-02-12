@@ -451,7 +451,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             desc="unfiltered",
         ),
         name="ds_unfiltered_tracts",
-        run_without_submitting=True,
     )
     ds_sifted_tracts = pe.Node(
         DerivativesDataSink(
@@ -460,7 +459,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             desc="SIFT",
         ),
         name="ds_sifted_tracts",
-        run_without_submitting=True,
     )
     ds_sift2_txt = pe.Node(
         DerivativesDataSink(
@@ -469,7 +467,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             desc="SIFT2",
         ),
         name="ds_sift2_txt",
-        run_without_submitting=True,
     )
     ds_wm_fod = pe.Node(
         DerivativesDataSink(
@@ -479,7 +476,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="dwiref",
         ),
         name="ds_wm_fod",
-        run_without_submitting=True,
     )
     ds_gm_fod = pe.Node(
         DerivativesDataSink(
@@ -489,7 +485,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="dwiref",
         ),
         name="ds_gm_fod",
-        run_without_submitting=True,
     )
     ds_csf_fod = pe.Node(
         DerivativesDataSink(
@@ -499,7 +494,6 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="dwiref",
         ),
         name="ds_csf_fod",
-        run_without_submitting=True,
     )
     workflow.connect(
         [

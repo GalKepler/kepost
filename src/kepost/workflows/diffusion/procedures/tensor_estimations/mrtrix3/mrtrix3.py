@@ -54,7 +54,10 @@ def init_mrtrix3_tensor_wf(name: str = "mrtrix3_tensor_wf") -> Workflow:
         name="inputnode",
     )
     outputnode = pe.Node(
-        interface=niu.IdentityInterface(fields=TENSOR_PARAMETERS),
+        interface=niu.IdentityInterface(
+            fields=TENSOR_PARAMETERS
+            + {f"standard_{param}" for param in TENSOR_PARAMETERS}
+        ),
         name="outputnode",
     )
     acq_label = pe.Node(
