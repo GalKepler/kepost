@@ -106,6 +106,7 @@ def init_parcellations_wf(
                 reconstruction_software=software,
                 dismiss_entities="direction",
                 measure=p,
+                copy=True,
             ),
             name=f"ds_parcellation_node_{i}",
         )

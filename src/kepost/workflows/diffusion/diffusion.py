@@ -200,6 +200,7 @@ def init_diffusion_wf(
             suffix="epiref",
             space="MN112NLin2009cAsym",
             dismiss_entities=["ceagent"],
+            copy=True,
         ),
         name="ds_fa_report",
     )

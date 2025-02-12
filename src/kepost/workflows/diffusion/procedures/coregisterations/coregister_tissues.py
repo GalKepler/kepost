@@ -77,6 +77,7 @@ def init_tissue_coregistration_wf(
         interface=DerivativesDataSink(
             **workflow_entities["tissue_dwiref_probseg"],
             label="GM",
+            copy=True,
         ),
         name="ds_gm",
     )
@@ -84,6 +85,7 @@ def init_tissue_coregistration_wf(
         interface=DerivativesDataSink(
             **workflow_entities["tissue_dwiref_probseg"],
             label="WM",
+            copy=True,
         ),
         name="ds_wm",
     )
@@ -91,6 +93,7 @@ def init_tissue_coregistration_wf(
         interface=DerivativesDataSink(
             **workflow_entities["tissue_dwiref_probseg"],
             label="CSF",
+            copy=True,
         ),
         name="ds_csf",
     )

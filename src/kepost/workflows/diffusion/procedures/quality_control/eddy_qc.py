@@ -43,6 +43,7 @@ def init_eddyqc_wf(name: str = "eddyqc_wf"):
     ds_eddyqc = pe.Node(
         DerivativesDataSink(
             **DIFFUSION_WF_OUTPUT_ENTITIES["eddy_qc"],
+            copy=True,
         ),
         name="ds_eddyqc",
     )

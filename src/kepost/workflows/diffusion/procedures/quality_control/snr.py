@@ -160,6 +160,7 @@ def init_snr_wf(name: str = "snr_wf") -> Workflow:
     ds_snr_csv = pe.Node(
         DerivativesDataSink(
             **DIFFUSION_WF_OUTPUT_ENTITIES["snr_csv"],
+            copy=True,
         ),
         name="ds_snr_csv",
     )

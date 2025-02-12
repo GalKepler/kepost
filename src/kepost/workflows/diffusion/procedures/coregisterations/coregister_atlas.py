@@ -133,6 +133,7 @@ def init_coregistration_wf(
     ds_wholebrain = pe.Node(
         interface=DerivativesDataSink(
             **workflow_entities["wholebrain_parcellation"],
+            copy=True,
         ),
         name="ds_wholebrain",
     )
@@ -140,12 +141,14 @@ def init_coregistration_wf(
     ds_gm_cropped = pe.Node(
         interface=DerivativesDataSink(
             **workflow_entities["gm_cropped_parcellation"],
+            copy=True,
         ),
         name="ds_gm_cropped",
     )
     ds_t1w = pe.Node(
         interface=DerivativesDataSink(
             **workflow_entities["t1w_in_dwi_space"],
+            copy=True,
         ),
         name="ds_t1w",
     )

@@ -449,6 +449,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="tracts",
             extension=".tck",
             desc="unfiltered",
+            copy=True,
         ),
         name="ds_unfiltered_tracts",
     )
@@ -457,6 +458,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="tracts",
             extension=".tck",
             desc="SIFT",
+            copy=True,
         ),
         name="ds_sifted_tracts",
     )
@@ -465,6 +467,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             suffix="weights",
             extension=".txt",
             desc="SIFT2",
+            copy=True,
         ),
         name="ds_sift2_txt",
     )
@@ -474,6 +477,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             extension=".nii.gz",
             desc="FOD",
             suffix="dwiref",
+            copy=True,
         ),
         name="ds_wm_fod",
     )
@@ -483,6 +487,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             extension=".nii.gz",
             desc="FOD",
             suffix="dwiref",
+            copy=True,
         ),
         name="ds_gm_fod",
     )
@@ -492,6 +497,7 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             extension=".nii.gz",
             desc="FOD",
             suffix="dwiref",
+            copy=True,
         ),
         name="ds_csf_fod",
     )

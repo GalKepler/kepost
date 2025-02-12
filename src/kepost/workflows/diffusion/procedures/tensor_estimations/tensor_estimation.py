@@ -162,6 +162,7 @@ def init_tensor_estimation_wf(
             dismiss_entities=["direction"],
             datatype="dwi",
             space="dwi",
+            copy=True,
         ),
         name="ds_dwiextract",
     )
@@ -171,6 +172,7 @@ def init_tensor_estimation_wf(
             suffix="dwi",
             datatype="dwi",
             dismiss_entities=["direction"],
+            copy=True,
         ),
         iterfield=["in_file"],
         name="ds_dwi_gradients",

@@ -175,6 +175,7 @@ def init_single_subject_wf(subject_id: str, name: str):
             desc="summary",
             datatype="figures",
             dismiss_entities=["session", "space"],
+            copy=True,
         ),
         name="ds_report_summary",
     )
@@ -185,6 +186,7 @@ def init_single_subject_wf(subject_id: str, name: str):
             desc="about",
             datatype="figures",
             dismiss_entities=["session", "space"],
+            copy=True,
         ),
         name="ds_report_about",
     )

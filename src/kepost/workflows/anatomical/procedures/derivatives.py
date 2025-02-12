@@ -91,11 +91,17 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> Workflow:
     get_atlas_div_node.inputs.entity = "division"
 
     ds_wholebrain = pe.Node(
-        interface=DerivativesDataSink(**wholebrain_entities),
+        interface=DerivativesDataSink(
+            **wholebrain_entities,
+            copy=True,
+        ),
         name="ds_wholebrain",
     )
     ds_gm_cropped = pe.Node(
-        interface=DerivativesDataSink(**gm_cropped_entities),
+        interface=DerivativesDataSink(
+            **gm_cropped_entities,
+            copy=True,
+        ),
         name="ds_gm_cropped",
     )
 
@@ -105,6 +111,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> Workflow:
             suffix="dseg",
             space="T1w",
             dismiss_entities=["ceagent"],
+            copy=True,
         ),
         name="ds_registration_report",
     )
@@ -114,6 +121,7 @@ def init_derivatives_wf(name: str = "derivatives_wf") -> Workflow:
             suffix="dseg",
             space="cropped",
             dismiss_entities=["ceagent"],
+            copy=True,
         ),
         name="ds_n_voxels_report",
     )

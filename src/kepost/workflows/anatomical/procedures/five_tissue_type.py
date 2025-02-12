@@ -100,6 +100,7 @@ def init_five_tissue_type_wf(name: str = "five_tissue_type_workflow") -> Workflo
             **five_tissue_type_entities,
             reconstruction=algo_5tt,
             dismiss_entities=["desc"],
+            copy=True,
         ),
         name="ds_five_tissue_type",
     )
