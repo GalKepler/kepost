@@ -1,7 +1,7 @@
 
 [tool.poetry]
 name = "kepost"
-version = "0.2.19"
+version = "0.2.20"
 description = "Post-processing for dMRI derivatives of the Strauss Neuroplasticity Brain Bank (SNBB)"
 readme = "README.rst"
 authors = ["Gal Kepler <galkepler@gmail.com>"]
@@ -47,7 +47,7 @@ fury = "^0.10.0"
 mne-connectivity = "^0.7.0"
 acres = "^0.1.0"
 nireports = "^23.2.1"
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 coverage = "^7.5.4"  # testing
 mypy = "^1.10.0"  # linting
 pytest = "^8.2.2"  # testing
@@ -55,15 +55,16 @@ ruff = "^0.4.4"  # linting
 black = "^24.4.2"
 flake8 = "^7.0"
 isort = "^5.13.2"
-
-[tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
 
-[project.urls]
+# add project name
+[project]
+name = "kepost"
 
-bugs = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/issues"
-changelog = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/blob/master/changelog.md"
-homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
+[project.urls]
+bugs = "https://github.com/GalKepler/kepost/issues"
+changelog = "https://github.com//GalKepler/kepost/blob/master/changelog.md"
+homepage = "https://github.com//GalKepler/kepost"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
