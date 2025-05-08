@@ -5,7 +5,7 @@ from niworkflows.engine.workflows import LiterateWorkflow as Workflow
 
 from kepost import config
 from kepost.interfaces.bids import DerivativesDataSink
-from kepost.interfaces.mrtrix3 import TckMap, TckSift, TckSift2
+from kepost.interfaces.mrtrix3 import MTNormalise, TckMap, TckSift, TckSift2
 from kepost.workflows.diffusion.descriptions.tractography import (
     DET_TRACTOGRAPHY_DESCRIPTIONS,
     FOD_ALGORITHMS,
@@ -194,6 +194,16 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
         name="dwi2fod",
     )
 
+    # normalize the intensities
+    mtnormalize_node = pe.Node(
+        MTNormalise(
+            out_wm_odf="wm.mif",
+            out_gm_odf="gm.mif",
+            out_csf_odf="csf.mif",
+        ),
+        name="mtnormalize",
+    )
+
     workflow.connect(
         [
             (
@@ -246,11 +256,26 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
             ),
             (
                 dwi2fod_node,
+                mtnormalize_node,
+                [
+                    ("wm_odf", "wm_odf"),
+                    ("gm_odf", "gm_odf"),
+                    ("csf_odf", "csf_odf"),
+                ],
+            ),
+            (
+                mtnormalize_node,
                 outputnode,
                 [
-                    ("wm_odf", "wm_fod"),
-                    ("gm_odf", "gm_fod"),
-                    ("csf_odf", "csf_fod"),
+                    ("out_wm_odf", "wm_fod"),
+                    ("out_gm_odf", "gm_fod"),
+                    ("out_csf_odf", "csf_fod"),
+                ],
+            ),
+            (
+                dwi2fod_node,
+                outputnode,
+                [
                     ("predicted_signal", "predicted_signal"),
                 ],
             ),
@@ -326,18 +351,18 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
-                dwi2fod_node,
+                mtnormalize_node,
                 tcksift_node,
                 [
-                    ("wm_odf", "in_fod"),
+                    ("out_wm_odf", "in_fod"),
                 ],
             ),
             (coreg_5tt_wf, tcksift_node, [("outputnode.5tt_coreg", "act_file")]),
             (
-                dwi2fod_node,
+                mtnormalize_node,
                 tcksift2_node,
                 [
-                    ("wm_odf", "in_fod"),
+                    ("out_wm_odf", "in_fod"),
                 ],
             ),
             (coreg_5tt_wf, tcksift2_node, [("outputnode.5tt_coreg", "act_file")]),
@@ -375,10 +400,10 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
-                dwi2fod_node,
+                mtnormalize_node,
                 tractography,
                 [
-                    ("wm_odf", "in_file"),
+                    ("out_wm_odf", "in_file"),
                 ],
             ),
             (
@@ -421,9 +446,9 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 [("out_file", "in_file")],
             ),
             (
-                dwi2fod_node,
+                mtnormalize_node,
                 tckmap_node,
-                [("wm_odf", "scalar_image")],
+                [("out_wm_odf", "scalar_image")],
             ),
             (
                 tckmap_node,
@@ -606,10 +631,10 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
-                dwi2fod_node,
+                mtnormalize_node,
                 ds_wm_fod,
                 [
-                    ("wm_odf", "in_file"),
+                    ("out_wm_odf", "in_file"),
                 ],
             ),
             (
@@ -621,10 +646,10 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
-                dwi2fod_node,
+                mtnormalize_node,
                 ds_gm_fod,
                 [
-                    ("gm_odf", "in_file"),
+                    ("out_gm_odf", "in_file"),
                 ],
             ),
             (
@@ -636,10 +661,10 @@ def init_tractography_wf(name: str = "tractography_wf") -> Workflow:
                 ],
             ),
             (
-                dwi2fod_node,
+                mtnormalize_node,
                 ds_csf_fod,
                 [
-                    ("csf_odf", "in_file"),
+                    ("out_csf_odf", "in_file"),
                 ],
             ),
         ]
